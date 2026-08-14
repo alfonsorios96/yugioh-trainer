@@ -34,9 +34,18 @@ export interface ChatMessage {
   content: string;
 }
 
+/** Resolved player .ydk: English names, one entry per copy. */
+export interface DeckListSnapshot {
+  name: string;
+  main: string[];
+  extra: string[];
+  side: string[];
+}
+
 export interface PreDuelContext {
   rivalName: string;
   playerDeckName?: string;
+  playerDeck?: DeckListSnapshot;
   lesson: MatchupLesson;
 }
 
@@ -45,6 +54,7 @@ export interface ChatContext {
   lesson: MatchupLesson;
   history: ChatMessage[];
   userMessage: string;
+  playerDeck?: DeckListSnapshot;
 }
 
 export interface PostDuelContext {
@@ -52,6 +62,14 @@ export interface PostDuelContext {
   lesson: MatchupLesson;
   replayText: string;
   resultHint?: string;
+  playerDeck?: DeckListSnapshot;
+}
+
+export interface ReplayReviewContext {
+  rivalName: string;
+  lesson: MatchupLesson;
+  steps: ReplayDecisionInput[];
+  playerDeck?: DeckListSnapshot;
 }
 
 export interface CoachResponse {

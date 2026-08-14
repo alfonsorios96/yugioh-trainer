@@ -1,15 +1,21 @@
+import { compactDeckLines, formatDeckBlock } from "./deck.js";
 import type {
   AcademyItem,
   CoachResponse,
+  DeckListSnapshot,
   MatchupLesson,
   PreDuelContext,
 } from "./types.js";
 
 export function formatPreDuelStatic(ctx: PreDuelContext): CoachResponse {
-  const { lesson, rivalName, playerDeckName } = ctx;
+  const { lesson, rivalName, playerDeckName, playerDeck } = ctx;
   const lines = [
     `## Matchup: vs ${rivalName}`,
-    playerDeckName ? `Your deck: ${playerDeckName}` : null,
+    playerDeck
+      ? formatDeckBlock(playerDeck)
+      : playerDeckName
+        ? `Your deck: ${playerDeckName}`
+        : null,
     "",
     lesson.summary,
     "",
@@ -38,9 +44,16 @@ export function formatPreDuelStatic(ctx: PreDuelContext): CoachResponse {
 export function formatStaticChatReply(
   lesson: MatchupLesson,
   userMessage: string,
+  playerDeck?: DeckListSnapshot,
 ): CoachResponse {
   const lower = userMessage.toLowerCase();
   const chunks: string[] = [];
+  if (playerDeck) {
+    chunks.push(
+      `Your list (${playerDeck.name}): ${compactDeckLines(playerDeck.main)}.`,
+    );
+    chunks.push("");
+  }
 
   if (lower.includes("handtrap") || lower.includes("ash") || lower.includes("imperm")) {
     chunks.push("Handtrap guidance for this matchup:");
@@ -57,7 +70,7 @@ export function formatStaticChatReply(
     chunks.push(...lesson.commonMistakes.map((m) => `- ${m}`));
   }
 
-  if (chunks.length === 0) {
+  if (chunks.length <= (playerDeck ? 2 : 0)) {
     chunks.push(`Static coach (no API key). Matchup notes for ${lesson.title}:`);
     chunks.push(lesson.summary);
     chunks.push("");
@@ -71,10 +84,12 @@ export function formatStaticChatReply(
 export function formatPostDuelStatic(
   lesson: MatchupLesson,
   replayText: string,
+  playerDeck?: DeckListSnapshot,
 ): CoachResponse {
   const hasReplayDetail = replayText.length > 80 && !replayText.includes("Limited text");
   const lines = [
     `## Post-duel review vs ${lesson.rivalId}`,
+    playerDeck ? `Your deck: ${playerDeck.name}` : "",
     "",
     hasReplayDetail
       ? "Replay detected. Without an API key, use these review checkpoints:"

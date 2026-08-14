@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
-import type { ChatMessage } from "@yugioh/coach";
+import { uniqueCardCount, type ChatMessage, type DeckListSnapshot } from "@yugioh/coach";
 import {
   mergeCardNames,
   replaceHashCodes,
@@ -37,6 +37,7 @@ import {
 } from "./lib/cardCatalog";
 import { loadSettings, saveSettings, type AppSettings } from "./lib/settings";
 import { native } from "./lib/native";
+import { snapshotFromYdk } from "./lib/playerDeck";
 import { type WalkthroughView } from "./ReplayWalkthrough";
 import { MatchHistoryPanel } from "./MatchHistory";
 import {
@@ -123,12 +124,41 @@ function App() {
     label: "Checking…",
   });
   const [unknownCardCount, setUnknownCardCount] = useState(0);
+  const [playerDeck, setPlayerDeck] = useState<DeckListSnapshot | undefined>();
 
   const rival = useMemo(
     () => getRival(settings?.selectedRivalId ?? "blue-eyes") ?? rivals[0],
     [settings?.selectedRivalId],
   );
   const lesson = useMemo(() => getLessonForRival(rival), [rival]);
+  const selectedDeck = useMemo(
+    () => decks.find((d) => d.path === settings?.selectedDeckPath) ?? null,
+    [decks, settings?.selectedDeckPath],
+  );
+
+  useEffect(() => {
+    if (!selectedDeck || !settings?.edoProPath) {
+      setPlayerDeck(undefined);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const codes = [
+          ...selectedDeck.main,
+          ...selectedDeck.extra,
+          ...selectedDeck.side,
+        ];
+        const resolved = await resolveCardCatalog(settings.edoProPath, codes);
+        if (!cancelled) setPlayerDeck(snapshotFromYdk(selectedDeck, resolved.names));
+      } catch {
+        if (!cancelled) setPlayerDeck(snapshotFromYdk(selectedDeck, {}));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDeck, settings?.edoProPath]);
 
   const refreshInstall = useCallback(async (path: string) => {
     if (!path) {
@@ -334,7 +364,7 @@ function App() {
         settings,
         rival.name,
         lesson,
-        decks.find((d) => d.path === settings.selectedDeckPath)?.name,
+        playerDeck,
       );
       setBriefing(advice.content);
     } catch (e) {
@@ -352,7 +382,7 @@ function App() {
         settings,
         rival.name,
         lesson,
-        decks.find((d) => d.path === settings.selectedDeckPath)?.name,
+        playerDeck,
       );
       setBriefing(advice.content);
       setStatus(`Briefing source: ${advice.source}${advice.usedModel ? ` (${advice.usedModel})` : ""}`);
@@ -377,6 +407,7 @@ function App() {
         lesson,
         history,
         userMsg.content,
+        playerDeck,
       );
       setChat([...history, { role: "assistant", content: reply.content }]);
     } catch (e) {
@@ -422,6 +453,7 @@ function App() {
           actor: s.actor,
           decision: s.decision,
         })),
+        playerDeck,
       );
       const saved = buildSavedReview({
         file: loaded.file,
@@ -499,6 +531,7 @@ function App() {
           actor: s.actor,
           decision: s.decision,
         })),
+        playerDeck,
       );
       const next: SavedMatchReview = {
         ...review,
@@ -797,6 +830,17 @@ function App() {
                     ))}
                   </select>
                 </div>
+                {playerDeck ? (
+                  <p className="field-hint">
+                    Coach sees {playerDeck.main.length}+{playerDeck.extra.length} cards
+                    {" · "}
+                    {uniqueCardCount(playerDeck)} unique names from {playerDeck.name}.
+                  </p>
+                ) : (
+                  <p className="field-hint">
+                    Select a .ydk so briefing, chat, and replay review use your actual list.
+                  </p>
+                )}
                 <div className="row">
                   <button
                     className="btn btn-secondary"
@@ -859,7 +903,8 @@ function App() {
           <section className="panel">
             <h2>Coach</h2>
             <p className="lead">
-              Matchup: <strong>{rival.name}</strong>.{" "}
+              Matchup: <strong>{rival.name}</strong>
+              {playerDeck ? ` · your list: ${playerDeck.name}` : ""}.{" "}
               {settings.apiKey
                 ? "LLM coaching enabled."
                 : "No API key — using static lessons (add a key in Settings)."}

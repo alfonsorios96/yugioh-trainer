@@ -16,10 +16,10 @@ import type {
   CoachConfig,
   CoachResponse,
   CoachVerdict,
-  MatchupLesson,
   PostDuelContext,
   PreDuelContext,
   ReplayDecisionInput,
+  ReplayReviewContext,
   StepCoaching,
 } from "./types.js";
 
@@ -29,14 +29,18 @@ export type {
   AcademyItem,
   CoachConfig,
   ChatMessage,
+  DeckListSnapshot,
   PreDuelContext,
   ChatContext,
   PostDuelContext,
+  ReplayReviewContext,
   CoachResponse,
   CoachVerdict,
   ReplayDecisionInput,
   StepCoaching,
 } from "./types.js";
+
+export { formatDeckBlock, compactDeckLines, uniqueCardCount } from "./deck.js";
 
 export {
   formatPreDuelStatic,
@@ -80,12 +84,12 @@ export async function askCoach(
   fetchImpl?: typeof fetch,
 ): Promise<CoachResponse> {
   if (!hasLlmConfig(config)) {
-    return formatStaticChatReply(ctx.lesson, ctx.userMessage);
+    return formatStaticChatReply(ctx.lesson, ctx.userMessage, ctx.playerDeck);
   }
   try {
     return await completeChat(config, buildChatMessages(ctx), fetchImpl);
   } catch (e) {
-    const fallback = formatStaticChatReply(ctx.lesson, ctx.userMessage);
+    const fallback = formatStaticChatReply(ctx.lesson, ctx.userMessage, ctx.playerDeck);
     const reason = e instanceof Error ? e.message : String(e);
     return {
       ...fallback,
@@ -100,12 +104,12 @@ export async function getPostDuelReview(
   fetchImpl?: typeof fetch,
 ): Promise<CoachResponse> {
   if (!hasLlmConfig(config)) {
-    return formatPostDuelStatic(ctx.lesson, ctx.replayText);
+    return formatPostDuelStatic(ctx.lesson, ctx.replayText, ctx.playerDeck);
   }
   try {
     return await completeChat(config, buildPostDuelMessages(ctx), fetchImpl);
   } catch (e) {
-    const fallback = formatPostDuelStatic(ctx.lesson, ctx.replayText);
+    const fallback = formatPostDuelStatic(ctx.lesson, ctx.replayText, ctx.playerDeck);
     const reason = e instanceof Error ? e.message : String(e);
     return {
       ...fallback,
@@ -152,13 +156,11 @@ export type ReplayStepReview = {
 };
 
 export async function reviewReplaySteps(
-  rivalName: string,
-  lesson: MatchupLesson,
-  steps: ReplayDecisionInput[],
+  ctx: ReplayReviewContext,
   config: CoachConfig,
   fetchImpl?: typeof fetch,
 ): Promise<ReplayStepReview> {
-  const fallback = steps.map(staticStepNote);
+  const fallback = ctx.steps.map(staticStepNote);
   if (!hasLlmConfig(config)) {
     return {
       source: "static",
@@ -168,13 +170,13 @@ export async function reviewReplaySteps(
     };
   }
   try {
-    const decisions = steps.filter((s) => s.decision).slice(0, 36);
+    const decisions = ctx.steps.filter((s) => s.decision).slice(0, 36);
     if (decisions.length === 0) {
       return { source: "llm", coaching: fallback, usedModel: config.model };
     }
     const result = await completeChat(
       config,
-      buildStepReviewMessages(rivalName, lesson, decisions),
+      buildStepReviewMessages({ ...ctx, steps: decisions }),
       fetchImpl,
       { json: true },
     );
@@ -191,7 +193,7 @@ export async function reviewReplaySteps(
     for (const row of parsed.steps ?? []) {
       const id = Number(row.id);
       if (!Number.isFinite(id)) continue;
-      const fallbackNote = steps.find((s) => s.id === id);
+      const fallbackNote = ctx.steps.find((s) => s.id === id);
       byId.set(id, {
         id,
         verdict: parseVerdict(row.verdict),
@@ -202,7 +204,7 @@ export async function reviewReplaySteps(
     }
     return {
       source: "llm",
-      coaching: steps.map((s) => byId.get(s.id) ?? staticStepNote(s)),
+      coaching: ctx.steps.map((s) => byId.get(s.id) ?? staticStepNote(s)),
       usedModel: result.usedModel,
     };
   } catch (e) {

@@ -6,6 +6,7 @@ import {
   type ChatMessage,
   type CoachConfig,
   type CoachResponse,
+  type DeckListSnapshot,
   type MatchupLesson,
   type ReplayDecisionInput,
   type ReplayStepReview,
@@ -36,10 +37,10 @@ export async function preDuelAdvice(
   settings: AppSettings,
   rivalName: string,
   lesson: MatchupLesson,
-  playerDeckName?: string,
+  playerDeck?: DeckListSnapshot,
 ): Promise<CoachResponse> {
   return getPreDuelAdvice(
-    { rivalName, lesson, playerDeckName },
+    { rivalName, lesson, playerDeck, playerDeckName: playerDeck?.name },
     configFromSettings(settings),
     llmFetch,
   );
@@ -51,9 +52,10 @@ export async function chatWithCoach(
   lesson: MatchupLesson,
   history: ChatMessage[],
   userMessage: string,
+  playerDeck?: DeckListSnapshot,
 ): Promise<CoachResponse> {
   return askCoach(
-    { rivalName, lesson, history, userMessage },
+    { rivalName, lesson, history, userMessage, playerDeck },
     configFromSettings(settings),
     llmFetch,
   );
@@ -112,9 +114,10 @@ export async function postDuelReview(
   lesson: MatchupLesson,
   replayText: string,
   resultHint?: string,
+  playerDeck?: DeckListSnapshot,
 ): Promise<CoachResponse> {
   return getPostDuelReview(
-    { rivalName, lesson, replayText, resultHint },
+    { rivalName, lesson, replayText, resultHint, playerDeck },
     configFromSettings(settings),
     llmFetch,
   );
@@ -125,11 +128,10 @@ export async function coachReplaySteps(
   rivalName: string,
   lesson: MatchupLesson,
   steps: ReplayDecisionInput[],
+  playerDeck?: DeckListSnapshot,
 ): Promise<ReplayStepReview> {
   return reviewReplaySteps(
-    rivalName,
-    lesson,
-    steps,
+    { rivalName, lesson, steps, playerDeck },
     configFromSettings(settings),
     llmFetch,
   );

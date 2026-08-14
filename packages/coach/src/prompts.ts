@@ -1,8 +1,10 @@
+import { formatDeckBlock } from "./deck.js";
 import type {
   ChatContext,
   ChatMessage,
   PostDuelContext,
   PreDuelContext,
+  ReplayReviewContext,
 } from "./types.js";
 
 const SYSTEM = `Eres un coach experto de Yu-Gi-Oh! TCG para una app de entrenamiento sobre Project Ignis EDOPro.
@@ -30,11 +32,16 @@ export function buildPreDuelMessages(ctx: PreDuelContext): ChatMessage[] {
       role: "user",
       content: [
         `Prepárame para un duelo de entrenamiento contra ${ctx.rivalName}.`,
-        ctx.playerDeckName ? `Juego: ${ctx.playerDeckName}.` : "Mi deck no está especificado.",
+        formatDeckBlock(ctx.playerDeck),
+        ctx.playerDeck
+          ? ""
+          : ctx.playerDeckName
+            ? `Juego: ${ctx.playerDeckName} (lista de cartas no resuelta).`
+            : "Mi deck no está especificado.",
         "",
         lessonBlock(ctx.lesson),
         "",
-        "Dame un briefing pre-duelo en español (nombres de cartas en inglés): plan, cartas a respetar, cuándo gastar handtraps, y 3 objetivos concretos.",
+        "Usa MI lista de cartas (no un arquetipo genérico). Dame un briefing pre-duelo en español (nombres de cartas en inglés): plan con mis starters/extenders, cartas rivales a respetar, cuándo gastar MIS handtraps, y 3 objetivos concretos.",
       ].join("\n"),
     },
   ];
@@ -45,7 +52,7 @@ export function buildChatMessages(ctx: ChatContext): ChatMessage[] {
     { role: "system", content: SYSTEM },
     {
       role: "system",
-      content: `Current rival: ${ctx.rivalName}\n${lessonBlock(ctx.lesson)}`,
+      content: `Current rival: ${ctx.rivalName}\n${lessonBlock(ctx.lesson)}\n\n${formatDeckBlock(ctx.playerDeck)}`,
     },
     ...ctx.history.filter((m) => m.role !== "system"),
     { role: "user", content: ctx.userMessage },
@@ -61,6 +68,7 @@ export function buildPostDuelMessages(ctx: PostDuelContext): ChatMessage[] {
       content: [
         `Revisa mi duelo de entrenamiento contra ${ctx.rivalName}.`,
         ctx.resultHint ? `Resultado: ${ctx.resultHint}` : "",
+        formatDeckBlock(ctx.playerDeck),
         "",
         lessonBlock(ctx.lesson),
         "",
@@ -75,12 +83,8 @@ export function buildPostDuelMessages(ctx: PostDuelContext): ChatMessage[] {
   ];
 }
 
-export function buildStepReviewMessages(
-  rivalName: string,
-  lesson: PreDuelContext["lesson"],
-  steps: import("./types.js").ReplayDecisionInput[],
-): ChatMessage[] {
-  const body = steps
+export function buildStepReviewMessages(ctx: ReplayReviewContext): ChatMessage[] {
+  const body = ctx.steps
     .map(
       (s) =>
         `#${s.id} [T${s.turn} ${s.phase}] ${s.actor} ${s.kind}: ${s.chosen}`,
@@ -91,9 +95,11 @@ export function buildStepReviewMessages(
     {
       role: "user",
       content: [
-        `Evalúa cada jugada de un duelo de entrenamiento contra ${rivalName}.`,
-        lessonBlock(lesson),
+        `Evalúa cada jugada de un duelo de entrenamiento contra ${ctx.rivalName}.`,
+        formatDeckBlock(ctx.playerDeck),
+        lessonBlock(ctx.lesson),
         "",
+        "Juzga las líneas con MI deck (starters, extenders y handtraps de la lista), no un arquetipo genérico.",
         "Para CADA jugada, decide:",
         "- ok: correcta o razonable",
         "- better: no es un error grave, pero había una opción mejor",
