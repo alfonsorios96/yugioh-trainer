@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import type { StepCoaching } from "@yugioh/coach";
+import { useEffect, useMemo, useState } from "react";
+import type { GoalReview, StepCoaching } from "@yugioh/coach";
 import {
   type BoardSnapshot,
   type CardRef,
@@ -7,6 +7,7 @@ import {
   type ReplayWalkthrough,
   type UnknownCardMeta,
 } from "@yugioh/edopro-bridge";
+import { academy } from "./lib/content";
 import { CardThumb } from "./CardInspector";
 
 export interface WalkthroughView {
@@ -21,6 +22,9 @@ export interface WalkthroughView {
   usedModel?: string;
   fromCache?: boolean;
   savedAt?: number;
+  goalReviews?: GoalReview[];
+  academyId?: string;
+  drillPrompt?: string;
 }
 
 function CardRow({
@@ -145,16 +149,49 @@ const VERDICT_LABEL: Record<StepCoaching["verdict"], string> = {
   bad: "Mal",
 };
 
+type StepFilter = "all" | "mine" | "mistakes";
+
 export function ReplayWalkthroughView({ view }: { view: WalkthroughView }) {
-  const decisionIdx = useMemo(
-    () => view.walk.steps.map((s, i) => (s.decision || s.kind === "draw" || s.kind === "win" ? i : -1)).filter((i) => i >= 0),
-    [view.walk.steps],
-  );
+  const [filter, setFilter] = useState<StepFilter>("all");
   const [cursor, setCursor] = useState(0);
-  const stepIndex = decisionIdx[cursor] ?? 0;
+
+  const decisionIdx = useMemo(() => {
+    return view.walk.steps
+      .map((s, i) => {
+        if (filter === "mine") return s.decision && s.actor === "you" ? i : -1;
+        if (filter === "mistakes") {
+          const c = view.coaching.find((x) => x.id === s.id);
+          return s.decision && c && (c.verdict === "bad" || c.verdict === "better")
+            ? i
+            : -1;
+        }
+        return s.decision || s.kind === "draw" || s.kind === "win" ? i : -1;
+      })
+      .filter((i) => i >= 0);
+  }, [view.walk.steps, view.coaching, filter]);
+
+  const firstMistake = useMemo(() => {
+    const idx = view.walk.steps.findIndex((s) => {
+      if (!s.decision) return false;
+      const c = view.coaching.find((x) => x.id === s.id);
+      return c?.verdict === "bad" || c?.verdict === "better";
+    });
+    if (idx < 0) return 0;
+    const inFilter = decisionIdx.indexOf(idx);
+    return inFilter >= 0 ? inFilter : 0;
+  }, [view.walk.steps, view.coaching, decisionIdx]);
+
+  useEffect(() => {
+    setCursor(firstMistake);
+  }, [firstMistake, filter, view.savedAt, view.walk.youName]);
+
+  const stepIndex = decisionIdx[cursor] ?? decisionIdx[0] ?? 0;
   const step: ReplayStep | undefined = view.walk.steps[stepIndex];
   const coaching = step
     ? view.coaching.find((c) => c.id === step.id)
+    : undefined;
+  const habit = view.academyId
+    ? academy.find((a) => a.id === view.academyId)
     : undefined;
 
   if (!step) {
@@ -183,6 +220,55 @@ export function ReplayWalkthroughView({ view }: { view: WalkthroughView }) {
           La IA no se usó: {view.error}
         </p>
       )}
+      {view.drillPrompt && (
+        <p className="drill-prompt">{view.drillPrompt}</p>
+      )}
+      {view.goalReviews && view.goalReviews.length > 0 && (
+        <ul className="goal-review-list">
+          {view.goalReviews.map((g) => (
+            <li key={g.goalId} className={g.met ? "met" : "missed"}>
+              <span className={`pill ${g.met ? "ok" : "warn"}`}>
+                {g.met ? "cumplido" : "pendiente"}
+              </span>
+              {g.note}
+            </li>
+          ))}
+        </ul>
+      )}
+      {habit && (
+        <div className="block" style={{ padding: "0.7rem 0.85rem" }}>
+          <strong>Próximo hábito: {habit.title}</strong>
+          <p className="field-hint" style={{ margin: "0.25rem 0 0" }}>
+            {habit.body}
+          </p>
+        </div>
+      )}
+
+      <div className="row">
+        {(
+          [
+            ["all", "Todos"],
+            ["mine", "Mis jugadas"],
+            ["mistakes", "Errores"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={`btn ${filter === id ? "btn-primary" : "btn-ghost"}`}
+            onClick={() => setFilter(id)}
+          >
+            {label}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => setCursor(firstMistake)}
+        >
+          Ir al primer error
+        </button>
+      </div>
 
       <MiniBoard
         board={step.board}
@@ -206,6 +292,12 @@ export function ReplayWalkthroughView({ view }: { view: WalkthroughView }) {
           <p>{coaching.explanation}</p>
         </div>
       )}
+      {coaching?.betterLine && verdict && verdict !== "ok" && (
+        <div className="redo-callout">
+          <div className="play-callout-kicker">Rehaz esta decisión</div>
+          <p>{coaching.betterLine}</p>
+        </div>
+      )}
 
       <div className="walkthrough-nav">
         <button
@@ -216,7 +308,7 @@ export function ReplayWalkthroughView({ view }: { view: WalkthroughView }) {
           Anterior
         </button>
         <span>
-          {cursor + 1} / {decisionIdx.length}
+          {Math.min(cursor + 1, decisionIdx.length)} / {decisionIdx.length}
         </span>
         <button
           className="btn btn-primary"

@@ -1,4 +1,4 @@
-import type { StepCoaching } from "@yugioh/coach";
+import type { GoalReview, StepCoaching } from "@yugioh/coach";
 import {
   mergeCardNames,
   replaceHashCodes,
@@ -26,6 +26,9 @@ export interface MatchReviewSummary {
   source: "static" | "llm";
   usedModel?: string;
   error?: string;
+  goalReviews?: GoalReview[];
+  academyId?: string;
+  drillPrompt?: string;
 }
 
 export interface SavedMatchReview extends MatchReviewSummary {
@@ -197,6 +200,9 @@ export function reviewToView(
     usedModel: review.usedModel,
     fromCache: true,
     savedAt: review.savedAt,
+    goalReviews: review.goalReviews,
+    academyId: review.academyId,
+    drillPrompt: review.drillPrompt,
   };
 }
 
@@ -212,6 +218,9 @@ export function buildSavedReview(input: {
   usedModel?: string;
   rivalName: string;
   rivalId: string;
+  goalReviews?: GoalReview[];
+  academyId?: string;
+  drillPrompt?: string;
 }): SavedMatchReview {
   return {
     id: input.id,
@@ -233,5 +242,8 @@ export function buildSavedReview(input: {
     unknownMeta: input.unknownMeta,
     walk: input.walk,
     coaching: input.coaching,
+    goalReviews: input.goalReviews,
+    academyId: input.academyId,
+    drillPrompt: input.drillPrompt,
   };
 }

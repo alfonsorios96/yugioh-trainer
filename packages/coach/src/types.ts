@@ -106,6 +106,7 @@ export interface ReplayReviewContext {
   steps: ReplayDecisionInput[];
   playerDeck?: DeckListSnapshot;
   sessionGoals?: SessionGoal[];
+  drillKind?: DrillKind;
 }
 
 export interface CoachResponse {
@@ -114,7 +115,15 @@ export interface CoachResponse {
   usedModel?: string;
 }
 
+export type DrillKind = "open" | "going-first" | "going-second" | "handtrap";
+
 export type CoachVerdict = "ok" | "better" | "bad";
+
+export interface GoalReview {
+  goalId: string;
+  met: boolean;
+  note: string;
+}
 
 export interface ReplayDecisionInput {
   id: number;
@@ -130,4 +139,5 @@ export interface StepCoaching {
   id: number;
   verdict: CoachVerdict;
   explanation: string;
+  betterLine?: string;
 }

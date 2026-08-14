@@ -10,6 +10,7 @@ import {
   type CoachConfig,
   type CoachResponse,
   type DeckListSnapshot,
+  type DrillKind,
   type MatchupLesson,
   type ReplayDecisionInput,
   type ReplayStepReview,
@@ -144,9 +145,10 @@ export async function coachReplaySteps(
   steps: ReplayDecisionInput[],
   playerDeck?: DeckListSnapshot,
   sessionGoals?: SessionGoal[],
+  drillKind?: DrillKind,
 ): Promise<ReplayStepReview> {
   return reviewReplaySteps(
-    { rivalName, lesson, steps, playerDeck, sessionGoals },
+    { rivalName, lesson, steps, playerDeck, sessionGoals, drillKind },
     configFromSettings(settings),
     llmFetch,
   );

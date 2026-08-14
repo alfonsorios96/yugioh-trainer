@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { uniqueCardCount, type ChatMessage, type DeckListSnapshot, type MatchupLesson, type SessionPlan } from "@yugioh/coach";
+import { DRILL_OPTIONS, drillGoals, drillPrompt, uniqueCardCount, type ChatMessage, type DeckListSnapshot, type DrillKind, type MatchupLesson, type SessionPlan } from "@yugioh/coach";
 import {
   mergeCardNames,
   replaceHashCodes,
@@ -135,6 +135,7 @@ function App() {
   const [rivalTab, setRivalTab] = useState<"curriculum" | "lab">("curriculum");
   const [labQuery, setLabQuery] = useState("");
   const [labLesson, setLabLesson] = useState<MatchupLesson | null>(null);
+  const [drillKind, setDrillKind] = useState<DrillKind>("open");
 
   const rival = useMemo(
     () => resolveRival(settings?.selectedRivalId ?? "blue-eyes", windBotAnalysis),
@@ -155,6 +156,10 @@ function App() {
         r.windbotDeck.toLowerCase().includes(q),
     );
   }, [windBotAnalysis, labQuery]);
+  const activeGoals = useMemo(() => {
+    const overlay = drillKind === "open" ? null : drillGoals(drillKind, rival.name);
+    return overlay ?? sessionPlan?.goals;
+  }, [drillKind, rival.name, sessionPlan]);
   const selectedDeck = useMemo(
     () => decks.find((d) => d.path === settings?.selectedDeckPath) ?? null,
     [decks, settings?.selectedDeckPath],
@@ -456,7 +461,7 @@ function App() {
         rival.name,
         lesson,
         playerDeck,
-        sessionPlan?.goals,
+        activeGoals,
       );
       setBriefing(advice.content);
     } catch (e) {
@@ -475,7 +480,7 @@ function App() {
         rival.name,
         lesson,
         playerDeck,
-        sessionPlan?.goals,
+        activeGoals,
       );
       setBriefing(advice.content);
       setStatus(`Briefing source: ${advice.source}${advice.usedModel ? ` (${advice.usedModel})` : ""}`);
@@ -501,7 +506,7 @@ function App() {
         history,
         userMsg.content,
         playerDeck,
-        sessionPlan?.goals,
+        activeGoals,
       );
       setChat([...history, { role: "assistant", content: reply.content }]);
     } catch (e) {
@@ -548,7 +553,8 @@ function App() {
           decision: s.decision,
         })),
         playerDeck,
-        sessionPlan?.goals,
+        activeGoals,
+        drillKind,
       );
       const saved = buildSavedReview({
         file: loaded.file,
@@ -562,6 +568,9 @@ function App() {
         usedModel: coached.usedModel,
         rivalName: rival.name,
         rivalId: rival.id,
+        goalReviews: coached.goalReviews,
+        academyId: coached.academyId,
+        drillPrompt: coached.drillPrompt ?? drillPrompt(drillKind),
       });
       await saveMatchReview(saved);
       setHistoryTick((n) => n + 1);
@@ -578,6 +587,9 @@ function App() {
         usedModel: coached.usedModel,
         fromCache: false,
         savedAt: saved.savedAt,
+        goalReviews: coached.goalReviews,
+        academyId: coached.academyId,
+        drillPrompt: coached.drillPrompt ?? drillPrompt(drillKind),
       };
       setStatus(
         coached.error
@@ -630,7 +642,8 @@ function App() {
           decision: s.decision,
         })),
         playerDeck,
-        sessionPlan?.goals,
+        activeGoals,
+        drillKind,
       );
       const next: SavedMatchReview = {
         ...review,
@@ -642,6 +655,9 @@ function App() {
         error: coached.error,
         usedModel: coached.usedModel,
         savedAt: Date.now(),
+        goalReviews: coached.goalReviews,
+        academyId: coached.academyId,
+        drillPrompt: coached.drillPrompt ?? drillPrompt(drillKind),
       };
       await saveMatchReview(next);
       setHistoryTick((n) => n + 1);
@@ -1073,8 +1089,29 @@ function App() {
               )}
             </div>
 
+            <div className="block" style={{ marginBottom: "1.25rem" }}>
+              <h3>3. Drill</h3>
+              <p className="field-hint" style={{ marginBottom: "0.75rem" }}>
+                Un duelo completo es ruidoso. Elige un foco: el briefing, el
+                coach y el replay evalúan ese ejercicio.
+              </p>
+              <div className="grid-2 drill-grid">
+                {DRILL_OPTIONS.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    className={`rival-card ${drillKind === d.id ? "selected" : ""}`}
+                    onClick={() => setDrillKind(d.id)}
+                  >
+                    <strong>{d.label}</strong>
+                    <span>{d.hint}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="block">
-              <h3>3. Launch</h3>
+              <h3>4. Launch</h3>
               <p className="lead" style={{ marginBottom: "1rem" }}>
                 Rival executor: <strong>{rival.windbotDeck}</strong>. Default host{" "}
                 {settings.windBotHost}:{settings.windBotPort}.

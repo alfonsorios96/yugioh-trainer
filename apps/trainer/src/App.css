@@ -1001,6 +1001,51 @@ textarea {
   color: var(--danger);
 }
 
+.redo-callout {
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed rgba(212, 168, 75, 0.55);
+  background: rgba(212, 168, 75, 0.08);
+}
+
+.redo-callout p {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.drill-prompt {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(61, 155, 122, 0.35);
+  background: rgba(61, 155, 122, 0.1);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.goal-review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.goal-review-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: start;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.drill-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
 .walkthrough-nav {
   display: flex;
   align-items: center;

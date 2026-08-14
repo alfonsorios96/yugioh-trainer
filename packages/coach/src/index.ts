@@ -26,6 +26,7 @@ import type {
   CoachVerdict,
   DeckListSnapshot,
   DeckPlanContext,
+  GoalReview,
   MatchupLesson,
   PostDuelContext,
   PreDuelContext,
@@ -53,10 +54,13 @@ export type {
   CoachResponse,
   CoachVerdict,
   ReplayDecisionInput,
+  DrillKind,
+  GoalReview,
   StepCoaching,
 } from "./types.js";
 
 export { formatDeckBlock, compactDeckLines, uniqueCardCount } from "./deck.js";
+export { DRILL_OPTIONS, drillGoals, drillPrompt } from "./drills.js";
 export {
   academyForPlan,
   formatGoalsBlock,
@@ -216,6 +220,7 @@ function staticStepNote(step: ReplayDecisionInput): StepCoaching {
       verdict: "better",
       explanation:
         "Revisa si el ataque era necesario. Si el rival tenía un board más grande o un negate, quizás era mejor pasar y desarrollar.",
+      betterLine: "Considera pasar o desarrollar en vez de atacar a un board mayor.",
     };
   }
   return {
@@ -231,7 +236,33 @@ export type ReplayStepReview = {
   coaching: StepCoaching[];
   error?: string;
   usedModel?: string;
+  goalReviews?: GoalReview[];
+  academyId?: string;
+  drillPrompt?: string;
 };
+
+function parseGoalReviews(
+  raw: unknown,
+  sessionGoals?: ReplayReviewContext["sessionGoals"],
+): GoalReview[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    if (!sessionGoals?.length) return undefined;
+    return sessionGoals.map((g) => ({
+      goalId: g.id,
+      met: false,
+      note: "Sin evaluación IA de este objetivo.",
+    }));
+  }
+  return raw.map((row, i) => {
+    const item = row && typeof row === "object" ? (row as Record<string, unknown>) : {};
+    const fallback = sessionGoals?.[i];
+    return {
+      goalId: String(item.id ?? item.goalId ?? fallback?.id ?? `g${i + 1}`),
+      met: Boolean(item.met),
+      note: String(item.note ?? "").trim() || (fallback?.text ?? ""),
+    };
+  });
+}
 
 export async function reviewReplaySteps(
   ctx: ReplayReviewContext,
@@ -239,10 +270,12 @@ export async function reviewReplaySteps(
   fetchImpl?: typeof fetch,
 ): Promise<ReplayStepReview> {
   const fallback = ctx.steps.map(staticStepNote);
+  const staticGoals = parseGoalReviews(undefined, ctx.sessionGoals);
   if (!hasLlmConfig(config)) {
     return {
       source: "static",
       coaching: fallback,
+      goalReviews: staticGoals,
       error:
         "No API key in Settings. Save the LLM fields (or keep a key in .env.local) and analyze again.",
     };
@@ -250,7 +283,12 @@ export async function reviewReplaySteps(
   try {
     const decisions = ctx.steps.filter((s) => s.decision).slice(0, 36);
     if (decisions.length === 0) {
-      return { source: "llm", coaching: fallback, usedModel: config.model };
+      return {
+        source: "llm",
+        coaching: fallback,
+        goalReviews: staticGoals,
+        usedModel: config.model,
+      };
     }
     const result = await completeChat(
       config,
@@ -266,27 +304,42 @@ export async function reviewReplaySteps(
       if (start >= 0 && end > start) return fenced.slice(start, end + 1);
       return fenced;
     })();
-    const parsed = JSON.parse(jsonText) as { steps?: Array<Record<string, unknown>> };
+    const parsed = JSON.parse(jsonText) as {
+      steps?: Array<Record<string, unknown>>;
+      goals?: unknown;
+      academyId?: unknown;
+      drillPrompt?: unknown;
+    };
     const byId = new Map<number, StepCoaching>();
     for (const row of parsed.steps ?? []) {
       const id = Number(row.id);
       if (!Number.isFinite(id)) continue;
       const fallbackNote = ctx.steps.find((s) => s.id === id);
+      const verdict = parseVerdict(row.verdict);
+      const betterLine = String(row.betterLine ?? "").trim();
       byId.set(id, {
         id,
-        verdict: parseVerdict(row.verdict),
+        verdict,
         explanation:
           String(row.explanation ?? "").trim() ||
           (fallbackNote ? staticStepNote(fallbackNote).explanation : ""),
+        betterLine:
+          betterLine ||
+          (verdict === "ok" ? undefined : fallbackNote?.kind === "attack"
+            ? staticStepNote(fallbackNote).betterLine
+            : undefined),
       });
     }
     return {
       source: "llm",
       coaching: ctx.steps.map((s) => byId.get(s.id) ?? staticStepNote(s)),
       usedModel: result.usedModel,
+      goalReviews: parseGoalReviews(parsed.goals, ctx.sessionGoals),
+      academyId: String(parsed.academyId ?? "").trim() || undefined,
+      drillPrompt: String(parsed.drillPrompt ?? "").trim() || undefined,
     };
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
-    return { source: "static", coaching: fallback, error: reason };
+    return { source: "static", coaching: fallback, goalReviews: staticGoals, error: reason };
   }
 }

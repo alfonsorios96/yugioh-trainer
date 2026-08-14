@@ -141,6 +141,7 @@ export function MatchHistoryPanel({
       <p className="lead">
         Replays from your Project Ignis folder. Analyze runs the coach once and
         saves it; Review opens that saved walkthrough without calling the API.
+        Jump to the first mistake, filter your plays, and redo the decision.
       </p>
 
       {replayDir && (
