@@ -161,9 +161,9 @@ namespace WindBot.Game.AI.Decks
                 ex.Brain.SelectCard(
                     ToonCardId.FunnyDarkRabbit,
                     ToonCardId.ComicCat,
+                    ToonCardId.FacelessMage,
                     ToonCardId.ToonBookmark,
                     ToonCardId.EvilBox,
-                    ToonCardId.FacelessMage,
                     ToonCardId.ToonTableOfContents,
                     ToonCardId.ToonTerror,
                     ToonCardId.ToonMermaid,

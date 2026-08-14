@@ -1,37 +1,379 @@
 {
   "deckId": "toon-2026",
   "nodes": [
-    { "id": "bookmark", "label": "Toon Bookmark search", "cardIds": [91500017] },
-    { "id": "table", "label": "Toon Table of Contents", "cardIds": [89997728] },
-    { "id": "terraforming", "label": "Terraforming", "cardIds": [73628505] },
-    { "id": "perfect-world", "label": "Perfect World on field", "cardIds": [7293697, 15259703] },
-    { "id": "rabbit", "label": "Funny Dark Rabbit extra NS", "cardIds": [45536531] },
-    { "id": "comic-cat", "label": "Comic Cat tribute", "cardIds": [72921536] },
-    { "id": "blue-eyes-toon", "label": "Blue-Eyes Toon Dragon", "cardIds": [53183600] },
-    { "id": "faceless", "label": "Faceless Mage", "cardIds": [34314989] },
-    { "id": "evil-box", "label": "Evil Box search Terror", "cardIds": [8915275] },
-    { "id": "terror-set", "label": "Toon Terror set", "cardIds": [53094821] },
-    { "id": "ultimate", "label": "Blue-Eyes Toon Ultimate Dragon", "cardIds": [71808988] },
-    { "id": "mind-scan", "label": "Mind Scan", "cardIds": [34298391] },
-    { "id": "ash-window", "label": "Ventana Ash / negate de search" }
+    {
+      "id": "start-comic-cat",
+      "label": "Comic Cat en mano",
+      "cards": [
+        "Comic Cat"
+      ],
+      "state": "Comic Cat disponible; no hay Perfect World, Funny Dark Rabbit ni otro extender"
+    },
+    {
+      "id": "search-starter",
+      "label": "Buscar el acceso a Perfect World",
+      "cards": [
+        "Terraforming",
+        "Toon Bookmark",
+        "Toon Table of Contents"
+      ],
+      "state": "Se activa Terraforming, Toon Bookmark o Toon Table of Contents para acceder a Perfect World"
+    },
+    {
+      "id": "activate-perfect-world",
+      "label": "Activar Perfect World",
+      "cards": [
+        "Perfect World"
+      ],
+      "state": "Perfect World se activa desde la mano y queda en el campo"
+    },
+    {
+      "id": "perfect-world-search-rabbit",
+      "label": "Perfect World busca Funny Dark Rabbit",
+      "cards": [
+        "Perfect World",
+        "Funny Dark Rabbit"
+      ],
+      "state": "Con Perfect World activo, su efecto añade Funny Dark Rabbit"
+    },
+    {
+      "id": "rabbit-extra-normal-summon",
+      "label": "Invocar Funny Dark Rabbit adicionalmente",
+      "cards": [
+        "Funny Dark Rabbit"
+      ],
+      "state": "Funny Dark Rabbit se Invoca de Modo Normal adicionalmente gracias a Perfect World"
+    },
+    {
+      "id": "comic-cat-normal-summon",
+      "label": "Invocar Comic Cat",
+      "cards": [
+        "Comic Cat"
+      ],
+      "state": "Comic Cat se Invoca de Modo Normal usando la Invocación Normal disponible"
+    },
+    {
+      "id": "comic-cat-tribute",
+      "label": "Comic Cat tributa un monstruo",
+      "cards": [
+        "Comic Cat"
+      ],
+      "state": "Comic Cat tributa un monstruo para aplicar su efecto"
+    },
+    {
+      "id": "summon-toon-body",
+      "label": "Invocar Blue-Eyes Toon Dragon o Faceless Mage",
+      "cards": [
+        "Blue-Eyes Toon Dragon",
+        "Faceless Mage"
+      ],
+      "state": "El efecto de Comic Cat coloca en el campo Blue-Eyes Toon Dragon o Faceless Mage"
+    },
+    {
+      "id": "set-toon-terror",
+      "label": "Colocar Toon Terror",
+      "cards": [
+        "Toon Terror"
+      ],
+      "state": "Toon Terror queda Colocada para interacción durante el turno rival"
+    },
+    {
+      "id": "evil-box-line",
+      "label": "Resolver Evil Box",
+      "cards": [
+        "Evil Box"
+      ],
+      "state": "Evil Box se utiliza como parte de la línea de Toon"
+    },
+    {
+      "id": "ultimate-contact-fusion",
+      "label": "Invocar Blue-Eyes Toon Ultimate Dragon",
+      "cards": [
+        "Blue-Eyes Toon Ultimate Dragon"
+      ],
+      "state": "Se realiza la Invocación de Modo Especial legal de Blue-Eyes Toon Ultimate Dragon cuando sus materiales están disponibles"
+    },
+    {
+      "id": "table-only",
+      "label": "Toon Table of Contents busca Perfect World",
+      "cards": [
+        "Toon Table of Contents",
+        "Perfect World"
+      ],
+      "state": "Sin Toon Bookmark ni Terraforming, Toon Table of Contents añade Perfect World"
+    },
+    {
+      "id": "world-already-up",
+      "label": "Perfect World ya está activo",
+      "cards": [
+        "Perfect World"
+      ],
+      "state": "Perfect World ya está en el campo y no se reactiva"
+    },
+    {
+      "id": "world-search-comic-cat",
+      "label": "Perfect World busca Comic Cat",
+      "cards": [
+        "Perfect World",
+        "Comic Cat"
+      ],
+      "state": "El efecto de Perfect World añade Comic Cat cuando Funny Dark Rabbit no está disponible"
+    },
+    {
+      "id": "ash-search-interruption",
+      "label": "Ash Blossom & Joyous Spring interrumpe la búsqueda",
+      "cards": [
+        "Ash Blossom & Joyous Spring"
+      ],
+      "state": "Ash Blossom & Joyous Spring niega una búsqueda de Toon Bookmark, Toon Table of Contents o Perfect World"
+    },
+    {
+      "id": "ash-recovery-starter",
+      "label": "Recuperar la línea con otra magia inicial",
+      "cards": [
+        "Terraforming",
+        "Toon Bookmark",
+        "Toon Table of Contents"
+      ],
+      "state": "Se utiliza otra magia inicial disponible para acceder a Perfect World"
+    },
+    {
+      "id": "ash-recovery-set-terror",
+      "label": "Línea corta tras Ash Blossom & Joyous Spring",
+      "cards": [
+        "Toon Terror"
+      ],
+      "state": "Si no hay otra magia inicial, se prioriza colocar Toon Terror en vez de extender"
+    },
+    {
+      "id": "going-second-tribute",
+      "label": "Tributar un monstruo rival",
+      "cards": [
+        "Comic Cat",
+        "Perfect World"
+      ],
+      "state": "Yendo segundo, con Perfect World activo, Comic Cat tributa un monstruo del adversario"
+    },
+    {
+      "id": "going-second-toon-body",
+      "label": "Convertir el tributo rival en un Toon",
+      "cards": [
+        "Blue-Eyes Toon Dragon",
+        "Faceless Mage"
+      ],
+      "state": "Comic Cat obtiene Blue-Eyes Toon Dragon o Faceless Mage mediante su efecto"
+    },
+    {
+      "id": "maxx-c-short-line",
+      "label": "Detener la extensión ante Maxx C",
+      "cards": [
+        "Maxx C",
+        "Perfect World",
+        "Toon Terror"
+      ],
+      "state": "Tras Maxx C, se evita la línea de Blue-Eyes Toon Ultimate Dragon"
+    },
+    {
+      "id": "maxx-c-endboard",
+      "label": "Final corto: Perfect World y Toon Terror",
+      "cards": [
+        "Perfect World",
+        "Toon Terror"
+      ],
+      "state": "Se deja Perfect World activo y Toon Terror Colocada"
+    },
+    {
+      "id": "no-rabbit-line",
+      "label": "Línea sin Funny Dark Rabbit",
+      "cards": [
+        "Comic Cat",
+        "Perfect World",
+        "Blue-Eyes Toon Dragon",
+        "Faceless Mage"
+      ],
+      "state": "No se intenta buscar ni Invocar Funny Dark Rabbit; se juega únicamente con Comic Cat y Perfect World"
+    }
   ],
   "edges": [
-    { "from": "bookmark", "to": "perfect-world", "kind": "enables", "note": "Busca Perfect World" },
-    { "from": "terraforming", "to": "perfect-world", "kind": "enables" },
-    { "from": "table", "to": "perfect-world", "kind": "enables", "note": "O Bookmark si World ya está" },
-    { "from": "perfect-world", "to": "rabbit", "kind": "enables", "note": "Ignition busca Rabbit" },
-    { "from": "perfect-world", "to": "comic-cat", "kind": "requires" },
-    { "from": "rabbit", "to": "comic-cat", "kind": "enables", "note": "Extra Normal Summon" },
-    { "from": "comic-cat", "to": "blue-eyes-toon", "kind": "enables" },
-    { "from": "comic-cat", "to": "faceless", "kind": "enables" },
-    { "from": "blue-eyes-toon", "to": "ultimate", "kind": "enables" },
-    { "from": "evil-box", "to": "terror-set", "kind": "enables" },
-    { "from": "faceless", "to": "mind-scan", "kind": "enables" },
-    { "from": "bookmark", "to": "ash-window", "kind": "window", "note": "Ash pega en Bookmark" },
-    { "from": "table", "to": "ash-window", "kind": "window" },
-    { "from": "perfect-world", "to": "ash-window", "kind": "window", "note": "Ash en la búsqueda" },
-    { "from": "ash-window", "to": "table", "kind": "recovers", "note": "Otra magia starter" },
-    { "from": "ash-window", "to": "terraforming", "kind": "recovers" },
-    { "from": "ash-window", "to": "terror-set", "kind": "recovers", "note": "Pasar con Terror" }
+    {
+      "from": "start-comic-cat",
+      "to": "search-starter",
+      "kind": "requires",
+      "condition": "Hay Terraforming, Toon Bookmark o Toon Table of Contents disponible"
+    },
+    {
+      "from": "search-starter",
+      "to": "activate-perfect-world",
+      "kind": "enables",
+      "condition": "La búsqueda no fue negada"
+    },
+    {
+      "from": "activate-perfect-world",
+      "to": "perfect-world-search-rabbit",
+      "kind": "enables",
+      "condition": "Funny Dark Rabbit está disponible en el Deck"
+    },
+    {
+      "from": "perfect-world-search-rabbit",
+      "to": "rabbit-extra-normal-summon",
+      "kind": "enables",
+      "condition": "La Invocación Normal adicional de Perfect World está disponible"
+    },
+    {
+      "from": "rabbit-extra-normal-summon",
+      "to": "comic-cat-normal-summon",
+      "kind": "requires",
+      "condition": "Se conserva la Invocación Normal ordinaria para Comic Cat"
+    },
+    {
+      "from": "start-comic-cat",
+      "to": "comic-cat-normal-summon",
+      "kind": "requires",
+      "condition": "Comic Cat está disponible para la Invocación Normal"
+    },
+    {
+      "from": "comic-cat-normal-summon",
+      "to": "comic-cat-tribute",
+      "kind": "enables",
+      "condition": "Perfect World está activo"
+    },
+    {
+      "from": "comic-cat-tribute",
+      "to": "summon-toon-body",
+      "kind": "enables",
+      "condition": "Se elige Blue-Eyes Toon Dragon o Faceless Mage como resultado del efecto"
+    },
+    {
+      "from": "summon-toon-body",
+      "to": "evil-box-line",
+      "kind": "enables",
+      "condition": "Evil Box está disponible y la línea puede resolverse legalmente"
+    },
+    {
+      "from": "evil-box-line",
+      "to": "ultimate-contact-fusion",
+      "kind": "requires",
+      "condition": "Los materiales legales de Blue-Eyes Toon Ultimate Dragon están disponibles"
+    },
+    {
+      "from": "comic-cat-tribute",
+      "to": "set-toon-terror",
+      "kind": "enables",
+      "condition": "Toon Terror está en la mano o puede ser colocada"
+    },
+    {
+      "from": "set-toon-terror",
+      "to": "ultimate-contact-fusion",
+      "kind": "window",
+      "condition": "Toon Terror queda disponible como interacción durante el turno rival; no es material de fusión"
+    },
+    {
+      "from": "start-comic-cat",
+      "to": "table-only",
+      "kind": "requires",
+      "condition": "Toon Table of Contents está disponible y no hay Toon Bookmark ni Terraforming"
+    },
+    {
+      "from": "table-only",
+      "to": "activate-perfect-world",
+      "kind": "enables",
+      "condition": "Toon Table of Contents añade Perfect World"
+    },
+    {
+      "from": "world-already-up",
+      "to": "perfect-world-search-rabbit",
+      "kind": "enables",
+      "condition": "Perfect World usa su efecto de Ignición sin volver a activarse"
+    },
+    {
+      "from": "world-already-up",
+      "to": "world-search-comic-cat",
+      "kind": "enables",
+      "condition": "Funny Dark Rabbit no está disponible"
+    },
+    {
+      "from": "world-search-comic-cat",
+      "to": "comic-cat-normal-summon",
+      "kind": "enables",
+      "condition": "Comic Cat es añadido correctamente"
+    },
+    {
+      "from": "ash-search-interruption",
+      "to": "ash-recovery-starter",
+      "kind": "recovers",
+      "condition": "Queda otra magia inicial en mano"
+    },
+    {
+      "from": "ash-search-interruption",
+      "to": "ash-recovery-set-terror",
+      "kind": "recovers",
+      "condition": "No queda otra magia inicial para continuar la línea"
+    },
+    {
+      "from": "ash-recovery-starter",
+      "to": "activate-perfect-world",
+      "kind": "enables",
+      "condition": "La segunda magia inicial no es negada"
+    },
+    {
+      "from": "ash-recovery-set-terror",
+      "to": "set-toon-terror",
+      "kind": "enables",
+      "condition": "Toon Terror está disponible"
+    },
+    {
+      "from": "world-already-up",
+      "to": "going-second-tribute",
+      "kind": "requires",
+      "condition": "Es el turno propio y existe un monstruo rival que pueda ser tributado"
+    },
+    {
+      "from": "going-second-tribute",
+      "to": "going-second-toon-body",
+      "kind": "enables",
+      "condition": "Comic Cat resuelve su efecto"
+    },
+    {
+      "from": "maxx-c-short-line",
+      "to": "maxx-c-endboard",
+      "kind": "enables",
+      "condition": "Maxx C está activa y se decide no realizar Invocaciones adicionales"
+    },
+    {
+      "from": "maxx-c-endboard",
+      "to": "ultimate-contact-fusion",
+      "kind": "window",
+      "condition": "No se continúa hacia Blue-Eyes Toon Ultimate Dragon mientras Maxx C siga siendo una restricción"
+    },
+    {
+      "from": "start-comic-cat",
+      "to": "no-rabbit-line",
+      "kind": "requires",
+      "condition": "Funny Dark Rabbit no está en la mano, Deck o línea de acceso; tampoco hay otro extender"
+    },
+    {
+      "from": "no-rabbit-line",
+      "to": "activate-perfect-world",
+      "kind": "requires",
+      "condition": "Existe acceso a Perfect World"
+    },
+    {
+      "from": "no-rabbit-line",
+      "to": "world-search-comic-cat",
+      "kind": "enables",
+      "condition": "Perfect World ya está activo y puede añadir Comic Cat"
+    },
+    {
+      "from": "no-rabbit-line",
+      "to": "comic-cat-tribute",
+      "kind": "enables",
+      "condition": "Comic Cat es Invocado y Perfect World está activo"
+    },
+    {
+      "from": "no-rabbit-line",
+      "to": "ultimate-contact-fusion",
+      "kind": "window",
+      "condition": "No se intenta la línea de Blue-Eyes Toon Ultimate Dragon sin los materiales legales necesarios"
+    }
   ]
 }
