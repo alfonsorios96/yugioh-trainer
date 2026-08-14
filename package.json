@@ -1,7 +1,7 @@
 {
   "name": "yugioh-trainer",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Yu-Gi-Oh TCG training platform wrapping Project Ignis EDOPro",
   "workspaces": [
     "apps/*",
