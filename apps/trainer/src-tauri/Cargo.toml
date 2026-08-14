@@ -1,6 +1,6 @@
 [package]
 name = "trainer"
-version = "0.9.0"
+version = "0.10.0"
 description = "Yu-Gi-Oh training platform (EDOPro wrapper)"
 authors = ["yugioh-trainer"]
 edition = "2021"
