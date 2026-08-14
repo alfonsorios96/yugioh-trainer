@@ -27,6 +27,14 @@ export const META_ENGINE_DECKS: MetaEngineDeck[] = [
     difficulty: 4,
     masterRules: [5],
   },
+  {
+    id: "toon-2026",
+    name: "Toon 2026",
+    deck: "Toon2026",
+    ydkFileName: "AI_Toon2026.ydk",
+    difficulty: 3,
+    masterRules: [5],
+  },
 ];
 
 export const META_ENGINE_SOURCE_FILES = [
@@ -34,8 +42,10 @@ export const META_ENGINE_SOURCE_FILES = [
   "src/Engines/StapleEngine.cs",
   "src/Engines/KewlTuneEngine.cs",
   "src/Engines/LightAndDarknessEngine.cs",
+  "src/Engines/ToonEngine.cs",
   "src/Decks/KewlTuneExecutor.cs",
   "src/Decks/LightAndDarknessExecutor.cs",
+  "src/Decks/ToonExecutor.cs",
 ] as const;
 
 export function isMetaEngineDeck(deckKey: string): boolean {

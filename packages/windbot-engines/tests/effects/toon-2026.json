@@ -1,0 +1,492 @@
+{
+  "deckId": "toon-2026",
+  "ydkFileName": "AI_Toon2026.ydk",
+  "engineFile": "src/Engines/ToonEngine.cs",
+  "effects": [
+    {
+      "cardId": 73628505,
+      "name": "Terraforming",
+      "kind": "activate",
+      "effect": "Add 1 Field Spell from Deck",
+      "setup": { "botHand": [73628505], "botDeck": [7293697] },
+      "action": { "type": "activate", "cardId": 73628505 },
+      "expect": { "selectCardContains": [7293697], "note": "Prefers Perfect World" }
+    },
+    {
+      "cardId": 91500017,
+      "name": "Toon Bookmark",
+      "kind": "activate",
+      "effect": "Add 1 Toon World or a card that lists Toon World from Deck",
+      "setup": { "botHand": [91500017], "botDeck": [7293697] },
+      "action": { "type": "activate", "cardId": 91500017 },
+      "expect": { "selectCardContains": [7293697], "note": "Prefers Perfect World" }
+    },
+    {
+      "cardId": 91500017,
+      "name": "Toon Bookmark",
+      "kind": "replace",
+      "effect": "Banish from GY instead of destroying Toon World",
+      "setup": { "botGrave": [91500017], "botSpell": [7293697] },
+      "action": { "type": "replace", "cardId": 91500017 },
+      "expect": { "note": "OnSelectYesNo defaults to true" }
+    },
+    {
+      "cardId": 89997728,
+      "name": "Toon Table of Contents",
+      "kind": "activate",
+      "effect": "Add 1 Toon card from Deck",
+      "setup": { "botHand": [89997728], "botDeck": [7293697] },
+      "action": { "type": "activate", "cardId": 89997728 },
+      "expect": { "selectCardContains": [7293697] }
+    },
+    {
+      "cardId": 7293697,
+      "name": "Toon World the Perfect World",
+      "kind": "activate",
+      "effect": "Activate as Field Spell; name becomes Toon World",
+      "setup": { "botHand": [7293697] },
+      "action": { "type": "activate", "cardId": 7293697 },
+      "expect": { "note": "Places field if no Toon World is up" }
+    },
+    {
+      "cardId": 7293697,
+      "name": "Toon World the Perfect World",
+      "kind": "ignition",
+      "effect": "Add 1 Toon card or a card that mentions a Toon name from Deck (3 times)",
+      "setup": { "botSpell": [7293697], "botDeck": [45536531] },
+      "action": { "type": "activate", "cardId": 7293697 },
+      "expect": { "selectCardContains": [45536531], "note": "Prefers Funny Dark Rabbit" }
+    },
+    {
+      "cardId": 7293697,
+      "name": "Toon World the Perfect World",
+      "kind": "continuous",
+      "effect": "Banish 1 Toon you control until a chain resolves",
+      "setup": { "botSpell": [7293697], "botMonster": [72921536] },
+      "action": { "type": "yesno", "cardId": 7293697 },
+      "expect": { "note": "OnSelectYesNo defaults to true" }
+    },
+    {
+      "cardId": 45536531,
+      "name": "Funny Dark Rabbit",
+      "kind": "continuous",
+      "effect": "After NS/SS, extra Normal Summon of a monster that lists Toon World",
+      "setup": { "botMonster": [45536531], "botHand": [72921536] },
+      "action": { "type": "summon", "cardId": 45536531 },
+      "expect": { "note": "Continuous extra NS; bot Normal Summons Rabbit" }
+    },
+    {
+      "cardId": 45536531,
+      "name": "Funny Dark Rabbit",
+      "kind": "ignition",
+      "effect": "Add to hand or place 1 Toon Field/Continuous Spell from Deck",
+      "setup": { "botMonster": [45536531], "botDeck": [7293697] },
+      "action": { "type": "activate", "cardId": 45536531 },
+      "expect": { "selectCardContains": [7293697] }
+    },
+    {
+      "cardId": 72921536,
+      "name": "Comic Cat",
+      "kind": "quick",
+      "effect": "Tribute 1 monster (opponent's if you control Toon World); SS a monster that lists Toon World from hand or Deck",
+      "setup": {
+        "botMonster": [72921536],
+        "botSpell": [7293697],
+        "botDeck": [53183600],
+        "oppMonster": [89631139]
+      },
+      "action": { "type": "activate", "cardId": 72921536 },
+      "expect": { "selectCardContains": [53183600], "note": "SS Blue-Eyes Toon Dragon; tributes opponent if Toon World is up" }
+    },
+    {
+      "cardId": 8915275,
+      "name": "Evil Box",
+      "kind": "ignition",
+      "effect": "If you control Toon World: SS this from hand, then add or Set 1 Toon Trap",
+      "setup": { "botHand": [8915275], "botSpell": [7293697], "botDeck": [53094821] },
+      "action": { "type": "activate", "cardId": 8915275 },
+      "expect": { "selectCardContains": [53094821] }
+    },
+    {
+      "cardId": 8915275,
+      "name": "Evil Box",
+      "kind": "quick",
+      "effect": "Target 1 card in either GY; place it on the bottom of the Deck",
+      "setup": { "botMonster": [8915275], "oppGrave": [14558127] },
+      "action": { "type": "activate", "cardId": 8915275 },
+      "expect": { "note": "Bounces a GY card to bottom" }
+    },
+    {
+      "cardId": 34314989,
+      "name": "Dark-Eyes Illusionist Faceless Mage",
+      "kind": "ignition",
+      "effect": "Discard: place Mind Scan from hand/Deck, or add a Toon World mentioner from GY and optionally SS it",
+      "setup": { "botHand": [34314989], "botDeck": [34298391] },
+      "action": { "type": "activate", "cardId": 34314989 },
+      "expect": { "selectCardContains": [34298391], "note": "OnSelectOption 0 places Mind Scan" }
+    },
+    {
+      "cardId": 65458948,
+      "name": "Toon Mermaid",
+      "kind": "proc",
+      "effect": "SS from hand while you control Toon World; direct attack; self-destruct if Toon World leaves",
+      "setup": { "botHand": [65458948], "botSpell": [7293697] },
+      "action": { "type": "spsummon", "cardId": 65458948 },
+      "expect": { "note": "SpSummon bind requires Toon World" }
+    },
+    {
+      "cardId": 53183600,
+      "name": "Blue-Eyes Toon Dragon",
+      "kind": "proc",
+      "effect": "SS from hand while you control Toon World by tributing",
+      "setup": { "botHand": [53183600], "botSpell": [7293697], "botMonster": [72921536] },
+      "action": { "type": "spsummon", "cardId": 53183600 },
+      "expect": { "note": "SpSummon bind requires Toon World" }
+    },
+    {
+      "cardId": 53094821,
+      "name": "Toon Terror",
+      "kind": "activate",
+      "effect": "Negate a monster effect or Spell/Trap activation if you control Toon World and a Toon",
+      "setup": { "botSpell": [53094821, 7293697], "botMonster": [72921536] },
+      "action": { "type": "activate", "cardId": 53094821 },
+      "expect": { "note": "Only if LastChainPlayer is the opponent" }
+    },
+    {
+      "cardId": 34298391,
+      "name": "Mind Scan",
+      "kind": "activate",
+      "effect": "Activate; with a Toon in field/GY opponent's hand is public",
+      "setup": { "botHand": [34298391], "botMonster": [45536531] },
+      "action": { "type": "activate", "cardId": 34298391 },
+      "expect": { "note": "Places the continuous spell" }
+    },
+    {
+      "cardId": 34298391,
+      "name": "Mind Scan",
+      "kind": "quick",
+      "effect": "Declare a card name; negate activated effects of that original name",
+      "setup": { "botSpell": [34298391, 7293697], "botMonster": [45536531] },
+      "action": { "type": "activate", "cardId": 34298391 },
+      "expect": { "note": "OnAnnounceCard prefers the last chained opponent card" }
+    },
+    {
+      "cardId": 91800273,
+      "name": "Dimension Shifter",
+      "kind": "quick",
+      "effect": "If your GY is empty, send this to GY; cards sent to GY are banished instead",
+      "setup": { "botHand": [91800273] },
+      "action": { "type": "activate", "cardId": 91800273 },
+      "expect": { "note": "Going second, empty GY" }
+    },
+    {
+      "cardId": 40366667,
+      "name": "Dominus Impulse",
+      "kind": "activate",
+      "effect": "Negate a card/effect that includes Special Summon",
+      "setup": { "botHand": [40366667] },
+      "action": { "type": "activate", "cardId": 40366667 },
+      "expect": { "note": "Chains opponent; can activate from hand if they control a card" }
+    },
+    {
+      "cardId": 14558127,
+      "name": "Ash Blossom & Joyous Spring",
+      "kind": "quick",
+      "effect": "Discard; negate a search/SS/draw from Deck",
+      "setup": { "botHand": [14558127] },
+      "action": { "type": "activate", "cardId": 14558127 },
+      "expect": { "note": "StapleEngine DefaultAsh" }
+    },
+    {
+      "cardId": 97268402,
+      "name": "Effect Veiler",
+      "kind": "quick",
+      "effect": "Send from hand; negate a face-up monster during opponent's Main Phase",
+      "setup": { "botHand": [97268402], "oppMonster": [89631139] },
+      "action": { "type": "activate", "cardId": 97268402 },
+      "expect": { "note": "StapleEngine Veiler on opponent turn" }
+    },
+    {
+      "cardId": 59438930,
+      "name": "Ghost Ogre & Snow Rabbit",
+      "kind": "quick",
+      "effect": "Destroy an activated face-up card",
+      "setup": { "botHand": [59438930] },
+      "action": { "type": "activate", "cardId": 59438930 },
+      "expect": { "note": "StapleEngine on opponent chain" }
+    },
+    {
+      "cardId": 42141493,
+      "name": "Mulcharmy Fuwalos",
+      "kind": "quick",
+      "effect": "Discard; draw when opponent Special Summons from Extra/Deck",
+      "setup": { "botHand": [42141493] },
+      "action": { "type": "activate", "cardId": 42141493 },
+      "expect": { "note": "StapleEngine going second on empty board" }
+    },
+    {
+      "cardId": 10045474,
+      "name": "Infinite Impermanence",
+      "kind": "activate",
+      "effect": "Negate a face-up monster; can activate from hand if the column is empty",
+      "setup": { "botHand": [10045474], "oppMonster": [89631139] },
+      "action": { "type": "activate", "cardId": 10045474 },
+      "expect": { "note": "StapleEngine opponent chain" }
+    },
+    {
+      "cardId": 24224830,
+      "name": "Called by the Grave",
+      "kind": "activate",
+      "effect": "Banish a monster from opponent GY; negate that name",
+      "setup": { "botHand": [24224830], "oppGrave": [14558127] },
+      "action": { "type": "activate", "cardId": 24224830 },
+      "expect": { "note": "StapleEngine selects the chained monster" }
+    },
+    {
+      "cardId": 27204311,
+      "name": "Nibiru, the Primal Being",
+      "kind": "quick",
+      "effect": "Tribute all face-up monsters after 5 summons; SS Nibiru and a token",
+      "setup": { "botHand": [27204311] },
+      "action": { "type": "activate", "cardId": 27204311 },
+      "expect": { "note": "StapleEngine opponent turn with 5+ monsters" }
+    },
+    {
+      "cardId": 71808988,
+      "name": "Blue-Eyes Toon Ultimate Dragon",
+      "kind": "proc",
+      "effect": "Contact fusion: shuffle Blue-Eyes Toon Dragon + 2 Toons from hand/field/GY",
+      "setup": {
+        "botMonster": [53183600, 65458948, 72921536],
+        "botExtra": [71808988]
+      },
+      "action": { "type": "spsummon", "cardId": 71808988 },
+      "expect": { "note": "SpSummon bind" }
+    },
+    {
+      "cardId": 71808988,
+      "name": "Blue-Eyes Toon Ultimate Dragon",
+      "kind": "ignition",
+      "effect": "Add 1 Toon card or a card that mentions a Toon name from GY",
+      "setup": { "botMonster": [71808988], "botGrave": [91500017] },
+      "action": { "type": "activate", "cardId": 71808988 },
+      "expect": { "selectCardContains": [91500017] }
+    },
+    {
+      "cardId": 71808988,
+      "name": "Blue-Eyes Toon Ultimate Dragon",
+      "kind": "trigger",
+      "effect": "If a Toon you control is attacked, banish it until the end of the Damage Step",
+      "setup": { "botMonster": [71808988, 53183600] },
+      "action": { "type": "activate", "cardId": 71808988 },
+      "expect": { "note": "Damage calculation blink" }
+    },
+    {
+      "cardId": 66011101,
+      "name": "Number 60: Dugares the Timeless",
+      "kind": "ignition",
+      "effect": "Detach 2: draw 2 then discard 1, or SS from GY in defense, or double ATK",
+      "setup": { "botMonster": [66011101] },
+      "action": { "type": "activate", "cardId": 66011101 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 94259633,
+      "name": "Relinquished Anima",
+      "kind": "ignition",
+      "effect": "Equip 1 face-up monster in this card's column",
+      "setup": { "botMonster": [94259633], "oppMonster": [89631139] },
+      "action": { "type": "activate", "cardId": 94259633 },
+      "expect": { "note": "StapleEngine extra" }
+    },
+    {
+      "cardId": 50277355,
+      "name": "Cross-Sheep",
+      "kind": "trigger",
+      "effect": "When a monster is SS to a zone this card points to, apply ritual/fusion/synchro/xyz bonus",
+      "setup": { "botMonster": [50277355] },
+      "action": { "type": "activate", "cardId": 50277355 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 13203964,
+      "name": "Perfectron Hydradrive Dragon",
+      "kind": "trigger",
+      "effect": "On Link Summon or after battle: destroy opponent's monsters, then burn 300 per Link in GY",
+      "setup": { "botMonster": [13203964], "oppMonster": [89631139] },
+      "action": { "type": "activate", "cardId": 13203964 },
+      "expect": { "note": "Mandatory trigger; Bind Activate" }
+    },
+    {
+      "cardId": 45112597,
+      "name": "Worldsea Dragon Zealantis",
+      "kind": "ignition",
+      "effect": "Banish all monsters, then SS as many as possible to their owners' fields",
+      "setup": { "botMonster": [45112597] },
+      "action": { "type": "activate", "cardId": 45112597 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 45112597,
+      "name": "Worldsea Dragon Zealantis",
+      "kind": "quick",
+      "effect": "During the Battle Phase, destroy cards up to the number of co-linked monsters",
+      "setup": { "botMonster": [45112597] },
+      "action": { "type": "activate", "cardId": 45112597 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 5043010,
+      "name": "Firewall Dragon",
+      "kind": "quick",
+      "effect": "Return monsters from field/GY to hand",
+      "setup": { "botMonster": [5043010], "oppMonster": [89631139] },
+      "action": { "type": "activate", "cardId": 5043010 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 5043010,
+      "name": "Firewall Dragon",
+      "kind": "trigger",
+      "effect": "If a monster this card points to is destroyed, SS 1 Cyberse from hand",
+      "setup": { "botMonster": [5043010], "botHand": [8915275] },
+      "action": { "type": "activate", "cardId": 5043010 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 58036229,
+      "name": "Protectcode Talker",
+      "kind": "quick",
+      "effect": "From GY: SS itself by banishing a Firewall from GY/field",
+      "setup": { "botGrave": [58036229, 5043010] },
+      "action": { "type": "activate", "cardId": 58036229 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 27519978,
+      "name": "Charmer Quartet in Bloom",
+      "kind": "quick",
+      "effect": "During Main Phase, SS monsters from GY with same Race or Attribute pattern",
+      "setup": { "botMonster": [27519978], "botGrave": [45536531] },
+      "action": { "type": "activate", "cardId": 27519978 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 7594154,
+      "name": "Zenna's Deceiving Doll Maidens",
+      "kind": "trigger",
+      "effect": "On Link Summon: send 1 monster from Deck (or Extra if only field materials) to GY",
+      "setup": { "botMonster": [7594154], "botDeck": [34314989] },
+      "action": { "type": "activate", "cardId": 7594154 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 7594154,
+      "name": "Zenna's Deceiving Doll Maidens",
+      "kind": "trigger",
+      "effect": "Next Standby after this card was sent from field to GY: add 1 monster from GY",
+      "setup": { "botGrave": [7594154, 45536531] },
+      "action": { "type": "activate", "cardId": 7594154 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 92422871,
+      "name": "Cyberse Desavewurm",
+      "kind": "ignition",
+      "effect": "SS 1 Cyberse from hand and change its Level",
+      "setup": { "botMonster": [92422871], "botHand": [8915275] },
+      "action": { "type": "activate", "cardId": 92422871 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 92422871,
+      "name": "Cyberse Desavewurm",
+      "kind": "quick",
+      "effect": "Banish this from field/GY; negate an opponent Spell/Trap",
+      "setup": { "botMonster": [92422871] },
+      "action": { "type": "activate", "cardId": 92422871 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 86066372,
+      "name": "Accesscode Talker",
+      "kind": "ignition",
+      "effect": "Gain ATK equal to a banished Link's rating; destroy a card",
+      "setup": { "botMonster": [86066372] },
+      "action": { "type": "activate", "cardId": 86066372 },
+      "expect": { "note": "StapleEngine extra" }
+    },
+    {
+      "cardId": 90590303,
+      "name": "Number 41: Bagooska the Terribly Tired Tapir",
+      "kind": "continuous",
+      "effect": "While in defense, change all monsters to defense and they cannot activate effects",
+      "setup": { "botMonster": [90590303] },
+      "action": { "type": "spsummon", "cardId": 90590303 },
+      "expect": { "note": "SpSummon bind; floodgate is continuous" }
+    },
+    {
+      "cardId": 78783557,
+      "name": "Veidos the Eruption Dragon of Extinction",
+      "kind": "quick",
+      "effect": "SS to opponent's field targeting a Field Spell; destroy it and search Ashened",
+      "setup": { "botHand": [78783557], "oppSpell": [7293697] },
+      "action": { "type": "activate", "cardId": 78783557 },
+      "expect": { "note": "Side; activate on our turn" }
+    },
+    {
+      "cardId": 78783557,
+      "name": "Veidos the Eruption Dragon of Extinction",
+      "kind": "trigger",
+      "effect": "If sent to GY: destroy all monsters",
+      "setup": { "botGrave": [78783557] },
+      "action": { "type": "activate", "cardId": 78783557 },
+      "expect": { "note": "Bind Activate return true" }
+    },
+    {
+      "cardId": 25311006,
+      "name": "Triple Tactics Talent",
+      "kind": "activate",
+      "effect": "If opponent activated a monster effect this turn: draw 2, take control, or look at Extra and shuffle 1",
+      "setup": { "botHand": [25311006] },
+      "action": { "type": "activate", "cardId": 25311006 },
+      "expect": { "note": "Side going second" }
+    },
+    {
+      "cardId": 41420027,
+      "name": "Solemn Judgment",
+      "kind": "activate",
+      "effect": "Pay half LP; negate a summon or Spell/Trap",
+      "setup": { "botSpell": [41420027] },
+      "action": { "type": "activate", "cardId": 41420027 },
+      "expect": { "note": "DefaultSolemnJudgment" }
+    },
+    {
+      "cardId": 84749824,
+      "name": "Solemn Warning",
+      "kind": "activate",
+      "effect": "Pay 2000 LP; negate a summon or an effect that summons",
+      "setup": { "botSpell": [84749824] },
+      "action": { "type": "activate", "cardId": 84749824 },
+      "expect": { "note": "DefaultSolemnWarning" }
+    },
+    {
+      "cardId": 94145021,
+      "name": "Droll & Lock Bird",
+      "kind": "quick",
+      "effect": "After opponent adds a card, neither player can add for the rest of the turn",
+      "setup": { "botHand": [94145021] },
+      "action": { "type": "activate", "cardId": 94145021 },
+      "expect": { "note": "StapleEngine Droll" }
+    },
+    {
+      "cardId": 11593137,
+      "name": "Chaos Trap Hole",
+      "kind": "activate",
+      "effect": "Pay 2000 LP; negate a LIGHT/DARK summon and banish it",
+      "setup": { "botSpell": [11593137] },
+      "action": { "type": "activate", "cardId": 11593137 },
+      "expect": { "note": "DefaultTrap" }
+    }
+  ]
+}

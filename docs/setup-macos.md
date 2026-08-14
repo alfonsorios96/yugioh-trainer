@@ -35,14 +35,14 @@ Requirements: Node 20+, Rust (rustup), Xcode CLT on macOS.
 
 1. Trainer tries to launch EDOPro and WindBot.
 2. In EDOPro, **host a local room** (default port `7911`) and select your deck.
-3. WindBot joins with `Deck=<executor>` (Blue-Eyes / SkyStriker / Tearlaments / KewlTune / LightAndDarkness).
-4. For **Kewl Tune** and **Light and Darkness**, install executors once (needs git + Mono `msbuild`/`xbuild`):
+3. WindBot joins with `Deck=<executor>` (Blue-Eyes / SkyStriker / Tearlaments / KewlTune / LightAndDarkness / Toon2026).
+4. For **Kewl Tune**, **Light and Darkness**, and **Toon 2026**, install executors once (needs git + Mono `msbuild`/`xbuild`):
 
 ```bash
 npm run install:engines -- /path/to/your/EDOPro
 ```
 
-That writes `WindBot/Decks/AI_KewlTune.ydk`, `AI_LightAndDarkness.ydk`, merges those rivals into `WindBot/bots.json`, and rebuilds `WindBot.exe` with the new engines (original exe saved as `WindBot.exe.ygo-trainer-bak`). If your install already has `ExecutorBase.dll`, it compiles `WindBot/Executors/YgoTrainerEngines.dll` instead.
+That writes `WindBot/Decks/AI_KewlTune.ydk`, `AI_LightAndDarkness.ydk`, `AI_Toon2026.ydk`, merges those rivals into `WindBot/bots.json`, and rebuilds `WindBot.exe` with the new engines (original exe saved as `WindBot.exe.ygo-trainer-bak`). If your install already has `ExecutorBase.dll`, it compiles `WindBot/Executors/YgoTrainerEngines.dll` instead.
 5. After the duel, use **Coach → Analyze latest replay**.
 
 If WindBot does not auto-start on macOS (missing native binary / mono / dotnet), start the AI from EDOPro’s built-in bot UI, or run WindBot manually with:

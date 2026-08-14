@@ -1,0 +1,50 @@
+{
+  "id": "vs-toon-2026",
+  "rivalId": "toon-2026",
+  "title": "Training vs Toon 2026",
+  "summary": "Toon 2026 plays Toon World the Perfect World as Toon World, searches three times, then Funny Dark Rabbit for an extra Normal Summon and Comic Cat to tribute your monster into Blue-Eyes Toon Dragon. Mind Scan keeps your hand public and can declare-negate a name; Toon Terror is a full negate while they have Toon World plus a Toon.",
+  "winConditions": [
+    "Stop Perfect World from resolving its searches, or remove it before Comic Cat tributes your board",
+    "Break Mind Scan before they declare your combo piece",
+    "Win through a thin Toon beatdown before they contact-fuse Blue-Eyes Toon Ultimate Dragon"
+  ],
+  "keyCardsRespect": [
+    "Toon World the Perfect World — treated as Toon World, searches three times, can blink a Toon on a chain",
+    "Comic Cat — tributes your monster if they have Toon World, summons Blue-Eyes Toon from deck",
+    "Funny Dark Rabbit — extra Normal Summon and places Perfect World from deck",
+    "Mind Scan — reveals your hand and Set cards, then declare-negates a name",
+    "Toon Terror — negate a monster effect or Spell/Trap while they have Toon World and a Toon",
+    "Blue-Eyes Toon Ultimate Dragon — Toons attack directly, GY recursion, blink on damage"
+  ],
+  "keyCardsNegate": [
+    "Perfect World searches (Bookmark / Table / Terraforming / the field itself)",
+    "Funny Dark Rabbit on-summon extra NS or the field placement",
+    "Comic Cat tribute-summon, especially when it takes your monster",
+    "Mind Scan declare-negate and Faceless Mage placing it"
+  ],
+  "tips": [
+    {
+      "title": "Ash the search, not the Toon body",
+      "body": "Bookmark, Table of Contents, Terraforming, and Perfect World's own search are the cards that assemble Comic Cat. A random Toon Normal Summon is less important than letting Perfect World resolve three times."
+    },
+    {
+      "title": "Toon World is the permission slip",
+      "body": "Comic Cat only tributes your monster, Evil Box only specials from hand, Toon Terror only negates, and classic Toons only proc-summon while they control Toon World (Perfect World counts). Imperm or Cosmic the field and the line collapses."
+    },
+    {
+      "title": "Mind Scan sees everything",
+      "body": "Once Mind Scan is up with a Toon in field or GY, your hand is public and they can look at Sets. Play as if they know your traps; do not Set Imperm for no reason."
+    }
+  ],
+  "handtrapGuidance": [
+    "Ash Bookmark, Table of Contents, Terraforming, or Perfect World's search.",
+    "Imperm Comic Cat before it tributes, or Funny Dark Rabbit before it places the field.",
+    "Ghost Ogre Perfect World if they already searched once and still have follow-up.",
+    "Nibiru after Comic Cat plus extra summons if they have no Terror up."
+  ],
+  "commonMistakes": [
+    "Ashing a vanilla Toon Normal Summon and letting Perfect World search three times",
+    "Leaving a monster up into Comic Cat while they have Toon World",
+    "Playing around Toon Terror when they have no Toon monster on field"
+  ]
+}

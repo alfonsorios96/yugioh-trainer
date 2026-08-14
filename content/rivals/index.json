@@ -53,5 +53,16 @@
     "masterRules": [5],
     "notes": "Pure LADR ritual loop. Griffoh tribute, Mind Shuffle, no Azamina.",
     "lessonId": "vs-light-and-darkness"
+  },
+  {
+    "id": "toon-2026",
+    "name": "Toon 2026",
+    "archetype": "Toon",
+    "difficulty": 3,
+    "windbotDeck": "Toon2026",
+    "windbotName": "Toon 2026",
+    "masterRules": [5],
+    "notes": "Perfect World searches, Comic Cat tributes your monsters, Mind Scan sees the hand.",
+    "lessonId": "vs-toon-2026"
   }
 ]

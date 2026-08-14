@@ -92,6 +92,21 @@ namespace WindBot.Game.AI.Decks
             return DefaultMonsterRepos();
         }
 
+        public bool StapleSolemnJudgment()
+        {
+            return DefaultSolemnJudgment();
+        }
+
+        public bool StapleSolemnWarning()
+        {
+            return DefaultSolemnWarning();
+        }
+
+        public bool StapleTrap()
+        {
+            return DefaultTrap();
+        }
+
         public override bool OnSelectHand()
         {
             return true;

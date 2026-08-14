@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Copy META engine .ydk files, merge bots.json, and install Kewl Tune / LADR executors.
+ * Copy META engine .ydk files, merge bots.json, and install Kewl Tune / LADR / Toon executors.
  *
  * Local EDOPro WindBot.exe does not export DefaultExecutor (types live in ExecutorBase
  * or were internalized). Plugin compile against the exe fails. This script:
@@ -329,7 +329,7 @@ function main() {
     : { ok: false, message: "No ExecutorBase.dll — plugin path skipped." };
   if (!compiled.ok) {
     console.log(compiled.message);
-    console.log("Rebuilding WindBot from ProjectIgnis/windbot with Kewl Tune / LADR injected…");
+    console.log("Rebuilding WindBot from ProjectIgnis/windbot with META engines injected…");
     compiled = rebuildIntoInstall(windBot);
   }
   console.log(compiled.message);
