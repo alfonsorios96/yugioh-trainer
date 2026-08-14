@@ -1,0 +1,35 @@
+# Auto-push the current branch after every local commit.
+# The bump workflow on main then updates major / minor / patch.
+#
+# Skip: SKIP_PUSH=1, [skip push] in the message, rebase/merge, CI.
+
+if [ -n "$SKIP_PUSH" ] || [ -n "$GITHUB_ACTIONS" ]; then
+  exit 0
+fi
+
+GIT_DIR=$(git rev-parse --git-dir)
+if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ] || \
+   [ -f "$GIT_DIR/MERGE_HEAD" ] || [ -f "$GIT_DIR/CHERRY_PICK_HEAD" ]; then
+  exit 0
+fi
+
+msg=$(git log -1 --pretty=%B)
+case "$msg" in
+  chore\(release\):*) exit 0 ;;
+esac
+echo "$msg" | grep -qi '\[skip push\]' && exit 0
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch" = "HEAD" ]; then
+  exit 0
+fi
+
+if ! git remote get-url origin >/dev/null 2>&1; then
+  exit 0
+fi
+
+if git push -u origin HEAD; then
+  echo "post-commit: pushed $branch → origin"
+else
+  echo "post-commit: push failed; bump on CI runs only after a successful push to main"
+fi

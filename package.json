@@ -14,10 +14,15 @@
     "tauri:dev": "npm run tauri -w @yugioh/trainer -- dev",
     "tauri:build": "npm run tauri -w @yugioh/trainer -- build",
     "typecheck": "npm run typecheck -w @yugioh/edopro-bridge && npm run typecheck -w @yugioh/coach && npm run typecheck -w @yugioh/windbot-engines && npm run build -w @yugioh/trainer --if-present",
-    "install:engines": "node packages/windbot-engines/scripts/install.mjs"
+    "install:engines": "node packages/windbot-engines/scripts/install.mjs",
+    "bump": "node scripts/bump.mjs",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=20"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
 }

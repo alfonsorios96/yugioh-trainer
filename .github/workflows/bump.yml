@@ -1,0 +1,50 @@
+name: Bump version
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Semver bump (empty = infer from commits)"
+        required: false
+        type: choice
+        options:
+          - ""
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: bump-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.head_commit && !startsWith(github.event.head_commit.message, 'chore(release)')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump, tag, and push
+        env:
+          HUSKY: "0"
+        run: |
+          EXTRA=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            EXTRA="${{ github.event.inputs.bump }}"
+          fi
+          node scripts/bump.mjs $EXTRA --commit --tag --push

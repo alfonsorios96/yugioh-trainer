@@ -51,7 +51,20 @@ npm run tauri:dev        # desktop app (dev)
 npm run tauri:build      # desktop app (release)
 npm run typecheck        # TypeScript check
 npm run install:engines -- /path/to/ProjectIgnis  # ydk + bots.json + Kewl Tune / LADR WindBot DLLs
+npm run bump -- patch    # or minor / major; omit to infer from conventional commits
 ```
+
+## Versioning
+
+Each local commit is **pushed to origin** by a `post-commit` hook. When those commits land on `main`, GitHub Actions bumps the shared semver (`package.json`, Tauri, Cargo) and pushes a `chore(release): vX.Y.Z` tag.
+
+| Commit prefix | Bump |
+| --- | --- |
+| `feat:` | minor |
+| `BREAKING CHANGE` or `feat!:` / `fix!:` | major |
+| anything else (`fix:`, `chore:`, …) | patch |
+
+Skip a bump with `[skip bump]` in the commit message, or a push with `[skip push]` / `SKIP_PUSH=1`. Manual bump: `npm run bump -- patch --commit --tag --push`.
 
 ## License & attribution
 
