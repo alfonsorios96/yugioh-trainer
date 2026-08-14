@@ -1,0 +1,47 @@
+{
+  "id": "vs-sky-striker",
+  "rivalId": "sky-striker",
+  "title": "Training vs Sky Striker",
+  "summary": "Sky Striker is a control deck that wants an empty Main Monster Zone, Link-2 access (Kagari/Shizuku/Hayate), and recursive spells (Engage, Hornet Drones, Widow Anchor). Deny their spell economy and force them into dead turns.",
+  "winConditions": [
+    "Flood the board so they cannot Link comfortably, or play under their grind with denser engines",
+    "Resolve a turn that banishes Engage/Anchor from GY",
+    "Present multiple threats so one Widow Anchor is not enough"
+  ],
+  "keyCardsRespect": [
+    "Sky Striker Mobilize - Engage! — search engine",
+    "Widow Anchor — steal/negate",
+    "Hornet Drones — free Link material",
+    "Kagari — recycle spells",
+    "Shizuku — end-phase search"
+  ],
+  "keyCardsNegate": [
+    "Engage when it would refill their hand",
+    "Kagari recycle when it recovers Engage/Anchor",
+    "Widow Anchor on your only extender"
+  ],
+  "tips": [
+    {
+      "title": "Spell GY matters",
+      "body": "Striker gets stronger as spells pile in GY. Called by / shuffle / banish hurts more than raw damage sometimes."
+    },
+    {
+      "title": "Empty MMZ",
+      "body": "They prefer zero monsters in their Main Monster Zones. Occupying zones or forcing bodies can dilute lines."
+    },
+    {
+      "title": "Play through Anchor",
+      "body": "Keep a second threat or follow-up so one Anchor does not end your turn."
+    }
+  ],
+  "handtrapGuidance": [
+    "Ash Engage when it is clearly the refill; sometimes hold for Kagari if you know Anchor is next.",
+    "Droll is excellent if they search multiple times in a turn.",
+    "Imperm Kagari or Raye when Raye is the only name on field."
+  ],
+  "commonMistakes": [
+    "Overextending into Widow Anchor with a one-card turn",
+    "Letting Shizuku search for free every End Phase",
+    "Ignoring spell recursion and only playing for damage"
+  ]
+}

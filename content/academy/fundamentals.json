@@ -1,0 +1,38 @@
+[
+  {
+    "id": "normal-summon",
+    "title": "Value your Normal Summon",
+    "category": "fundamentals",
+    "body": "You get one Normal Summon/Set per turn. Plan combos so the Normal Summon is a starter or extender, not a dead body."
+  },
+  {
+    "id": "chain-priority",
+    "title": "Chain link priority",
+    "category": "chains",
+    "body": "Fast effects (Quick Effects, Traps) can respond. Know when you can respond before the opponent continues their sequence."
+  },
+  {
+    "id": "resources",
+    "title": "Track resources, not just boards",
+    "category": "resources",
+    "body": "A flashy board that empties hand/GY advantage can lose to a single break. Count follow-up for next turn."
+  },
+  {
+    "id": "tempo",
+    "title": "Play to the win condition",
+    "category": "tempo",
+    "body": "Decide if you are racing, grinding, or controlling. Wrong plan for the matchup loses even with 'correct' individual plays."
+  },
+  {
+    "id": "ash-timing",
+    "title": "Ash Blossom timing",
+    "category": "fundamentals",
+    "body": "Ash stops add/special/send from deck effects. Hold it for the search that completes their engine."
+  },
+  {
+    "id": "side-mental",
+    "title": "Mental sideboarding (BO1)",
+    "category": "tempo",
+    "body": "Even in BO1, think sideboard ideas: which of your cards are dead, which of theirs you must respect first game."
+  }
+]

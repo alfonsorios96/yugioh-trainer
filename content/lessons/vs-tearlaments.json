@@ -1,0 +1,46 @@
+{
+  "id": "vs-tearlaments",
+  "rivalId": "tearlaments",
+  "title": "Training vs Tearlaments",
+  "summary": "Tearlaments mills itself to fuse (Kitkallos, Rulkallos, Kaleido-Heart). Every mill can be a fusion opportunity. Interact on the mill/fusion that completes Kitkallos; do not feed them free GY setup.",
+  "winConditions": [
+    "Stop Kitkallos from resolving cleanly",
+    "Banish names from GY so mills do not become fusions",
+    "Win before they loop fusions into a wall of disruption"
+  ],
+  "keyCardsRespect": [
+    "Tearlaments Reinoheart / Havnis / Merrli / Scheiren — mill engines",
+    "Tearlaments Kitkallos — search + mill pivot",
+    "Rulkallos / Kaleido-Heart — bosses",
+    "Primeval Planet Perlereino — field search/destruction"
+  ],
+  "keyCardsNegate": [
+    "The mill that enables fusion into Kitkallos",
+    "Kitkallos on-summon search/mill",
+    "Field spell search if it finds the missing name"
+  ],
+  "tips": [
+    {
+      "title": "Mills are not free",
+      "body": "Effects that make them mill can help them. Know when your 'disruption' is actually fuel."
+    },
+    {
+      "title": "GY hate timing",
+      "body": "Banish a name before they fuse again; after Kitkallos resolves you are often behind."
+    },
+    {
+      "title": "Board breakers",
+      "body": "They float and fuse from GY—play breakers when you can follow up, not as a one-shot hope."
+    }
+  ],
+  "handtrapGuidance": [
+    "Ash Kitkallos or the search that finds the missing Tear name.",
+    "Imperm Kitkallos on summon when you must stop the mill/search.",
+    "Called by the Grave on a Tear name can freeze a fusion line for a turn."
+  ],
+  "commonMistakes": [
+    "Milling them 'for value' and watching them fuse",
+    "Spending all interaction before Kitkallos",
+    "Ignoring Perlereino destruction plus search"
+  ]
+}

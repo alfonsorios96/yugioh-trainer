@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Blue-Eyes",
+    "deck": "Blue-Eyes",
+    "difficulty": 2,
+    "masterRules": [3, 4, 5]
+  },
+  {
+    "name": "Sky Striker",
+    "deck": "SkyStriker",
+    "difficulty": 3,
+    "masterRules": [4, 5]
+  },
+  {
+    "name": "Tearlaments",
+    "deck": "Tearlaments",
+    "difficulty": 3,
+    "masterRules": [4, 5]
+  },
+  {
+    "name": "Kewl Tune",
+    "deck": "KewlTune",
+    "difficulty": 4,
+    "masterRules": [5]
+  },
+  {
+    "name": "Light and Darkness",
+    "deck": "LightAndDarkness",
+    "difficulty": 4,
+    "masterRules": [5]
+  }
+]

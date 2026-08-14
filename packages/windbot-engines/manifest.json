@@ -1,0 +1,30 @@
+{
+  "dll": "YgoTrainerEngines.dll",
+  "marker": ".ygo-trainer-engines.json",
+  "sourceFiles": [
+    "src/MetaExecutor.cs",
+    "src/Engines/StapleEngine.cs",
+    "src/Engines/KewlTuneEngine.cs",
+    "src/Engines/LightAndDarknessEngine.cs",
+    "src/Decks/KewlTuneExecutor.cs",
+    "src/Decks/LightAndDarknessExecutor.cs"
+  ],
+  "decks": [
+    {
+      "id": "kewl-tune",
+      "name": "Kewl Tune",
+      "deck": "KewlTune",
+      "ydkFileName": "AI_KewlTune.ydk",
+      "difficulty": 4,
+      "masterRules": [5]
+    },
+    {
+      "id": "light-and-darkness",
+      "name": "Light and Darkness",
+      "deck": "LightAndDarkness",
+      "ydkFileName": "AI_LightAndDarkness.ydk",
+      "difficulty": 4,
+      "masterRules": [5]
+    }
+  ]
+}

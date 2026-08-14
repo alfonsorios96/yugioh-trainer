@@ -1,0 +1,50 @@
+{
+  "id": "vs-light-and-darkness",
+  "rivalId": "light-and-darkness",
+  "title": "Training vs Light and Darkness Ritual",
+  "summary": "Pure Light and Darkness Ritual (Black Chaos) wants Griffoh as a full tribute for a Level 8 ritual, then Magician of Dark Chaos or Soldier of Light and Darkness plus Mind Shuffle. The ritual loop recycles the spell from GY; Mind Shuffle searches and swaps bosses on your turn.",
+  "winConditions": [
+    "Stop the first ritual (Griffoh tribute or Pre-Prep package)",
+    "Remove Mind Shuffle before they bounce-and-summon through your negation",
+    "Win while they have no ritual spell in GY to recycle"
+  ],
+  "keyCardsRespect": [
+    "Griffoh — full tribute for the Level 8 ritual and sets Mind Shuffle",
+    "Light and Darkness Ritual — summon plus GY recycle",
+    "Magician of Dark Chaos - Black Chaos — protection and banish",
+    "Black Luster Soldier - Soldier of Light and Darkness — on-summon banish",
+    "Mind Shuffle — search and mid-chain boss swap",
+    "Black Chaos — discard to plant Mind Shuffle, then banish two"
+  ],
+  "keyCardsNegate": [
+    "Pre-Preparation of Rites / Manju / Celtic Mystic searches",
+    "The ritual spell on the first summon",
+    "Mind Shuffle search or the bounce-summon",
+    "Griffoh discard if it would set Mind Shuffle for free"
+  ],
+  "tips": [
+    {
+      "title": "This build is Pure, not Azamina",
+      "body": "The training bot does not play Azamina or Branded. Expect a ritual loop and Mind Shuffle, not White Forest or Fallen of Albaz lines."
+    },
+    {
+      "title": "GY ritual spell is the engine",
+      "body": "Once Light and Darkness Ritual hits GY it adds itself back with another engine card. Banish it or the ritual monster they want to loop."
+    },
+    {
+      "title": "Targeting is the out",
+      "body": "Both ritual bosses ignore opponent effects unless they target. Targeted removal, Super Poly, and kaijus beat 'unaffected' better than non-targeting board wipes."
+    }
+  ],
+  "handtrapGuidance": [
+    "Ash Pre-Prep, Manju, or Celtic Mystic when it completes the ritual package.",
+    "Imperm the first ritual boss if you must stop the on-summon banish.",
+    "Called by Griffoh if they try to use it as the entire tribute from GY later.",
+    "Droll after the first search if Mind Shuffle would still add."
+  ],
+  "commonMistakes": [
+    "Non-targeting the ritual boss and watching it ignore the effect",
+    "Leaving Mind Shuffle on field through your own combo",
+    "Assuming this bot has Azamina or Branded extenders"
+  ]
+}

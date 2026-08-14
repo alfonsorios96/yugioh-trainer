@@ -1,0 +1,50 @@
+{
+  "id": "vs-kewl-tune",
+  "rivalId": "kewl-tune",
+  "title": "Training vs Kewl Tune",
+  "summary": "Kewl Tune is a compact Tuner Synchro engine. Mix or Reco searches Rotary; Rotary reveals a Tuner to Normal Summon extra, then they Synchro Track Maker into Remix/RS. Rotary looking at your hand is the format's defining piece of information.",
+  "winConditions": [
+    "Stop Rotary from resolving so they never see your hand",
+    "Break Remix before the opponent's turn follow-up Synchro",
+    "Win through a thin endboard (Remix + one utility Synchro) before they convert GY Tuners"
+  ],
+  "keyCardsRespect": [
+    "Kewl Tune Rotary — extra Normal Summon and look at hand",
+    "Kewl Tune Mix / Reco — search the engine",
+    "Kewl Tune Synchro — search plus a Synchro Summon",
+    "Kewl Tune Remix — opponent-turn tribute into another Synchro",
+    "Kewl Tune RS — Quick Effect negate",
+    "Zalen the Shackled Dragon — chain-on-chain negate"
+  ],
+  "keyCardsNegate": [
+    "Rotary's on-hand extra Normal Summon",
+    "Mix/Reco on-summon search if it finds Rotary",
+    "Track Maker on-summon search",
+    "Remix on their opponent's turn"
+  ],
+  "tips": [
+    {
+      "title": "Ash the search, not every Tuner",
+      "body": "Any Kewl Tune name can start, but Rotary is the card that turns a line into full information. Hold Ash for Mix/Reco/Synchro when it would find Rotary, or for Track Maker if Rotary already resolved."
+    },
+    {
+      "title": "Remix is the grind",
+      "body": "If they end on Remix, they will tribute it on your turn, revive two Tuners, and Synchro again. Play like they still have a full extra summon on your turn."
+    },
+    {
+      "title": "They are all Tuners",
+      "body": "Nibiru, Droll, and floodgates that hate Special Summons of Tuners are better than random monster negates after the board is already Remix + Zalen."
+    }
+  ],
+  "handtrapGuidance": [
+    "Ash Mix, Reco, or Kewl Tune Synchro when it searches Rotary.",
+    "Imperm Rotary on field before they Synchro it for the GY look-at-hand.",
+    "Droll after the first search if they still have Synchro/Track Maker.",
+    "Nibiru if they keep Synchro summoning without a negate up."
+  ],
+  "commonMistakes": [
+    "Ashing a random Tuner Normal Summon and letting Rotary resolve",
+    "Playing as if Remix is a vanilla 1500 body",
+    "Committing your only breaker into Zalen's chain-negate"
+  ]
+}

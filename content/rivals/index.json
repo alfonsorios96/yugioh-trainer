@@ -1,0 +1,57 @@
+[
+  {
+    "id": "blue-eyes",
+    "name": "Blue-Eyes",
+    "archetype": "Blue-Eyes",
+    "difficulty": 2,
+    "windbotDeck": "Blue-Eyes",
+    "windbotName": "Blue-Eyes",
+    "masterRules": [3, 4, 5],
+    "notes": "Official WindBot executor. Mid difficulty ritual/Dragon beats.",
+    "lessonId": "vs-blue-eyes"
+  },
+  {
+    "id": "sky-striker",
+    "name": "Sky Striker",
+    "archetype": "Sky Striker",
+    "difficulty": 3,
+    "windbotDeck": "SkyStriker",
+    "windbotName": "Sky Striker",
+    "masterRules": [4, 5],
+    "notes": "Control grind with Link-2 access and spell recursion.",
+    "lessonId": "vs-sky-striker"
+  },
+  {
+    "id": "tearlaments",
+    "name": "Tearlaments",
+    "archetype": "Tearlaments",
+    "difficulty": 3,
+    "windbotDeck": "Tearlaments",
+    "windbotName": "Tearlaments",
+    "masterRules": [4, 5],
+    "notes": "Mill/fusion engine; punish mills and Kitkallos lines.",
+    "lessonId": "vs-tearlaments"
+  },
+  {
+    "id": "kewl-tune",
+    "name": "Kewl Tune",
+    "archetype": "Kewl Tune",
+    "difficulty": 4,
+    "windbotDeck": "KewlTune",
+    "windbotName": "Kewl Tune",
+    "masterRules": [5],
+    "notes": "META Tuner Synchro. Rotary sees your hand; Remix plays on your turn.",
+    "lessonId": "vs-kewl-tune"
+  },
+  {
+    "id": "light-and-darkness",
+    "name": "Light and Darkness",
+    "archetype": "Light and Darkness Ritual",
+    "difficulty": 4,
+    "windbotDeck": "LightAndDarkness",
+    "windbotName": "Light and Darkness",
+    "masterRules": [5],
+    "notes": "Pure LADR ritual loop. Griffoh tribute, Mind Shuffle, no Azamina.",
+    "lessonId": "vs-light-and-darkness"
+  }
+]

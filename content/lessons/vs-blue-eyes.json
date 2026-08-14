@@ -1,0 +1,46 @@
+{
+  "id": "vs-blue-eyes",
+  "rivalId": "blue-eyes",
+  "title": "Training vs Blue-Eyes",
+  "summary": "Blue-Eyes builds want to cheat out big Dragons (Ultimate, Spirit, Tyrant) and overwhelm with size plus disruption. Slow them before the board sticks; do not race blindly into a 3000+ body with omni-negates up.",
+  "winConditions": [
+    "Break or prevent their first big summon so they spend resources rebuilding",
+    "Win through grind if you can out-resource ritual/fusion lines",
+    "OTK only when their disruption is spent"
+  ],
+  "keyCardsRespect": [
+    "Blue-Eyes Alternative / Jet — free specials that start plays",
+    "Maiden / Sage / Dictator — search and setup pieces",
+    "Blue-Eyes Ultimate / Spirit Dragon — board anchors",
+    "True Light — continuous recursion and protection lines"
+  ],
+  "keyCardsNegate": [
+    "The search that finds Alternative or ritual package",
+    "The fusion/ritual spell that completes the boss",
+    "True Light when it would recover a full turn"
+  ],
+  "tips": [
+    {
+      "title": "Size vs interaction",
+      "body": "High ATK alone is not the win—track if they still have a negate or float after combat."
+    },
+    {
+      "title": "GY hate",
+      "body": "Some Blue-Eyes lines reuse GY Dragons. Banishing a key body can stall a turn."
+    },
+    {
+      "title": "Backrow",
+      "body": "Probe for True Light / Infinite Impermanence before committing your only breakers."
+    }
+  ],
+  "handtrapGuidance": [
+    "Ash the search that completes the engine, not every optional dig.",
+    "Imperm on the sticky extender or on Spirit when it would negate your only out.",
+    "Nibiru is strong if they summon many times without a negate up."
+  ],
+  "commonMistakes": [
+    "Crashing into a bigger Dragon without an out",
+    "Ashing a bait search and letting the real combo resolve",
+    "Ignoring True Light until they have already recovered"
+  ]
+}
