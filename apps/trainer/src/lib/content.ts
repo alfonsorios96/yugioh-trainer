@@ -1,7 +1,8 @@
 import type { RivalProfile } from "@yugioh/edopro-bridge";
-import type { MatchupLesson } from "@yugioh/coach";
+import type { AcademyItem, MatchupLesson } from "@yugioh/coach";
 
 import rivalsJson from "@content/rivals/index.json";
+import academyJson from "@content/academy/fundamentals.json";
 import lessonBlueEyes from "@content/lessons/vs-blue-eyes.json";
 import lessonSkyStriker from "@content/lessons/vs-sky-striker.json";
 import lessonTearlaments from "@content/lessons/vs-tearlaments.json";
@@ -13,6 +14,7 @@ import ladrYdk from "@engines/ydk/AI_LightAndDarkness.ydk?raw";
 import toonYdk from "@engines/ydk/AI_Toon2026.ydk?raw";
 
 export const rivals: RivalProfile[] = rivalsJson as RivalProfile[];
+export const academy: AcademyItem[] = academyJson as AcademyItem[];
 
 export const lessons: Record<string, MatchupLesson> = {
   "vs-blue-eyes": lessonBlueEyes as MatchupLesson,

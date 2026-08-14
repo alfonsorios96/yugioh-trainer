@@ -6,20 +6,28 @@ import {
 } from "./static.js";
 import {
   buildChatMessages,
+  buildDeckPlanMessages,
   buildPostDuelMessages,
   buildPreDuelMessages,
   buildStepReviewMessages,
 } from "./prompts.js";
+import {
+  formatStaticSessionPlan,
+  parseSessionPlanJson,
+} from "./session.js";
 import { completeChat, hasLlmConfig } from "./llm.js";
 import type {
+  AcademyItem,
   ChatContext,
   CoachConfig,
   CoachResponse,
   CoachVerdict,
+  DeckPlanContext,
   PostDuelContext,
   PreDuelContext,
   ReplayDecisionInput,
   ReplayReviewContext,
+  SessionPlan,
   StepCoaching,
 } from "./types.js";
 
@@ -30,6 +38,10 @@ export type {
   CoachConfig,
   ChatMessage,
   DeckListSnapshot,
+  DeckPlanContext,
+  SessionFocus,
+  SessionGoal,
+  SessionPlan,
   PreDuelContext,
   ChatContext,
   PostDuelContext,
@@ -41,6 +53,11 @@ export type {
 } from "./types.js";
 
 export { formatDeckBlock, compactDeckLines, uniqueCardCount } from "./deck.js";
+export {
+  academyForPlan,
+  formatGoalsBlock,
+  formatStaticSessionPlan,
+} from "./session.js";
 
 export {
   formatPreDuelStatic,
@@ -119,6 +136,27 @@ export async function getPostDuelReview(
 }
 
 export { DEFAULT_ACADEMY as academyDefaults };
+
+export async function getDeckSessionPlan(
+  ctx: DeckPlanContext,
+  academy: AcademyItem[],
+  config: CoachConfig,
+  fetchImpl?: typeof fetch,
+): Promise<SessionPlan> {
+  const fallback = formatStaticSessionPlan(ctx, academy);
+  if (!hasLlmConfig(config)) return fallback;
+  try {
+    const result = await completeChat(
+      config,
+      buildDeckPlanMessages(ctx, academy),
+      fetchImpl,
+      { json: true },
+    );
+    return parseSessionPlanJson(result.content, fallback, result.usedModel);
+  } catch {
+    return fallback;
+  }
+}
 
 function parseVerdict(value: unknown): CoachVerdict {
   return value === "bad" || value === "better" || value === "ok" ? value : "ok";

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { uniqueCardCount, type ChatMessage, type DeckListSnapshot } from "@yugioh/coach";
+import { uniqueCardCount, type ChatMessage, type DeckListSnapshot, type SessionPlan } from "@yugioh/coach";
 import {
   mergeCardNames,
   replaceHashCodes,
@@ -11,7 +11,7 @@ import {
   type YdkDeck,
 } from "@yugioh/edopro-bridge";
 import "./App.css";
-import { getLessonForRival, getRival, rivals, META_ENGINE_YDK_FILES } from "./lib/content";
+import { getLessonForRival, getRival, rivals, academy, META_ENGINE_YDK_FILES } from "./lib/content";
 import {
   analyzeWindBotDecks,
   createLaunchPlan,
@@ -27,6 +27,7 @@ import {
 import {
   chatWithCoach,
   coachReplaySteps,
+  deckSessionPlan,
   preDuelAdvice,
   probeLlmConnection,
 } from "./lib/coachService";
@@ -38,6 +39,7 @@ import {
 import { loadSettings, saveSettings, type AppSettings } from "./lib/settings";
 import { native } from "./lib/native";
 import { snapshotFromYdk } from "./lib/playerDeck";
+import { SessionPlanPanel } from "./SessionPlanPanel";
 import { type WalkthroughView } from "./ReplayWalkthrough";
 import { MatchHistoryPanel } from "./MatchHistory";
 import {
@@ -125,6 +127,8 @@ function App() {
   });
   const [unknownCardCount, setUnknownCardCount] = useState(0);
   const [playerDeck, setPlayerDeck] = useState<DeckListSnapshot | undefined>();
+  const [sessionPlan, setSessionPlan] = useState<SessionPlan | null>(null);
+  const [goalChecked, setGoalChecked] = useState<Record<string, boolean>>({});
 
   const rival = useMemo(
     () => getRival(settings?.selectedRivalId ?? "blue-eyes") ?? rivals[0],
@@ -159,6 +163,27 @@ function App() {
       cancelled = true;
     };
   }, [selectedDeck, settings?.edoProPath]);
+
+  useEffect(() => {
+    if (!settings) return;
+    let cancelled = false;
+    void (async () => {
+      const plan = await deckSessionPlan(
+        settings,
+        rival.name,
+        lesson,
+        academy,
+        playerDeck,
+      );
+      if (!cancelled) {
+        setSessionPlan(plan);
+        setGoalChecked({});
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [settings, rival.name, lesson, playerDeck]);
 
   const refreshInstall = useCallback(async (path: string) => {
     if (!path) {
@@ -365,6 +390,7 @@ function App() {
         rival.name,
         lesson,
         playerDeck,
+        sessionPlan?.goals,
       );
       setBriefing(advice.content);
     } catch (e) {
@@ -383,6 +409,7 @@ function App() {
         rival.name,
         lesson,
         playerDeck,
+        sessionPlan?.goals,
       );
       setBriefing(advice.content);
       setStatus(`Briefing source: ${advice.source}${advice.usedModel ? ` (${advice.usedModel})` : ""}`);
@@ -408,6 +435,7 @@ function App() {
         history,
         userMsg.content,
         playerDeck,
+        sessionPlan?.goals,
       );
       setChat([...history, { role: "assistant", content: reply.content }]);
     } catch (e) {
@@ -454,6 +482,7 @@ function App() {
           decision: s.decision,
         })),
         playerDeck,
+        sessionPlan?.goals,
       );
       const saved = buildSavedReview({
         file: loaded.file,
@@ -532,6 +561,7 @@ function App() {
           decision: s.decision,
         })),
         playerDeck,
+        sessionPlan?.goals,
       );
       const next: SavedMatchReview = {
         ...review,
@@ -612,15 +642,15 @@ function App() {
           <section className="panel hero-home">
             <h2>Train smarter. Duel with purpose.</h2>
             <p className="lead">
-              Launch local duels against curated WindBot rivals, then use the coach
-              for pre-game plans, mid-duel questions, and post-replay review.
+              Pick your .ydk first. The trainer builds a session plan for that
+              list, then you duel a WindBot rival with three goals and review the replay.
             </p>
             <div className="block">
               <h3>Quick start</h3>
               <ol className="steps">
                 <li>Install Project Ignis EDOPro and note its folder.</li>
                 <li>Set the path in Settings (WindBot must be present).</li>
-                <li>Pick a rival and your .ydk on Train.</li>
+                <li>On Train, pick your .ydk — then a rival and a session goal.</li>
                 <li>Start duel — host a room in EDOPro if needed.</li>
               </ol>
               <div className="row" style={{ marginTop: "1rem" }}>
@@ -787,12 +817,88 @@ function App() {
           <section className="panel">
             <h2>Train</h2>
             <p className="lead">
-              Choose a WindBot rival and your deck, sync bot entries, then start a
-              local training duel.
+              Your deck first. We generate a plan and three session goals, then you
+              pick a rival and duel.
             </p>
 
             <div className="block" style={{ marginBottom: "1.25rem" }}>
-              <h3>Rival</h3>
+              <h3>1. Your deck</h3>
+              <div className="field">
+                <label>Deck from EDOPro/deck</label>
+                <select
+                  value={settings.selectedDeckPath}
+                  onChange={(e) =>
+                    void updateSettings({ selectedDeckPath: e.target.value })
+                  }
+                >
+                  <option value="">— select —</option>
+                  {decks.map((d) => (
+                    <option key={d.path} value={d.path}>
+                      {d.name} ({d.main.length}+{d.extra.length})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {playerDeck ? (
+                <p className="field-hint">
+                  Coach sees {playerDeck.main.length}+{playerDeck.extra.length} cards
+                  {" · "}
+                  {uniqueCardCount(playerDeck)} unique names from {playerDeck.name}.
+                </p>
+              ) : (
+                <p className="field-hint">
+                  Select a .ydk so the session plan, briefing, chat, and replay
+                  review use your actual list.
+                </p>
+              )}
+              <div className="row">
+                <button
+                  className="btn btn-secondary"
+                  disabled={!install?.deckDir || busy}
+                  onClick={() => void pickDeckFile()}
+                >
+                  Import .ydk
+                </button>
+                <button
+                  className="btn btn-ghost"
+                  disabled={!install?.valid || busy}
+                  onClick={() => void handleSyncBots()}
+                >
+                  Sync WindBot bots
+                </button>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: "1.25rem" }}>
+              <SessionPlanPanel
+                plan={sessionPlan}
+                academy={academy}
+                checked={goalChecked}
+                onToggle={(id) =>
+                  setGoalChecked((prev) => ({ ...prev, [id]: !prev[id] }))
+                }
+                onRefresh={() => {
+                  if (!settings) return;
+                  setBusy(true);
+                  void deckSessionPlan(
+                    settings,
+                    rival.name,
+                    lesson,
+                    academy,
+                    playerDeck,
+                  )
+                    .then((plan) => {
+                      setSessionPlan(plan);
+                      setGoalChecked({});
+                    })
+                    .finally(() => setBusy(false));
+                }}
+                busy={busy}
+              />
+            </div>
+
+            <div className="block" style={{ marginBottom: "1.25rem" }}>
+              <h3>2. Rival</h3>
               <div className="grid-3">
                 {rivals.map((r) => (
                   <button
@@ -811,89 +917,40 @@ function App() {
               </div>
             </div>
 
-            <div className="grid-2">
-              <div className="block">
-                <h3>Your deck</h3>
-                <div className="field">
-                  <label>Deck from EDOPro/deck</label>
-                  <select
-                    value={settings.selectedDeckPath}
-                    onChange={(e) =>
-                      void updateSettings({ selectedDeckPath: e.target.value })
-                    }
-                  >
-                    <option value="">— select —</option>
-                    {decks.map((d) => (
-                      <option key={d.path} value={d.path}>
-                        {d.name} ({d.main.length}+{d.extra.length})
-                      </option>
+            <div className="block">
+              <h3>3. Launch</h3>
+              <p className="lead" style={{ marginBottom: "1rem" }}>
+                Rival executor: <strong>{rival.windbotDeck}</strong>. Default host{" "}
+                {settings.windBotHost}:{settings.windBotPort}.
+              </p>
+              <div className="row">
+                <button
+                  className="btn btn-primary"
+                  disabled={!settings.edoProPath || busy}
+                  onClick={() => void handleStartDuel()}
+                >
+                  Start duel
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  disabled={busy}
+                  onClick={() => void handleBriefing()}
+                >
+                  Pre-duel briefing
+                </button>
+              </div>
+              {launchPlan && (
+                <>
+                  <ol className="steps" style={{ marginTop: "1rem" }}>
+                    {launchPlan.steps.map((s) => (
+                      <li key={s}>{s}</li>
                     ))}
-                  </select>
-                </div>
-                {playerDeck ? (
-                  <p className="field-hint">
-                    Coach sees {playerDeck.main.length}+{playerDeck.extra.length} cards
-                    {" · "}
-                    {uniqueCardCount(playerDeck)} unique names from {playerDeck.name}.
+                  </ol>
+                  <p className="status-line">
+                    WindBot cmd: {windBotCommandLine(launchPlan)}
                   </p>
-                ) : (
-                  <p className="field-hint">
-                    Select a .ydk so briefing, chat, and replay review use your actual list.
-                  </p>
-                )}
-                <div className="row">
-                  <button
-                    className="btn btn-secondary"
-                    disabled={!install?.deckDir || busy}
-                    onClick={() => void pickDeckFile()}
-                  >
-                    Import .ydk
-                  </button>
-                  <button
-                    className="btn btn-ghost"
-                    disabled={!install?.valid || busy}
-                    onClick={() => void handleSyncBots()}
-                  >
-                    Sync WindBot bots
-                  </button>
-                </div>
-              </div>
-
-              <div className="block">
-                <h3>Launch</h3>
-                <p className="lead" style={{ marginBottom: "1rem" }}>
-                  Rival executor: <strong>{rival.windbotDeck}</strong>. Default host{" "}
-                  {settings.windBotHost}:{settings.windBotPort}.
-                </p>
-                <div className="row">
-                  <button
-                    className="btn btn-primary"
-                    disabled={!settings.edoProPath || busy}
-                    onClick={() => void handleStartDuel()}
-                  >
-                    Start duel
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    disabled={busy}
-                    onClick={() => void handleBriefing()}
-                  >
-                    Pre-duel briefing
-                  </button>
-                </div>
-                {launchPlan && (
-                  <>
-                    <ol className="steps" style={{ marginTop: "1rem" }}>
-                      {launchPlan.steps.map((s) => (
-                        <li key={s}>{s}</li>
-                      ))}
-                    </ol>
-                    <p className="status-line">
-                      WindBot cmd: {windBotCommandLine(launchPlan)}
-                    </p>
-                  </>
-                )}
-              </div>
+                </>
+              )}
             </div>
             {status && <p className="status-line">{status}</p>}
           </section>
@@ -909,6 +966,27 @@ function App() {
                 ? "LLM coaching enabled."
                 : "No API key — using static lessons (add a key in Settings)."}
             </p>
+            {sessionPlan && (
+              <ul className="goal-list" style={{ marginBottom: "1.25rem" }}>
+                {sessionPlan.goals.map((goal) => (
+                  <li key={goal.id}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(goalChecked[goal.id])}
+                        onChange={() =>
+                          setGoalChecked((prev) => ({
+                            ...prev,
+                            [goal.id]: !prev[goal.id],
+                          }))
+                        }
+                      />
+                      <span>{goal.text}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="grid-2">
               <div className="block">

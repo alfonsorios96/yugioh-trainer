@@ -1,8 +1,10 @@
 import {
   askCoach,
+  getDeckSessionPlan,
   getPostDuelReview,
   getPreDuelAdvice,
   reviewReplaySteps,
+  type AcademyItem,
   type ChatMessage,
   type CoachConfig,
   type CoachResponse,
@@ -10,6 +12,8 @@ import {
   type MatchupLesson,
   type ReplayDecisionInput,
   type ReplayStepReview,
+  type SessionGoal,
+  type SessionPlan,
 } from "@yugioh/coach";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import type { AppSettings } from "./settings";
@@ -38,9 +42,16 @@ export async function preDuelAdvice(
   rivalName: string,
   lesson: MatchupLesson,
   playerDeck?: DeckListSnapshot,
+  sessionGoals?: SessionGoal[],
 ): Promise<CoachResponse> {
   return getPreDuelAdvice(
-    { rivalName, lesson, playerDeck, playerDeckName: playerDeck?.name },
+    {
+      rivalName,
+      lesson,
+      playerDeck,
+      playerDeckName: playerDeck?.name,
+      sessionGoals,
+    },
     configFromSettings(settings),
     llmFetch,
   );
@@ -53,9 +64,10 @@ export async function chatWithCoach(
   history: ChatMessage[],
   userMessage: string,
   playerDeck?: DeckListSnapshot,
+  sessionGoals?: SessionGoal[],
 ): Promise<CoachResponse> {
   return askCoach(
-    { rivalName, lesson, history, userMessage, playerDeck },
+    { rivalName, lesson, history, userMessage, playerDeck, sessionGoals },
     configFromSettings(settings),
     llmFetch,
   );
@@ -115,9 +127,10 @@ export async function postDuelReview(
   replayText: string,
   resultHint?: string,
   playerDeck?: DeckListSnapshot,
+  sessionGoals?: SessionGoal[],
 ): Promise<CoachResponse> {
   return getPostDuelReview(
-    { rivalName, lesson, replayText, resultHint, playerDeck },
+    { rivalName, lesson, replayText, resultHint, playerDeck, sessionGoals },
     configFromSettings(settings),
     llmFetch,
   );
@@ -129,9 +142,25 @@ export async function coachReplaySteps(
   lesson: MatchupLesson,
   steps: ReplayDecisionInput[],
   playerDeck?: DeckListSnapshot,
+  sessionGoals?: SessionGoal[],
 ): Promise<ReplayStepReview> {
   return reviewReplaySteps(
-    { rivalName, lesson, steps, playerDeck },
+    { rivalName, lesson, steps, playerDeck, sessionGoals },
+    configFromSettings(settings),
+    llmFetch,
+  );
+}
+
+export async function deckSessionPlan(
+  settings: AppSettings,
+  rivalName: string,
+  lesson: MatchupLesson,
+  academy: AcademyItem[],
+  playerDeck?: DeckListSnapshot,
+): Promise<SessionPlan> {
+  return getDeckSessionPlan(
+    { rivalName, lesson, playerDeck },
+    academy,
     configFromSettings(settings),
     llmFetch,
   );

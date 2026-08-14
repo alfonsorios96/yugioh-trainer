@@ -42,11 +42,44 @@ export interface DeckListSnapshot {
   side: string[];
 }
 
+export type SessionFocus =
+  | "going-first"
+  | "going-second"
+  | "handtraps"
+  | "resources"
+  | "wincon";
+
+export interface SessionGoal {
+  id: string;
+  text: string;
+  focus: SessionFocus;
+  academyId?: string;
+}
+
+export interface SessionPlan {
+  deckSummary: string;
+  starters: string[];
+  chokePoints: string[];
+  goingFirst: string;
+  goingSecond: string;
+  goals: SessionGoal[];
+  academyIds: string[];
+  source: "static" | "llm";
+  usedModel?: string;
+}
+
+export interface DeckPlanContext {
+  rivalName: string;
+  lesson: MatchupLesson;
+  playerDeck?: DeckListSnapshot;
+}
+
 export interface PreDuelContext {
   rivalName: string;
   playerDeckName?: string;
   playerDeck?: DeckListSnapshot;
   lesson: MatchupLesson;
+  sessionGoals?: SessionGoal[];
 }
 
 export interface ChatContext {
@@ -55,6 +88,7 @@ export interface ChatContext {
   history: ChatMessage[];
   userMessage: string;
   playerDeck?: DeckListSnapshot;
+  sessionGoals?: SessionGoal[];
 }
 
 export interface PostDuelContext {
@@ -63,6 +97,7 @@ export interface PostDuelContext {
   replayText: string;
   resultHint?: string;
   playerDeck?: DeckListSnapshot;
+  sessionGoals?: SessionGoal[];
 }
 
 export interface ReplayReviewContext {
@@ -70,6 +105,7 @@ export interface ReplayReviewContext {
   lesson: MatchupLesson;
   steps: ReplayDecisionInput[];
   playerDeck?: DeckListSnapshot;
+  sessionGoals?: SessionGoal[];
 }
 
 export interface CoachResponse {

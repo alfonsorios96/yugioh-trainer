@@ -1,7 +1,10 @@
 import { formatDeckBlock } from "./deck.js";
+import { formatGoalsBlock } from "./session.js";
 import type {
+  AcademyItem,
   ChatContext,
   ChatMessage,
+  DeckPlanContext,
   PostDuelContext,
   PreDuelContext,
   ReplayReviewContext,
@@ -33,6 +36,7 @@ export function buildPreDuelMessages(ctx: PreDuelContext): ChatMessage[] {
       content: [
         `Prepárame para un duelo de entrenamiento contra ${ctx.rivalName}.`,
         formatDeckBlock(ctx.playerDeck),
+        formatGoalsBlock(ctx.sessionGoals),
         ctx.playerDeck
           ? ""
           : ctx.playerDeckName
@@ -41,7 +45,7 @@ export function buildPreDuelMessages(ctx: PreDuelContext): ChatMessage[] {
         "",
         lessonBlock(ctx.lesson),
         "",
-        "Usa MI lista de cartas (no un arquetipo genérico). Dame un briefing pre-duelo en español (nombres de cartas en inglés): plan con mis starters/extenders, cartas rivales a respetar, cuándo gastar MIS handtraps, y 3 objetivos concretos.",
+        "Usa MI lista de cartas (no un arquetipo genérico). Dame un briefing pre-duelo en español (nombres de cartas en inglés): plan con mis starters/extenders, cartas rivales a respetar, cuándo gastar MIS handtraps, y cómo cumplir los objetivos de esta sesión.",
       ].join("\n"),
     },
   ];
@@ -52,7 +56,7 @@ export function buildChatMessages(ctx: ChatContext): ChatMessage[] {
     { role: "system", content: SYSTEM },
     {
       role: "system",
-      content: `Current rival: ${ctx.rivalName}\n${lessonBlock(ctx.lesson)}\n\n${formatDeckBlock(ctx.playerDeck)}`,
+      content: `Current rival: ${ctx.rivalName}\n${lessonBlock(ctx.lesson)}\n\n${formatDeckBlock(ctx.playerDeck)}\n${formatGoalsBlock(ctx.sessionGoals)}`,
     },
     ...ctx.history.filter((m) => m.role !== "system"),
     { role: "user", content: ctx.userMessage },
@@ -69,6 +73,7 @@ export function buildPostDuelMessages(ctx: PostDuelContext): ChatMessage[] {
         `Revisa mi duelo de entrenamiento contra ${ctx.rivalName}.`,
         ctx.resultHint ? `Resultado: ${ctx.resultHint}` : "",
         formatDeckBlock(ctx.playerDeck),
+        formatGoalsBlock(ctx.sessionGoals),
         "",
         lessonBlock(ctx.lesson),
         "",
@@ -97,6 +102,7 @@ export function buildStepReviewMessages(ctx: ReplayReviewContext): ChatMessage[]
       content: [
         `Evalúa cada jugada de un duelo de entrenamiento contra ${ctx.rivalName}.`,
         formatDeckBlock(ctx.playerDeck),
+        formatGoalsBlock(ctx.sessionGoals),
         lessonBlock(ctx.lesson),
         "",
         "Juzga las líneas con MI deck (starters, extenders y handtraps de la lista), no un arquetipo genérico.",
@@ -112,6 +118,37 @@ export function buildStepReviewMessages(ctx: ReplayReviewContext): ChatMessage[]
         "",
         "Jugadas:",
         body,
+      ].join("\n"),
+    },
+  ];
+}
+
+export function buildDeckPlanMessages(
+  ctx: DeckPlanContext,
+  academy: AcademyItem[],
+): ChatMessage[] {
+  const academyLines = academy
+    .map((a) => `- ${a.id}: ${a.title} — ${a.body}`)
+    .join("\n");
+  return [
+    { role: "system", content: SYSTEM },
+    {
+      role: "user",
+      content: [
+        `Crea un plan de entrenamiento para MI deck contra ${ctx.rivalName}.`,
+        formatDeckBlock(ctx.playerDeck),
+        lessonBlock(ctx.lesson),
+        "",
+        "Hábitos de academy disponibles (elige 2-3 academyId):",
+        academyLines,
+        "",
+        "Responde SOLO JSON válido:",
+        '{"deckSummary":"...","starters":["..."],"chokePoints":["..."],"goingFirst":"...","goingSecond":"...","goals":[{"id":"g1","text":"...","focus":"going-first","academyId":"tempo"}],"academyIds":["tempo","ash-timing"]}',
+        "deckSummary: 1-2 frases en español, nombres de cartas en inglés.",
+        "starters / chokePoints: nombres de cartas en inglés.",
+        "goingFirst / goingSecond: 1 frase cada uno.",
+        "goals: exactamente 3. focus uno de going-first, going-second, handtraps, resources, wincon.",
+        "Cada goal.text es un objetivo de ESTA sesión, concreto y medible.",
       ].join("\n"),
     },
   ];
