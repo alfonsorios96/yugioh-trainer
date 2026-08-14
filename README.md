@@ -19,8 +19,10 @@ Card scripts and updates come from the Ignis ecosystem ([CardScripts](https://gi
 | Piece | Role |
 | --- | --- |
 | `apps/trainer` | Tauri 2 + React + TypeScript desktop UI |
+| `apps/bot-lab` | Separate Tauri app to teach WindBot combos (not the player trainer) |
 | `packages/edopro-bridge` | Install probe, bots merge, YDK, launch plans, replay helpers |
 | `packages/coach` | Static + LLM coaching |
+| `packages/bot-lab` | ComboBook, combo graph, SelectCard patches, bot replay learning |
 | `packages/windbot-engines` | AGPL Kewl Tune / LADR / Toon 2026 WindBot executors |
 | `content/` | Rivals, lessons, academy, sample deck |
 
@@ -47,7 +49,8 @@ Detailed steps: [docs/setup-macos.md](docs/setup-macos.md)
 
 ```bash
 npm run build:packages   # compile bridge + coach + windbot-engines
-npm run tauri:dev        # desktop app (dev)
+npm run tauri:dev        # desktop trainer (dev)
+npm run botlab:dev       # WindBot Lab (combos / auto-mejora, app aparte)
 npm run tauri:build      # desktop app (release)
 npm run typecheck        # TypeScript check
 npm run test -w @yugioh/windbot-engines  # YDK Bind coverage + effect catalog

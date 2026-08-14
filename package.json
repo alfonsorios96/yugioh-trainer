@@ -9,11 +9,13 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @yugioh/trainer",
-    "build": "npm run build -w @yugioh/edopro-bridge && npm run build -w @yugioh/coach && npm run build -w @yugioh/windbot-engines && npm run build -w @yugioh/trainer",
-    "build:packages": "npm run build -w @yugioh/edopro-bridge && npm run build -w @yugioh/coach && npm run build -w @yugioh/windbot-engines",
+    "build": "npm run build -w @yugioh/edopro-bridge && npm run build -w @yugioh/coach && npm run build -w @yugioh/windbot-engines && npm run build -w @yugioh/bot-lab && npm run build -w @yugioh/trainer",
+    "build:packages": "npm run build -w @yugioh/edopro-bridge && npm run build -w @yugioh/coach && npm run build -w @yugioh/windbot-engines && npm run build -w @yugioh/bot-lab",
     "tauri:dev": "npm run tauri -w @yugioh/trainer -- dev",
     "tauri:build": "npm run tauri -w @yugioh/trainer -- build",
-    "typecheck": "npm run typecheck -w @yugioh/edopro-bridge && npm run typecheck -w @yugioh/coach && npm run typecheck -w @yugioh/windbot-engines && npm run build -w @yugioh/trainer --if-present",
+    "botlab:dev": "npm run tauri -w @yugioh/bot-lab-app -- dev",
+    "botlab:build": "npm run tauri -w @yugioh/bot-lab-app -- build",
+    "typecheck": "npm run typecheck -w @yugioh/edopro-bridge && npm run typecheck -w @yugioh/coach && npm run typecheck -w @yugioh/windbot-engines && npm run typecheck -w @yugioh/bot-lab && npm run typecheck -w @yugioh/trainer && npm run typecheck -w @yugioh/bot-lab-app",
     "install:engines": "node packages/windbot-engines/scripts/install.mjs",
     "bump": "node scripts/bump.mjs",
     "prepare": "husky"

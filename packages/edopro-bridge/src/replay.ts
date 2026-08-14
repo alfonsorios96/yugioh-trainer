@@ -7,6 +7,12 @@ export function isReplayFilename(name: string): boolean {
   return REPLAY_EXTENSIONS.some((ext) => lower.endsWith(ext.toLowerCase()));
 }
 
+/** EDOPro overwrites `_LastReplay.yrp(X)` after every duel — skip it in History. */
+export function isLastReplayFilename(name: string): boolean {
+  const stem = name.replace(/\.(yrpx|yrp|json)$/i, "").trim();
+  return stem.toLowerCase() === "_lastreplay";
+}
+
 export function pickLatestReplay(files: ReplayFileInfo[]): ReplayFileInfo | null {
   if (files.length === 0) return null;
   return [...files].sort((a, b) => b.modifiedMs - a.modifiedMs)[0] ?? null;

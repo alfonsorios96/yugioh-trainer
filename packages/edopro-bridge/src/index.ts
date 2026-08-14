@@ -53,6 +53,7 @@ export { buildLaunchPlan, windBotCommandLine } from "./launch.js";
 
 export {
   isReplayFilename,
+  isLastReplayFilename,
   pickLatestReplay,
   parseReplayFilename,
   extractReplaySummaryText,
@@ -66,6 +67,7 @@ export {
   type ReplayStep,
   type BoardSnapshot,
   type CardRef,
+  type Actor,
 } from "./yrpx.js";
 
 export {

@@ -130,6 +130,97 @@ textarea {
   animation: rise 280ms ease both;
 }
 
+.main:has(.panel-train) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 1.15rem 1.15rem 1.15rem 1.75rem;
+}
+
+.panel-train {
+  max-width: none;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.15rem;
+  animation: rise 280ms ease both;
+}
+
+.train-stage {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.35rem;
+}
+
+.train-stage h2 {
+  margin: 0 0 0.35rem;
+}
+
+.train-stage .lead {
+  margin-bottom: 1rem;
+}
+
+.train-rail {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.train-rail-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.train-rail-block {
+  padding: 0.85rem 0.9rem;
+  box-shadow: none;
+}
+
+.train-rail-block h3 {
+  margin-bottom: 0.55rem;
+}
+
+.train-rail-block .field {
+  margin-bottom: 0.55rem;
+}
+
+.train-rail-block .btn {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.train-rail-launch {
+  flex-shrink: 0;
+}
+
+.drill-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.drill-stack .rival-card {
+  padding: 0.55rem 0.65rem;
+}
+
+.drill-stack .rival-card strong {
+  font-size: 0.88rem;
+  margin-bottom: 0.1rem;
+}
+
+.drill-stack .rival-card span {
+  font-size: 0.72rem;
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -628,6 +719,28 @@ textarea {
 
   .main {
     padding: 1.25rem;
+  }
+
+  .main:has(.panel-train) {
+    overflow: auto;
+    display: block;
+    padding: 1.25rem;
+  }
+
+  .panel-train {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .train-stage,
+  .train-rail,
+  .train-rail-scroll {
+    overflow: visible;
+  }
+
+  .train-rail-launch {
+    margin-top: 0;
   }
 }
 

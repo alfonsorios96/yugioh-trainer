@@ -1,8 +1,7 @@
 {
-  "name": "@yugioh/windbot-engines",
+  "name": "@yugioh/bot-lab",
   "version": "0.7.0",
   "private": true,
-  "license": "AGPL-3.0-or-later",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,7 +14,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test tests/*.test.mjs"
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "tsc -p tsconfig.json && node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@yugioh/edopro-bridge": "*"
   },
   "devDependencies": {
     "typescript": "~5.8.3"

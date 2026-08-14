@@ -1,0 +1,37 @@
+{
+  "deckId": "toon-2026",
+  "nodes": [
+    { "id": "bookmark", "label": "Toon Bookmark search", "cardIds": [91500017] },
+    { "id": "table", "label": "Toon Table of Contents", "cardIds": [89997728] },
+    { "id": "terraforming", "label": "Terraforming", "cardIds": [73628505] },
+    { "id": "perfect-world", "label": "Perfect World on field", "cardIds": [7293697, 15259703] },
+    { "id": "rabbit", "label": "Funny Dark Rabbit extra NS", "cardIds": [45536531] },
+    { "id": "comic-cat", "label": "Comic Cat tribute", "cardIds": [72921536] },
+    { "id": "blue-eyes-toon", "label": "Blue-Eyes Toon Dragon", "cardIds": [53183600] },
+    { "id": "faceless", "label": "Faceless Mage", "cardIds": [34314989] },
+    { "id": "evil-box", "label": "Evil Box search Terror", "cardIds": [8915275] },
+    { "id": "terror-set", "label": "Toon Terror set", "cardIds": [53094821] },
+    { "id": "ultimate", "label": "Blue-Eyes Toon Ultimate Dragon", "cardIds": [71808988] },
+    { "id": "mind-scan", "label": "Mind Scan", "cardIds": [34298391] },
+    { "id": "ash-window", "label": "Ventana Ash / negate de search" }
+  ],
+  "edges": [
+    { "from": "bookmark", "to": "perfect-world", "kind": "enables", "note": "Busca Perfect World" },
+    { "from": "terraforming", "to": "perfect-world", "kind": "enables" },
+    { "from": "table", "to": "perfect-world", "kind": "enables", "note": "O Bookmark si World ya está" },
+    { "from": "perfect-world", "to": "rabbit", "kind": "enables", "note": "Ignition busca Rabbit" },
+    { "from": "perfect-world", "to": "comic-cat", "kind": "requires" },
+    { "from": "rabbit", "to": "comic-cat", "kind": "enables", "note": "Extra Normal Summon" },
+    { "from": "comic-cat", "to": "blue-eyes-toon", "kind": "enables" },
+    { "from": "comic-cat", "to": "faceless", "kind": "enables" },
+    { "from": "blue-eyes-toon", "to": "ultimate", "kind": "enables" },
+    { "from": "evil-box", "to": "terror-set", "kind": "enables" },
+    { "from": "faceless", "to": "mind-scan", "kind": "enables" },
+    { "from": "bookmark", "to": "ash-window", "kind": "window", "note": "Ash pega en Bookmark" },
+    { "from": "table", "to": "ash-window", "kind": "window" },
+    { "from": "perfect-world", "to": "ash-window", "kind": "window", "note": "Ash en la búsqueda" },
+    { "from": "ash-window", "to": "table", "kind": "recovers", "note": "Otra magia starter" },
+    { "from": "ash-window", "to": "terraforming", "kind": "recovers" },
+    { "from": "ash-window", "to": "terror-set", "kind": "recovers", "note": "Pasar con Terror" }
+  ]
+}

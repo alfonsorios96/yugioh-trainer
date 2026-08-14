@@ -156,6 +156,11 @@ function App() {
         r.windbotDeck.toLowerCase().includes(q),
     );
   }, [windBotAnalysis, labQuery]);
+  const rivalPickerList = useMemo(() => {
+    const list = rivalTab === "curriculum" ? rivals : labList;
+    if (list.some((r) => r.id === rival.id)) return list;
+    return [rival, ...list];
+  }, [rivalTab, labList, rival]);
   const activeGoals = useMemo(() => {
     const overlay = drillKind === "open" ? null : drillGoals(drillKind, rival.name);
     return overlay ?? sessionPlan?.goals;
@@ -724,237 +729,23 @@ function App() {
 
       <main className="main">
         {tab === "home" && (
-          <section className="panel hero-home">
-            <h2>Train smarter. Duel with purpose.</h2>
+          <section className="panel">
+            <h2>Home</h2>
             <p className="lead">
-              Pick your .ydk first. The trainer builds a session plan for that
-              list, then you duel a WindBot rival with three goals and review the replay.
+              Esta pantalla está vacía por ahora. El setup vive en Settings; el
+              entrenamiento, en Train.
             </p>
-            <div className="block">
-              <h3>Quick start</h3>
-              <ol className="steps">
-                <li>Install Project Ignis EDOPro and note its folder.</li>
-                <li>Set the path in Settings (WindBot must be present).</li>
-                <li>On Train, pick your .ydk — then a rival and a session goal.</li>
-                <li>Start duel — host a room in EDOPro if needed.</li>
-              </ol>
-              <div className="row" style={{ marginTop: "1rem" }}>
-                <button className="btn btn-primary" onClick={() => setTab("train")}>
-                  Go to Train
-                </button>
-                <button className="btn btn-secondary" onClick={() => setTab("history")}>
-                  Match history
-                </button>
-                <button className="btn btn-secondary" onClick={() => setTab("settings")}>
-                  Open Settings
-                </button>
-              </div>
-            </div>
-
-            <div className="block">
-                <h3>Install status</h3>
-                {install ? (
-                  <>
-                    <div className="row" style={{ marginBottom: "0.75rem" }}>
-                      <span className={`pill ${install.valid ? "ok" : "bad"}`}>
-                        {install.valid ? "WindBot folder" : "Needs setup"}
-                      </span>
-                      <span className={`pill ${install.hasCardsDb ? "ok" : "warn"}`}>
-                        {install.hasCardsDb ? "cards.cdb" : "no cdb"}
-                      </span>
-                      <span
-                        className={`pill ${
-                          windBotAnalysis?.ready
-                            ? "ok"
-                            : windBotAnalysis
-                              ? "warn"
-                              : "bad"
-                        }`}
-                      >
-                        {windBotAnalysis
-                          ? `Training ${windBotAnalysis.trainingReadyCount}/${rivals.length}`
-                          : "No WindBot scan"}
-                      </span>
-                    </div>
-                    <p className="markdownish" style={{ color: "var(--muted)" }}>
-                      {install.rootPath || "No path set"}
-                      {"\n"}
-                      {install.issues.length
-                        ? install.issues.map((i) => `• ${i}`).join("\n")
-                        : "• EDOPro path looks usable."}
-                    </p>
-
-                    {windBotAnalysis && (
-                      <div className="inventory">
-                        <div className="inventory-summary">
-                          <strong>WindBot decks</strong>
-                          <span>{windBotAnalysis.summary}</span>
-                        </div>
-
-                        <div className="row" style={{ marginBottom: "0.65rem" }}>
-                          {Object.entries(windBotAnalysis.byDifficulty)
-                            .sort(([a], [b]) => Number(a) - Number(b))
-                            .map(([diff, count]) => (
-                              <span key={diff} className="pill">
-                                Diff {diff}: {count}
-                              </span>
-                            ))}
-                          <span className="pill">
-                            Executors DLL: {windBotAnalysis.totalExecutorDlls}
-                          </span>
-                        </div>
-
-                        <h4 className="inventory-heading">Training rivals</h4>
-                        <ul className="inventory-list">
-                          {windBotAnalysis.trainingRivals.map((r) => (
-                            <li key={r.rivalId}>
-                                <span
-                                className={`pill ${
-                                  r.status === "ready"
-                                    ? "ok"
-                                    : r.status === "listed_no_ydk" ||
-                                        r.status === "missing_executor"
-                                      ? "warn"
-                                      : "bad"
-                                }`}
-                              >
-                                {r.status === "ready"
-                                  ? "ready"
-                                  : r.status === "listed_no_ydk"
-                                    ? "no ydk"
-                                    : r.status === "missing_executor"
-                                      ? "no executor"
-                                      : "missing"}
-                              </span>
-                              <div>
-                                <strong>{r.rivalName}</strong>
-                                <small>{r.note}</small>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-
-                        {windBotAnalysis.issues.length > 0 && (
-                          <p className="inventory-issues">
-                            {windBotAnalysis.issues.map((i) => `• ${i}`).join("\n")}
-                          </p>
-                        )}
-
-                        <div className="row" style={{ marginTop: "0.75rem" }}>
-                          <button
-                            className="btn btn-ghost"
-                            type="button"
-                            onClick={() => setShowAllWindBotDecks((v) => !v)}
-                          >
-                            {showAllWindBotDecks
-                              ? "Hide all WindBot decks"
-                              : `Show all ${windBotAnalysis.totalBots} WindBot decks`}
-                          </button>
-                          <button
-                            className="btn btn-secondary"
-                            type="button"
-                            disabled={busy || !install.valid}
-                            onClick={() => void handleSyncBots()}
-                          >
-                            Sync training bots
-                          </button>
-                        </div>
-
-                        {showAllWindBotDecks && (
-                          <ul className="inventory-list inventory-list-all">
-                            {windBotAnalysis.availableDecks.map((d) => (
-                              <li key={`${d.botName}-${d.deckKey}`}>
-                                <span className={`pill ${d.hasYdk ? "ok" : "warn"}`}>
-                                  {d.hasYdk ? "ydk" : "no ydk"}
-                                </span>
-                                <div>
-                                  <strong>
-                                    {d.botName}{" "}
-                                    <em style={{ fontStyle: "normal", color: "var(--muted)" }}>
-                                      ({d.deckKey})
-                                    </em>
-                                  </strong>
-                                  <small>
-                                    Diff {d.difficulty}
-                                    {d.ydkFileName ? ` · ${d.ydkFileName}` : ""}
-                                    {d.hasExecutorDll && d.executorFileName
-                                      ? ` · ${d.executorFileName}`
-                                      : ""}
-                                  </small>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p className="lead" style={{ margin: 0 }}>
-                    Set your EDOPro folder in Settings to begin.
-                  </p>
-                )}
-            </div>
           </section>
         )}
 
         {tab === "train" && (
-          <section className="panel">
-            <h2>Train</h2>
-            <p className="lead">
-              Your deck first. We generate a plan and three session goals, then you
-              pick a rival and duel.
-            </p>
-
-            <div className="block" style={{ marginBottom: "1.25rem" }}>
-              <h3>1. Your deck</h3>
-              <div className="field">
-                <label>Deck from EDOPro/deck</label>
-                <select
-                  value={settings.selectedDeckPath}
-                  onChange={(e) =>
-                    void updateSettings({ selectedDeckPath: e.target.value })
-                  }
-                >
-                  <option value="">— select —</option>
-                  {decks.map((d) => (
-                    <option key={d.path} value={d.path}>
-                      {d.name} ({d.main.length}+{d.extra.length})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {playerDeck ? (
-                <p className="field-hint">
-                  Coach sees {playerDeck.main.length}+{playerDeck.extra.length} cards
-                  {" · "}
-                  {uniqueCardCount(playerDeck)} unique names from {playerDeck.name}.
-                </p>
-              ) : (
-                <p className="field-hint">
-                  Select a .ydk so the session plan, briefing, chat, and replay
-                  review use your actual list.
-                </p>
-              )}
-              <div className="row">
-                <button
-                  className="btn btn-secondary"
-                  disabled={!install?.deckDir || busy}
-                  onClick={() => void pickDeckFile()}
-                >
-                  Import .ydk
-                </button>
-                <button
-                  className="btn btn-ghost"
-                  disabled={!install?.valid || busy}
-                  onClick={() => void handleSyncBots()}
-                >
-                  Sync WindBot bots
-                </button>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "1.25rem" }}>
+          <section className="panel panel-train">
+            <div className="train-stage">
+              <h2>Train</h2>
+              <p className="lead">
+                El plan de esta sesión vive aquí. A la derecha eliges tu deck, el
+                rival, el drill y lanzas el duelo.
+              </p>
               <SessionPlanPanel
                 plan={sessionPlan}
                 academy={academy}
@@ -980,172 +771,206 @@ function App() {
                 }}
                 busy={busy}
               />
+              {status && <p className="status-line">{status}</p>}
             </div>
 
-            <div className="block" style={{ marginBottom: "1.25rem" }}>
-              <h3>2. Rival</h3>
-              <div className="row" style={{ marginBottom: "0.75rem" }}>
-                <button
-                  className={`btn ${rivalTab === "curriculum" ? "btn-primary" : "btn-ghost"}`}
-                  type="button"
-                  onClick={() => setRivalTab("curriculum")}
-                >
-                  Curriculum ({rivals.length})
-                </button>
-                <button
-                  className={`btn ${rivalTab === "lab" ? "btn-primary" : "btn-ghost"}`}
-                  type="button"
-                  onClick={() => setRivalTab("lab")}
-                >
-                  All WindBot ({labRivals(windBotAnalysis).length})
-                </button>
+            <aside className="train-rail" aria-label="Setup de entrenamiento">
+              <div className="train-rail-scroll">
+              <div className="block train-rail-block">
+                <h3>Mi deck</h3>
+                <div className="field">
+                  <label>Desde EDOPro/deck</label>
+                  <select
+                    value={settings.selectedDeckPath}
+                    onChange={(e) =>
+                      void updateSettings({ selectedDeckPath: e.target.value })
+                    }
+                  >
+                    <option value="">— select —</option>
+                    {decks.map((d) => (
+                      <option key={d.path} value={d.path}>
+                        {d.name} ({d.main.length}+{d.extra.length})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {playerDeck ? (
+                  <p className="field-hint">
+                    {playerDeck.main.length}+{playerDeck.extra.length} ·{" "}
+                    {uniqueCardCount(playerDeck)} unique
+                  </p>
+                ) : (
+                  <p className="field-hint">Elige un .ydk para personalizar el plan.</p>
+                )}
+                <div className="row">
+                  <button
+                    className="btn btn-secondary"
+                    disabled={!install?.deckDir || busy}
+                    onClick={() => void pickDeckFile()}
+                  >
+                    Import .ydk
+                  </button>
+                </div>
               </div>
-              {rivalTab === "lab" && (
-                <>
+
+              <div className="block train-rail-block train-rail-rival">
+                <h3>Adversario</h3>
+                <div className="row" style={{ marginBottom: "0.55rem" }}>
+                  <button
+                    className={`btn ${rivalTab === "curriculum" ? "btn-primary" : "btn-ghost"}`}
+                    type="button"
+                    onClick={() => setRivalTab("curriculum")}
+                  >
+                    Curriculum
+                  </button>
+                  <button
+                    className={`btn ${rivalTab === "lab" ? "btn-primary" : "btn-ghost"}`}
+                    type="button"
+                    onClick={() => setRivalTab("lab")}
+                  >
+                    WindBot
+                  </button>
+                </div>
+                {rivalTab === "lab" && (
                   <div className="field">
-                    <label>Search WindBot decks</label>
+                    <label>Buscar</label>
                     <input
                       value={labQuery}
                       onChange={(e) => setLabQuery(e.target.value)}
-                      placeholder="Sky Striker, Tearlaments, Dragon…"
+                      placeholder="Nombre o deck key…"
                     />
                   </div>
-                  <p className="field-hint">
-                    Lab rivals use the executor already in your EDOPro WindBot.
-                    Lessons are generated with the LLM and cached. Curriculum
-                    matchups keep the hand-written notes.
-                  </p>
-                </>
-              )}
-              <div className="grid-3 rival-grid">
-                {(rivalTab === "curriculum" ? rivals : labList).map((r) => (
-                  <button
-                    key={r.id}
-                    className={`rival-card ${rival.id === r.id ? "selected" : ""}`}
-                    onClick={() => void updateSettings({ selectedRivalId: r.id })}
+                )}
+                <div className="field">
+                  <label>Deck rival</label>
+                  <select
+                    value={rival.id}
+                    onChange={(e) =>
+                      void updateSettings({ selectedRivalId: e.target.value })
+                    }
                   >
-                    <strong>{r.name}</strong>
-                    <span>
-                      Diff {r.difficulty}/5 · {r.archetype}
-                      {"\n"}
-                      {r.notes}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {rivalTab === "lab" && labList.length === 0 && (
+                    {rivalPickerList.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.name} · diff {r.difficulty}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <p className="field-hint">
-                  No extra WindBot decks found. Sync bots from Home, or open EDOPro
-                  WindBot/bots.json.
+                  {rival.notes}
+                  {" · "}
+                  {rival.windbotDeck}
                 </p>
-              )}
-              {!hasCuratedLesson(rival) && (
-                <div className="row" style={{ marginTop: "0.75rem" }}>
-                  <span className={`pill ${labLesson ? "ok" : "warn"}`}>
-                    {labLesson ? "LLM / cached lab lesson" : "generic lab lesson"}
-                  </span>
+                {rivalTab === "lab" && labList.length === 0 && (
+                  <p className="field-hint">
+                    No hay extras. Sync bots o revisa WindBot/bots.json.
+                  </p>
+                )}
+                <div className="row">
                   <button
                     className="btn btn-ghost"
-                    type="button"
-                    disabled={busy || !settings}
-                    onClick={() => {
-                      if (!settings) return;
-                      setBusy(true);
-                      void (async () => {
-                        const ydkName =
-                          windBotAnalysis?.availableDecks.find(
-                            (d) => d.deckKey === rival.windbotDeck,
-                          )?.ydkFileName ?? null;
-                        const ydkPath = windBotYdkPath(
-                          windBotAnalysis?.decksDir ?? null,
-                          ydkName,
-                        );
-                        const rivalDeck = ydkPath
-                          ? await snapshotFromYdkFile(ydkPath, settings.edoProPath)
-                          : undefined;
-                        const generated = await labMatchupLesson(settings, {
-                          rivalName: rival.name,
-                          rivalDeckKey: rival.windbotDeck,
-                          notes: rival.notes,
-                          playerDeck,
-                          rivalDeck,
-                          fallback: genericLesson(rival),
-                        });
-                        setLabLesson(generated.lesson);
-                        if (generated.source === "llm") {
-                          await saveCachedLabLesson(rival.id, generated.lesson);
-                        }
-                        setStatus(
-                          generated.error
-                            ? `Lab lesson fallback — ${generated.error}`
-                            : `Lab lesson ${generated.source}${generated.usedModel ? ` (${generated.usedModel})` : ""}`,
-                        );
-                      })().finally(() => setBusy(false));
-                    }}
+                    disabled={!install?.valid || busy}
+                    onClick={() => void handleSyncBots()}
                   >
-                    Regenerate lesson
+                    Sync bots
+                  </button>
+                  {!hasCuratedLesson(rival) && (
+                    <button
+                      className="btn btn-ghost"
+                      type="button"
+                      disabled={busy || !settings}
+                      onClick={() => {
+                        if (!settings) return;
+                        setBusy(true);
+                        void (async () => {
+                          const ydkName =
+                            windBotAnalysis?.availableDecks.find(
+                              (d) => d.deckKey === rival.windbotDeck,
+                            )?.ydkFileName ?? null;
+                          const ydkPath = windBotYdkPath(
+                            windBotAnalysis?.decksDir ?? null,
+                            ydkName,
+                          );
+                          const rivalDeck = ydkPath
+                            ? await snapshotFromYdkFile(ydkPath, settings.edoProPath)
+                            : undefined;
+                          const generated = await labMatchupLesson(settings, {
+                            rivalName: rival.name,
+                            rivalDeckKey: rival.windbotDeck,
+                            notes: rival.notes,
+                            playerDeck,
+                            rivalDeck,
+                            fallback: genericLesson(rival),
+                          });
+                          setLabLesson(generated.lesson);
+                          if (generated.source === "llm") {
+                            await saveCachedLabLesson(rival.id, generated.lesson);
+                          }
+                          setStatus(
+                            generated.error
+                              ? `Lab lesson fallback — ${generated.error}`
+                              : `Lab lesson ${generated.source}${generated.usedModel ? ` (${generated.usedModel})` : ""}`,
+                          );
+                        })().finally(() => setBusy(false));
+                      }}
+                    >
+                      Regenerar lección
+                    </button>
+                  )}
+                </div>
+                {!hasCuratedLesson(rival) && (
+                  <span className={`pill ${labLesson ? "ok" : "warn"}`}>
+                    {labLesson ? "lección cacheada" : "lección genérica"}
+                  </span>
+                )}
+              </div>
+
+              <div className="block train-rail-block">
+                <h3>Drill</h3>
+                <div className="drill-stack">
+                  {DRILL_OPTIONS.map((d) => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      className={`rival-card ${drillKind === d.id ? "selected" : ""}`}
+                      onClick={() => setDrillKind(d.id)}
+                    >
+                      <strong>{d.label}</strong>
+                      <span>{d.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              </div>
+
+              <div className="block train-rail-block train-rail-launch">
+                <h3>Launch</h3>
+                <p className="field-hint">
+                  {rival.name} · {settings.windBotHost}:{settings.windBotPort}
+                </p>
+                <div className="row" style={{ marginTop: "0.65rem" }}>
+                  <button
+                    className="btn btn-primary"
+                    disabled={!settings.edoProPath || busy}
+                    onClick={() => void handleStartDuel()}
+                  >
+                    Start duel
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    disabled={busy}
+                    onClick={() => void handleBriefing()}
+                  >
+                    Briefing
                   </button>
                 </div>
-              )}
-            </div>
-
-            <div className="block" style={{ marginBottom: "1.25rem" }}>
-              <h3>3. Drill</h3>
-              <p className="field-hint" style={{ marginBottom: "0.75rem" }}>
-                Un duelo completo es ruidoso. Elige un foco: el briefing, el
-                coach y el replay evalúan ese ejercicio.
-              </p>
-              <div className="grid-2 drill-grid">
-                {DRILL_OPTIONS.map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    className={`rival-card ${drillKind === d.id ? "selected" : ""}`}
-                    onClick={() => setDrillKind(d.id)}
-                  >
-                    <strong>{d.label}</strong>
-                    <span>{d.hint}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="block">
-              <h3>4. Launch</h3>
-              <p className="lead" style={{ marginBottom: "1rem" }}>
-                Rival executor: <strong>{rival.windbotDeck}</strong>. Default host{" "}
-                {settings.windBotHost}:{settings.windBotPort}.
-              </p>
-              <div className="row">
-                <button
-                  className="btn btn-primary"
-                  disabled={!settings.edoProPath || busy}
-                  onClick={() => void handleStartDuel()}
-                >
-                  Start duel
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  disabled={busy}
-                  onClick={() => void handleBriefing()}
-                >
-                  Pre-duel briefing
-                </button>
-              </div>
-              {launchPlan && (
-                <>
-                  <ol className="steps" style={{ marginTop: "1rem" }}>
-                    {launchPlan.steps.map((s) => (
-                      <li key={s}>{s}</li>
-                    ))}
-                  </ol>
+                {launchPlan && (
                   <p className="status-line">
-                    WindBot cmd: {windBotCommandLine(launchPlan)}
+                    WindBot: {windBotCommandLine(launchPlan)}
                   </p>
-                </>
-              )}
-            </div>
-            {status && <p className="status-line">{status}</p>}
+                )}
+              </div>
+            </aside>
           </section>
         )}
 
@@ -1266,6 +1091,23 @@ function App() {
               Point the trainer at your EDOPro install and optionally enable LLM coaching.
             </p>
             <div className="block">
+              <h3>Quick start</h3>
+              <ol className="steps">
+                <li>Install Project Ignis EDOPro and note its folder.</li>
+                <li>Set the path below (WindBot must be present).</li>
+                <li>On Train, pick your .ydk — then a rival and a session goal.</li>
+                <li>Start duel — host a room in EDOPro if needed.</li>
+              </ol>
+              <div className="row" style={{ marginTop: "1rem" }}>
+                <button className="btn btn-primary" onClick={() => setTab("train")}>
+                  Go to Train
+                </button>
+                <button className="btn btn-secondary" onClick={() => setTab("history")}>
+                  Match history
+                </button>
+              </div>
+            </div>
+            <div className="block" style={{ marginTop: "1.25rem" }}>
               <div className="block-head">
                 <h3>EDOPro</h3>
                 <ConnectionBadge
@@ -1304,6 +1146,141 @@ function App() {
                     </button>
                   ))}
                 </div>
+              )}
+              {install ? (
+                <>
+                  <div className="row" style={{ marginTop: "0.85rem", marginBottom: "0.65rem" }}>
+                    <span className={`pill ${install.valid ? "ok" : "bad"}`}>
+                      {install.valid ? "WindBot folder" : "Needs setup"}
+                    </span>
+                    <span className={`pill ${install.hasCardsDb ? "ok" : "warn"}`}>
+                      {install.hasCardsDb ? "cards.cdb" : "no cdb"}
+                    </span>
+                    <span
+                      className={`pill ${
+                        windBotAnalysis?.ready
+                          ? "ok"
+                          : windBotAnalysis
+                            ? "warn"
+                            : "bad"
+                      }`}
+                    >
+                      {windBotAnalysis
+                        ? `Training ${windBotAnalysis.trainingReadyCount}/${rivals.length}`
+                        : "No WindBot scan"}
+                    </span>
+                  </div>
+                  <p className="markdownish" style={{ color: "var(--muted)" }}>
+                    {install.rootPath || "No path set"}
+                    {"\n"}
+                    {install.issues.length
+                      ? install.issues.map((i) => `• ${i}`).join("\n")
+                      : "• EDOPro path looks usable."}
+                  </p>
+                  {windBotAnalysis && (
+                    <div className="inventory">
+                      <div className="inventory-summary">
+                        <strong>WindBot decks</strong>
+                        <span>{windBotAnalysis.summary}</span>
+                      </div>
+                      <div className="row" style={{ marginBottom: "0.65rem" }}>
+                        {Object.entries(windBotAnalysis.byDifficulty)
+                          .sort(([a], [b]) => Number(a) - Number(b))
+                          .map(([diff, count]) => (
+                            <span key={diff} className="pill">
+                              Diff {diff}: {count}
+                            </span>
+                          ))}
+                        <span className="pill">
+                          Executors DLL: {windBotAnalysis.totalExecutorDlls}
+                        </span>
+                      </div>
+                      <h4 className="inventory-heading">Training rivals</h4>
+                      <ul className="inventory-list">
+                        {windBotAnalysis.trainingRivals.map((r) => (
+                          <li key={r.rivalId}>
+                            <span
+                              className={`pill ${
+                                r.status === "ready"
+                                  ? "ok"
+                                  : r.status === "listed_no_ydk" ||
+                                      r.status === "missing_executor"
+                                    ? "warn"
+                                    : "bad"
+                              }`}
+                            >
+                              {r.status === "ready"
+                                ? "ready"
+                                : r.status === "listed_no_ydk"
+                                  ? "no ydk"
+                                  : r.status === "missing_executor"
+                                    ? "no executor"
+                                    : "missing"}
+                            </span>
+                            <div>
+                              <strong>{r.rivalName}</strong>
+                              <small>{r.note}</small>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      {windBotAnalysis.issues.length > 0 && (
+                        <p className="inventory-issues">
+                          {windBotAnalysis.issues.map((i) => `• ${i}`).join("\n")}
+                        </p>
+                      )}
+                      <div className="row" style={{ marginTop: "0.75rem" }}>
+                        <button
+                          className="btn btn-ghost"
+                          type="button"
+                          onClick={() => setShowAllWindBotDecks((v) => !v)}
+                        >
+                          {showAllWindBotDecks
+                            ? "Hide all WindBot decks"
+                            : `Show all ${windBotAnalysis.totalBots} WindBot decks`}
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          type="button"
+                          disabled={busy || !install.valid}
+                          onClick={() => void handleSyncBots()}
+                        >
+                          Sync training bots
+                        </button>
+                      </div>
+                      {showAllWindBotDecks && (
+                        <ul className="inventory-list inventory-list-all">
+                          {windBotAnalysis.availableDecks.map((d) => (
+                            <li key={`${d.botName}-${d.deckKey}`}>
+                              <span className={`pill ${d.hasYdk ? "ok" : "warn"}`}>
+                                {d.hasYdk ? "ydk" : "no ydk"}
+                              </span>
+                              <div>
+                                <strong>
+                                  {d.botName}{" "}
+                                  <em style={{ fontStyle: "normal", color: "var(--muted)" }}>
+                                    ({d.deckKey})
+                                  </em>
+                                </strong>
+                                <small>
+                                  Diff {d.difficulty}
+                                  {d.ydkFileName ? ` · ${d.ydkFileName}` : ""}
+                                  {d.hasExecutorDll && d.executorFileName
+                                    ? ` · ${d.executorFileName}`
+                                    : ""}
+                                </small>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="field-hint" style={{ marginTop: "0.75rem" }}>
+                  Set the EDOPro folder above to scan WindBot.
+                </p>
               )}
             </div>
 

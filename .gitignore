@@ -3,12 +3,16 @@ dist/
 *.local
 .env
 .DS_Store
+packages/*/dist/
 apps/trainer/dist/
 apps/trainer/src-tauri/target/
 apps/trainer/src-tauri/gen/
+apps/bot-lab/dist/
+apps/bot-lab/src-tauri/target/
+apps/bot-lab/src-tauri/gen/
 apps/trainer/src-tauri/icons/android/
 apps/trainer/src-tauri/icons/ios/
-packages/*/dist/
 .cache/
 *.log
 .vite/
+*.tsbuildinfo

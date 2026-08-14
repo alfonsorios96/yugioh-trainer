@@ -2,6 +2,7 @@ import type { GoalReview, StepCoaching } from "@yugioh/coach";
 import {
   mergeCardNames,
   replaceHashCodes,
+  isLastReplayFilename,
   type ReplayFileInfo,
   type ReplayWalkthrough,
   type UnknownCardMeta,
@@ -137,9 +138,9 @@ export interface ReplayHistoryRow {
 export async function listReplayCatalog(
   replayDir: string,
 ): Promise<ReplayHistoryRow[]> {
-  const files = [...(await listReplays(replayDir))].sort(
-    (a, b) => b.modifiedMs - a.modifiedMs,
-  );
+  const files = [...(await listReplays(replayDir))]
+    .filter((file) => !isLastReplayFilename(file.name))
+    .sort((a, b) => b.modifiedMs - a.modifiedMs);
   const reviews = await listMatchReviews();
   const byId = new Map(reviews.map((item) => [item.id, item]));
   const rows: ReplayHistoryRow[] = [];
