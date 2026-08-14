@@ -1,6 +1,7 @@
 import {
   askCoach,
   getDeckSessionPlan,
+  getLabMatchupLesson,
   getPostDuelReview,
   getPreDuelAdvice,
   reviewReplaySteps,
@@ -149,6 +150,25 @@ export async function coachReplaySteps(
     configFromSettings(settings),
     llmFetch,
   );
+}
+
+export async function labMatchupLesson(
+  settings: AppSettings,
+  input: {
+    rivalName: string;
+    rivalDeckKey: string;
+    notes?: string;
+    playerDeck?: DeckListSnapshot;
+    rivalDeck?: DeckListSnapshot;
+    fallback: MatchupLesson;
+  },
+): Promise<{
+  lesson: MatchupLesson;
+  source: "static" | "llm";
+  error?: string;
+  usedModel?: string;
+}> {
+  return getLabMatchupLesson(input, configFromSettings(settings), llmFetch);
 }
 
 export async function deckSessionPlan(

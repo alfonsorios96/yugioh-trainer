@@ -4,6 +4,7 @@ import type {
   AcademyItem,
   ChatContext,
   ChatMessage,
+  DeckListSnapshot,
   DeckPlanContext,
   PostDuelContext,
   PreDuelContext,
@@ -150,6 +151,36 @@ export function buildDeckPlanMessages(
         "goals: exactamente 3. focus uno de going-first, going-second, handtraps, resources, wincon.",
         "Cada goal.text es un objetivo de ESTA sesión, concreto y medible.",
       ].join("\n"),
+    },
+  ];
+}
+
+export function buildLabLessonMessages(input: {
+  rivalName: string;
+  rivalDeckKey: string;
+  notes?: string;
+  playerDeck?: DeckListSnapshot;
+  rivalDeck?: DeckListSnapshot;
+}): ChatMessage[] {
+  return [
+    { role: "system", content: SYSTEM },
+    {
+      role: "user",
+      content: [
+        `Genera una lección de matchup para entrenar contra el WindBot "${input.rivalName}" (Deck=${input.rivalDeckKey}).`,
+        input.notes ? `Notas: ${input.notes}` : "",
+        formatDeckBlock(input.playerDeck),
+        input.rivalDeck
+          ? `Rival WindBot list:\n${formatDeckBlock(input.rivalDeck)}`
+          : "Rival deck list unknown (executor may be embedded).",
+        "",
+        "Responde SOLO JSON válido con esta forma:",
+        '{"id":"lab-x","rivalId":"lab-x","title":"...","summary":"...","winConditions":["..."],"keyCardsRespect":["..."],"keyCardsNegate":["..."],"tips":[{"title":"...","body":"..."}],"handtrapGuidance":["..."],"commonMistakes":["..."]}',
+        "summary y arrays en español, nombres de cartas SIEMPRE en inglés.",
+        "3-5 items por array. tips: 2-3.",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     },
   ];
 }

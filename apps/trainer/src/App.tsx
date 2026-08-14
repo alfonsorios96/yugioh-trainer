@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { uniqueCardCount, type ChatMessage, type DeckListSnapshot, type SessionPlan } from "@yugioh/coach";
+import { uniqueCardCount, type ChatMessage, type DeckListSnapshot, type MatchupLesson, type SessionPlan } from "@yugioh/coach";
 import {
   mergeCardNames,
   replaceHashCodes,
@@ -11,7 +11,7 @@ import {
   type YdkDeck,
 } from "@yugioh/edopro-bridge";
 import "./App.css";
-import { getLessonForRival, getRival, rivals, academy, META_ENGINE_YDK_FILES } from "./lib/content";
+import { getLessonForRival, genericLesson, hasCuratedLesson, rivals, academy, META_ENGINE_YDK_FILES } from "./lib/content";
 import {
   analyzeWindBotDecks,
   createLaunchPlan,
@@ -28,6 +28,7 @@ import {
   chatWithCoach,
   coachReplaySteps,
   deckSessionPlan,
+  labMatchupLesson,
   preDuelAdvice,
   probeLlmConnection,
 } from "./lib/coachService";
@@ -38,7 +39,9 @@ import {
 } from "./lib/cardCatalog";
 import { loadSettings, saveSettings, type AppSettings } from "./lib/settings";
 import { native } from "./lib/native";
-import { snapshotFromYdk } from "./lib/playerDeck";
+import { snapshotFromYdk, snapshotFromYdkFile, windBotYdkPath } from "./lib/playerDeck";
+import { isLabRivalId, labRivals, resolveRival } from "./lib/labRivals";
+import { loadCachedLabLesson, saveCachedLabLesson } from "./lib/lessonCache";
 import { SessionPlanPanel } from "./SessionPlanPanel";
 import { type WalkthroughView } from "./ReplayWalkthrough";
 import { MatchHistoryPanel } from "./MatchHistory";
@@ -129,12 +132,29 @@ function App() {
   const [playerDeck, setPlayerDeck] = useState<DeckListSnapshot | undefined>();
   const [sessionPlan, setSessionPlan] = useState<SessionPlan | null>(null);
   const [goalChecked, setGoalChecked] = useState<Record<string, boolean>>({});
+  const [rivalTab, setRivalTab] = useState<"curriculum" | "lab">("curriculum");
+  const [labQuery, setLabQuery] = useState("");
+  const [labLesson, setLabLesson] = useState<MatchupLesson | null>(null);
 
   const rival = useMemo(
-    () => getRival(settings?.selectedRivalId ?? "blue-eyes") ?? rivals[0],
-    [settings?.selectedRivalId],
+    () => resolveRival(settings?.selectedRivalId ?? "blue-eyes", windBotAnalysis),
+    [settings?.selectedRivalId, windBotAnalysis],
   );
-  const lesson = useMemo(() => getLessonForRival(rival), [rival]);
+  const lesson = useMemo(
+    () =>
+      hasCuratedLesson(rival) ? getLessonForRival(rival) : (labLesson ?? genericLesson(rival)),
+    [rival, labLesson],
+  );
+  const labList = useMemo(() => {
+    const all = labRivals(windBotAnalysis);
+    const q = labQuery.trim().toLowerCase();
+    if (!q) return all;
+    return all.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.windbotDeck.toLowerCase().includes(q),
+    );
+  }, [windBotAnalysis, labQuery]);
   const selectedDeck = useMemo(
     () => decks.find((d) => d.path === settings?.selectedDeckPath) ?? null,
     [decks, settings?.selectedDeckPath],
@@ -163,6 +183,52 @@ function App() {
       cancelled = true;
     };
   }, [selectedDeck, settings?.edoProPath]);
+
+  useEffect(() => {
+    if (settings && isLabRivalId(settings.selectedRivalId)) {
+      setRivalTab("lab");
+    }
+  }, [settings?.selectedRivalId]);
+
+  useEffect(() => {
+    if (hasCuratedLesson(rival)) {
+      setLabLesson(null);
+      return;
+    }
+    if (!settings) return;
+    let cancelled = false;
+    void (async () => {
+      const cached = await loadCachedLabLesson(rival.id);
+      if (cached) {
+        if (!cancelled) setLabLesson(cached);
+        return;
+      }
+      const ydkName =
+        windBotAnalysis?.availableDecks.find(
+          (d) => d.deckKey === rival.windbotDeck,
+        )?.ydkFileName ?? null;
+      const ydkPath = windBotYdkPath(windBotAnalysis?.decksDir ?? null, ydkName);
+      const rivalDeck = ydkPath
+        ? await snapshotFromYdkFile(ydkPath, settings.edoProPath)
+        : undefined;
+      const generated = await labMatchupLesson(settings, {
+        rivalName: rival.name,
+        rivalDeckKey: rival.windbotDeck,
+        notes: rival.notes,
+        playerDeck,
+        rivalDeck,
+        fallback: genericLesson(rival),
+      });
+      if (cancelled) return;
+      setLabLesson(generated.lesson);
+      if (generated.source === "llm") {
+        await saveCachedLabLesson(rival.id, generated.lesson);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rival.id, rival.name, rival.windbotDeck, rival.notes, settings, windBotAnalysis]);
 
   useEffect(() => {
     if (!settings) return;
@@ -533,8 +599,11 @@ function App() {
     if (!settings) return null;
     setBusy(true);
     try {
-      const matchup = getRival(review.rivalId) ?? rival;
-      const matchupLesson = getLessonForRival(matchup);
+      const matchup = resolveRival(review.rivalId, windBotAnalysis);
+      const cachedLesson = await loadCachedLabLesson(matchup.id);
+      const matchupLesson =
+        cachedLesson ??
+        (matchup.id === rival.id ? lesson : getLessonForRival(matchup));
       const resolved = await resolveCardCatalog(
         settings.edoProPath,
         review.walk.cardCodes,
@@ -899,8 +968,41 @@ function App() {
 
             <div className="block" style={{ marginBottom: "1.25rem" }}>
               <h3>2. Rival</h3>
-              <div className="grid-3">
-                {rivals.map((r) => (
+              <div className="row" style={{ marginBottom: "0.75rem" }}>
+                <button
+                  className={`btn ${rivalTab === "curriculum" ? "btn-primary" : "btn-ghost"}`}
+                  type="button"
+                  onClick={() => setRivalTab("curriculum")}
+                >
+                  Curriculum ({rivals.length})
+                </button>
+                <button
+                  className={`btn ${rivalTab === "lab" ? "btn-primary" : "btn-ghost"}`}
+                  type="button"
+                  onClick={() => setRivalTab("lab")}
+                >
+                  All WindBot ({labRivals(windBotAnalysis).length})
+                </button>
+              </div>
+              {rivalTab === "lab" && (
+                <>
+                  <div className="field">
+                    <label>Search WindBot decks</label>
+                    <input
+                      value={labQuery}
+                      onChange={(e) => setLabQuery(e.target.value)}
+                      placeholder="Sky Striker, Tearlaments, Dragon…"
+                    />
+                  </div>
+                  <p className="field-hint">
+                    Lab rivals use the executor already in your EDOPro WindBot.
+                    Lessons are generated with the LLM and cached. Curriculum
+                    matchups keep the hand-written notes.
+                  </p>
+                </>
+              )}
+              <div className="grid-3 rival-grid">
+                {(rivalTab === "curriculum" ? rivals : labList).map((r) => (
                   <button
                     key={r.id}
                     className={`rival-card ${rival.id === r.id ? "selected" : ""}`}
@@ -915,6 +1017,60 @@ function App() {
                   </button>
                 ))}
               </div>
+              {rivalTab === "lab" && labList.length === 0 && (
+                <p className="field-hint">
+                  No extra WindBot decks found. Sync bots from Home, or open EDOPro
+                  WindBot/bots.json.
+                </p>
+              )}
+              {!hasCuratedLesson(rival) && (
+                <div className="row" style={{ marginTop: "0.75rem" }}>
+                  <span className={`pill ${labLesson ? "ok" : "warn"}`}>
+                    {labLesson ? "LLM / cached lab lesson" : "generic lab lesson"}
+                  </span>
+                  <button
+                    className="btn btn-ghost"
+                    type="button"
+                    disabled={busy || !settings}
+                    onClick={() => {
+                      if (!settings) return;
+                      setBusy(true);
+                      void (async () => {
+                        const ydkName =
+                          windBotAnalysis?.availableDecks.find(
+                            (d) => d.deckKey === rival.windbotDeck,
+                          )?.ydkFileName ?? null;
+                        const ydkPath = windBotYdkPath(
+                          windBotAnalysis?.decksDir ?? null,
+                          ydkName,
+                        );
+                        const rivalDeck = ydkPath
+                          ? await snapshotFromYdkFile(ydkPath, settings.edoProPath)
+                          : undefined;
+                        const generated = await labMatchupLesson(settings, {
+                          rivalName: rival.name,
+                          rivalDeckKey: rival.windbotDeck,
+                          notes: rival.notes,
+                          playerDeck,
+                          rivalDeck,
+                          fallback: genericLesson(rival),
+                        });
+                        setLabLesson(generated.lesson);
+                        if (generated.source === "llm") {
+                          await saveCachedLabLesson(rival.id, generated.lesson);
+                        }
+                        setStatus(
+                          generated.error
+                            ? `Lab lesson fallback — ${generated.error}`
+                            : `Lab lesson ${generated.source}${generated.usedModel ? ` (${generated.usedModel})` : ""}`,
+                        );
+                      })().finally(() => setBusy(false));
+                    }}
+                  >
+                    Regenerate lesson
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="block">

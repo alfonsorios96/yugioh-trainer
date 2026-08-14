@@ -35,10 +35,38 @@ export function getRival(id: string): RivalProfile | undefined {
   return rivals.find((r) => r.id === id);
 }
 
+export function genericLesson(rival: RivalProfile): MatchupLesson {
+  return {
+    id: rival.lessonId,
+    rivalId: rival.id,
+    title: `Training vs ${rival.name}`,
+    summary: `${rival.name} is a WindBot lab rival (${rival.archetype}). Scout their engine, deny the search that completes it, and play to your win condition.`,
+    winConditions: [
+      "Resolve your engine under interaction",
+      "Don't empty follow-up for a flashy board",
+    ],
+    keyCardsRespect: ["Unknown — generate an LLM lesson or scout game 1"],
+    keyCardsNegate: ["The search that completes their engine"],
+    tips: [
+      {
+        title: "Lab matchup",
+        body: "No curated notes yet. Ask the coach after you see their first line.",
+      },
+    ],
+    handtrapGuidance: [
+      "Hold Ash for the search that completes their engine, not the first optional dig.",
+    ],
+    commonMistakes: [
+      "Goldfishing without respecting unknown interaction",
+      "Spending every extender into a single negate",
+    ],
+  };
+}
+
+export function hasCuratedLesson(rival: RivalProfile): boolean {
+  return Boolean(lessons[rival.lessonId]);
+}
+
 export function getLessonForRival(rival: RivalProfile): MatchupLesson {
-  const lesson = lessons[rival.lessonId];
-  if (!lesson) {
-    throw new Error(`Missing lesson ${rival.lessonId}`);
-  }
-  return lesson;
+  return lessons[rival.lessonId] ?? genericLesson(rival);
 }

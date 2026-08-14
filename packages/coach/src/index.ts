@@ -7,10 +7,12 @@ import {
 import {
   buildChatMessages,
   buildDeckPlanMessages,
+  buildLabLessonMessages,
   buildPostDuelMessages,
   buildPreDuelMessages,
   buildStepReviewMessages,
 } from "./prompts.js";
+import { parseMatchupLessonJson } from "./lessonGen.js";
 import {
   formatStaticSessionPlan,
   parseSessionPlanJson,
@@ -22,7 +24,9 @@ import type {
   CoachConfig,
   CoachResponse,
   CoachVerdict,
+  DeckListSnapshot,
   DeckPlanContext,
+  MatchupLesson,
   PostDuelContext,
   PreDuelContext,
   ReplayDecisionInput,
@@ -131,6 +135,42 @@ export async function getPostDuelReview(
     return {
       ...fallback,
       content: `${fallback.content}\n\n_(LLM unavailable — ${reason})_`,
+    };
+  }
+}
+
+export async function getLabMatchupLesson(
+  input: {
+    rivalName: string;
+    rivalDeckKey: string;
+    notes?: string;
+    playerDeck?: DeckListSnapshot;
+    rivalDeck?: DeckListSnapshot;
+    fallback: MatchupLesson;
+  },
+  config: CoachConfig,
+  fetchImpl?: typeof fetch,
+): Promise<{ lesson: MatchupLesson; source: "static" | "llm"; error?: string; usedModel?: string }> {
+  if (!hasLlmConfig(config)) {
+    return { lesson: input.fallback, source: "static" };
+  }
+  try {
+    const result = await completeChat(
+      config,
+      buildLabLessonMessages(input),
+      fetchImpl,
+      { json: true },
+    );
+    return {
+      lesson: parseMatchupLessonJson(result.content, input.fallback),
+      source: "llm",
+      usedModel: result.usedModel,
+    };
+  } catch (e) {
+    return {
+      lesson: input.fallback,
+      source: "static",
+      error: e instanceof Error ? e.message : String(e),
     };
   }
 }

@@ -365,6 +365,12 @@ textarea {
   color: var(--muted);
 }
 
+.rival-grid {
+  max-height: 22rem;
+  overflow: auto;
+  padding-bottom: 0.25rem;
+}
+
 .rival-card {
   cursor: pointer;
   border: 1px solid var(--line);
