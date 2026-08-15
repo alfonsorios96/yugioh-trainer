@@ -1,0 +1,31 @@
+{
+  "request": {
+    "requestId": "case-34",
+    "duelId": "fx-34",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "option",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [59438930, 7293697, 24224830, 97268402],
+      "monsters": [45536531],
+      "spells": [],
+      "grave": [73628505, 91500017]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 1 },
+    "legalActions": [
+      { "id": "option-0", "kind": "option", "optionIndex": 0, "desc": 573 },
+      { "id": "option-1", "kind": "option", "optionIndex": 1, "desc": 47748513529860 }
+    ]
+  },
+  "expect": {
+    "actionId": "option-1",
+    "mustBeFirst": true,
+    "situationId": "first-going-funny-dark-rabbit-no-extenders",
+    "mode": "follow",
+    "source": "book"
+  }
+}

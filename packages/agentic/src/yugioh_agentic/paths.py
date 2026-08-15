@@ -49,3 +49,9 @@ def generated_dir(deck_id: str = "toon-2026") -> Path:
     path = _generated_override or (deck_dir(deck_id) / "resources" / "generated")
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def duels_dir(deck_id: str = "toon-2026") -> Path:
+    path = memory_dir(deck_id) / "duels"
+    path.mkdir(parents=True, exist_ok=True)
+    return path

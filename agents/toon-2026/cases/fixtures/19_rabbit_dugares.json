@@ -1,0 +1,33 @@
+{
+  "request": {
+    "requestId": "case-19",
+    "duelId": "fx-19",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [],
+      "monsters": [45536531, 65458948],
+      "spells": [7293697, 34298391],
+      "grave": [34314989, 89997728]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 3 },
+    "legalActions": [
+      { "id": "ss-dugares", "kind": "spsummon", "cardId": 66011101 },
+      { "id": "ss-anima", "kind": "spsummon", "cardId": 94259633 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "ss-dugares",
+    "mustBeFirst": true,
+    "situationId": "first-going-funny-dark-rabbit-no-extenders",
+    "mode": "follow",
+    "source": "book",
+    "stepIndex": 9
+  }
+}

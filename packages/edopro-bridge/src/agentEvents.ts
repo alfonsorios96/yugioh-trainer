@@ -11,7 +11,8 @@ export type AgentActionKind =
   | "select"
   | "announce"
   | "repos"
-  | "chain";
+  | "chain"
+  | "option";
 
 export interface AgentPlayerState {
   lp: number;
@@ -43,6 +44,10 @@ export interface AgentConstraints {
   summonCount?: number;
   selectRole?: string | null;
   chainPlayer?: number | null;
+  selectMin?: number;
+  selectMax?: number;
+  selectCancelable?: boolean;
+  selectHint?: number | null;
 }
 
 export interface AgentLegalAction {
@@ -51,6 +56,8 @@ export interface AgentLegalAction {
   cardId?: number | null;
   place?: string | null;
   label?: string | null;
+  desc?: number | null;
+  optionIndex?: number | null;
 }
 
 export interface DecisionRequest {
@@ -75,6 +82,7 @@ export interface RankedAction {
   score: number;
   why: string;
   label?: string | null;
+  desc?: number | null;
 }
 
 export interface DecisionProposal {
@@ -94,12 +102,19 @@ export interface DecisionProposal {
 export interface UserChoice {
   requestId: string;
   actionId: string;
+  actionIds?: string[] | null;
   note?: string | null;
 }
 
 export interface DecisionResponse {
   requestId: string;
   actionId: string;
+  actionIds?: string[];
+  kind?: string | null;
+  cardId?: number | null;
+  cardIds?: number[];
+  desc?: number | null;
+  optionIndex?: number | null;
   fromTop5: boolean;
   situationId: string | null;
   mode: AgentMode | string;

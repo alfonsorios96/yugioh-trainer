@@ -18,7 +18,9 @@ apps/trainer/src-tauri/icons/ios/
 .venv/
 packages/agentic/.venv/
 agents/**/resources/memory/*.jsonl
+agents/**/resources/memory/duels/
 agents/**/resources/generated/lesson-*.md
+*.egg-info/
 *.log
 .vite/
 *.tsbuildinfo

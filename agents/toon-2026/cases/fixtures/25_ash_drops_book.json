@@ -1,0 +1,33 @@
+{
+  "request": {
+    "requestId": "case-25",
+    "duelId": "fx-25",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": ["ash"],
+    "self": {
+      "lp": 8000,
+      "hand": [34298391, 53094821],
+      "monsters": [45536531],
+      "spells": [7293697],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [14558127], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 1 },
+    "legalActions": [
+      { "id": "act-scan", "kind": "activate", "cardId": 34298391 },
+      { "id": "set-terror", "kind": "set", "cardId": 53094821 },
+      { "id": "ss-dugares", "kind": "spsummon", "cardId": 66011101 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "act-scan",
+    "mustBeFirst": true,
+    "situationId": "ash-on-perfect-world-search",
+    "mode": "improvise",
+    "source": "heuristic"
+  }
+}

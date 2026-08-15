@@ -15,7 +15,12 @@ export async function submitChoice(
   const res = await fetch(`${baseUrl.replace(/\/$/, "")}/v1/choice`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(choice),
+    body: JSON.stringify({
+      requestId: choice.requestId,
+      actionId: choice.actionId,
+      actionIds: choice.actionIds ?? [choice.actionId],
+      note: choice.note ?? null,
+    }),
   });
   if (!res.ok) {
     const text = await res.text();
@@ -23,13 +28,25 @@ export async function submitChoice(
   }
 }
 
+export interface InterpretAction {
+  id: string;
+  kind: string | null;
+  cardId: number | null;
+  label: string;
+  desc?: number | null;
+}
+
 export interface InterpretResult {
   actionId: string | null;
+  actionIds?: string[];
+  actions?: InterpretAction[];
+  understood?: string;
   kind: string | null;
   cardId: number | null;
   rationale: string;
   source: string;
   matched: boolean;
+  ambiguous?: boolean;
 }
 
 export async function interpretOther(

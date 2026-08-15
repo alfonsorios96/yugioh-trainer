@@ -6,8 +6,8 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .learn import export_finetune
-from .teach import SESSION, IllegalActionError
-from .types import UserChoice, request_from_dict, to_dict
+from .teach import SESSION, IllegalActionError, teach_mode_enabled
+from .types import choice_from_dict, request_from_dict, to_dict
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
@@ -71,11 +71,7 @@ class AgentHandler(BaseHTTPRequestHandler):
             return
         if path == "/v1/choice":
             try:
-                choice = UserChoice(
-                    requestId=str(data["requestId"]),
-                    actionId=str(data["actionId"]),
-                    note=data.get("note"),
-                )
+                choice = choice_from_dict(data)
                 response = SESSION.choose(choice)
             except KeyError as exc:
                 self._json(404, {"error": str(exc)})
@@ -89,11 +85,17 @@ class AgentHandler(BaseHTTPRequestHandler):
             request = request_from_dict(data)
             timeout = data.get("timeout")
             try:
-                response = SESSION.decide_blocking(
-                    request, timeout=float(timeout) if timeout else None
-                )
+                if teach_mode_enabled(data):
+                    response = SESSION.decide_blocking(
+                        request, timeout=float(timeout) if timeout else None
+                    )
+                else:
+                    response = SESSION.decide_auto(request)
             except TimeoutError:
                 self._json(504, {"error": "no user choice"})
+                return
+            except IllegalActionError as exc:
+                self._json(400, {"error": str(exc)})
                 return
             self._json(200, to_dict(response))
             return
@@ -112,11 +114,15 @@ class AgentHandler(BaseHTTPRequestHandler):
                 return
             payload = {
                 "actionId": result.actionId,
+                "actionIds": result.actionIds,
+                "actions": result.actions,
+                "understood": result.understood,
                 "kind": result.kind,
                 "cardId": result.cardId,
                 "rationale": result.rationale,
                 "source": result.source,
                 "matched": result.matched,
+                "ambiguous": result.ambiguous,
             }
             if response is not None:
                 payload["response"] = to_dict(response)

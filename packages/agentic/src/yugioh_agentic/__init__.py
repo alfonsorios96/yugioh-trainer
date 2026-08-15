@@ -5,6 +5,7 @@ from .types import (
     DecisionRequest,
     DecisionResponse,
     LegalAction,
+    RankResult,
     UserChoice,
     request_from_dict,
 )
@@ -15,6 +16,7 @@ __all__ = [
     "DecisionRequest",
     "DecisionResponse",
     "LegalAction",
+    "RankResult",
     "UserChoice",
     "classify",
     "rank",

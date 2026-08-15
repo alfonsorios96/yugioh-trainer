@@ -1,0 +1,30 @@
+{
+  "request": {
+    "requestId": "case-13",
+    "duelId": "static",
+    "turn": 2,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "chain",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [],
+      "monsters": [45536531],
+      "spells": [7293697, 53094821],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 2, "chainPlayer": 1 },
+    "legalActions": [
+      { "id": "chain-53094821-0", "kind": "chain", "cardId": 53094821 },
+      { "id": "chain-pass", "kind": "chain" }
+    ]
+  },
+  "expect": {
+    "actionId": "chain-53094821-0",
+    "mustBeFirst": true,
+    "situationId": "chain-window",
+    "mode": "follow"
+  }
+}

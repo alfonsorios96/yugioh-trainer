@@ -37,11 +37,44 @@ VEILER = 97268402
 GHOST_OGRE = 59438930
 FUWALOS = 42141493
 DOMINUS = 40366667
+DIMENSION_SHIFTER = 91800273
+CALLED_BY = 24224830
 
 SEARCHERS = frozenset({TOON_BOOKMARK, TOON_TABLE, TERRAFORMING})
 WORLD_CARDS = frozenset({PERFECT_WORLD, TOON_WORLD})
+COMBO_STARTERS = frozenset({FUNNY_DARK_RABBIT, COMIC_CAT}) | SEARCHERS | WORLD_CARDS
 SAFE_FUWALOS = frozenset({COMIC_CAT, EVIL_BOX, MIND_SCAN, TOON_TERROR, PERFECT_WORLD})
 COMIC_CAT_BAD_SS = frozenset({BLUE_EYES_TOON, EVIL_BOX})
+HANDTRAPS = frozenset(
+    {ASH, MAXX_C, IMPERM, NIBIRU, VEILER, GHOST_OGRE, FUWALOS, DOMINUS}
+)
+# Legal in WindBot idle lists, but they only resolve in OnSelectChain.
+HAND_CHAIN_ONLY = frozenset(
+    {
+        DIMENSION_SHIFTER,
+        CALLED_BY,
+        ASH,
+        MAXX_C,
+        NIBIRU,
+        VEILER,
+        GHOST_OGRE,
+        FUWALOS,
+        DOMINUS,
+    }
+)
+COMBO_CHAIN = frozenset(
+    {
+        COMIC_CAT,
+        FUNNY_DARK_RABBIT,
+        PERFECT_WORLD,
+        MIND_SCAN,
+        FACELESS_MAGE,
+        EVIL_BOX,
+        TOON_TERROR,
+        TOON_TABLE,
+        TOON_BOOKMARK,
+    }
+)
 
 CARD_NAMES: dict[int, str] = {
     FUNNY_DARK_RABBIT: "Funny Dark Rabbit",
@@ -78,6 +111,8 @@ CARD_NAMES: dict[int, str] = {
     GHOST_OGRE: "Ghost Ogre & Snow Rabbit",
     FUWALOS: "Mulcharmy Fuwalos",
     DOMINUS: "Dominus Impulse",
+    DIMENSION_SHIFTER: "Dimension Shifter",
+    CALLED_BY: "Called by the Grave",
 }
 
 
@@ -89,3 +124,7 @@ def card_name(card_id: int | None) -> str:
 
 def is_searcher(card_id: int | None) -> bool:
     return card_id in SEARCHERS
+
+
+def is_handtrap(card_id: int | None) -> bool:
+    return card_id in HANDTRAPS

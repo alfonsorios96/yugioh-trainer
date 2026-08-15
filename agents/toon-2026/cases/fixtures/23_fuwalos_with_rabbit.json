@@ -1,0 +1,33 @@
+{
+  "request": {
+    "requestId": "case-23",
+    "duelId": "fx-23",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": ["fuwalos"],
+    "self": {
+      "lp": 8000,
+      "hand": [45536531, 72921536, 53094821],
+      "monsters": [],
+      "spells": [],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [], "grave": [42141493] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0 },
+    "legalActions": [
+      { "id": "ns-rabbit", "kind": "summon", "cardId": 45536531 },
+      { "id": "ns-cat", "kind": "summon", "cardId": 72921536 },
+      { "id": "set-terror", "kind": "set", "cardId": 53094821 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "set-terror",
+    "mustBeFirst": true,
+    "situationId": "first-turn-fuwalos-safe-pass",
+    "mode": "safe-pass",
+    "source": "heuristic"
+  }
+}

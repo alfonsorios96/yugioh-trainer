@@ -1,0 +1,31 @@
+{
+  "request": {
+    "requestId": "case-35",
+    "duelId": "fx-35",
+    "turn": 1,
+    "phase": "DP",
+    "going": "first",
+    "promptKind": "chain",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [91800273, 27204311, 65458948, 14558127, 24224830],
+      "monsters": [],
+      "spells": [],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0, "chainPlayer": -1 },
+    "legalActions": [
+      { "id": "chain-91800273-0", "kind": "chain", "cardId": 91800273 },
+      { "id": "chain-pass", "kind": "chain" }
+    ]
+  },
+  "expect": {
+    "actionId": "chain-91800273-0",
+    "mustBeFirst": true,
+    "situationId": "chain-window",
+    "mode": "follow",
+    "source": "heuristic"
+  }
+}

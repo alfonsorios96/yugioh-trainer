@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -11,17 +12,39 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     /// <summary>
-    /// Thin proxy: serialize legal MainPhase actions, wait for the agentic
+    /// Thin proxy: serialize the current WindBot prompt, wait for the
     /// teach server, execute the chosen actionId. Does not decide.
     /// </summary>
     [Deck("Toon2026Agent", "AI_Toon2026")]
     public class ToonAgentExecutor : MetaExecutor
     {
         private const string DefaultUrl = "http://127.0.0.1:8765/v1/decide";
+        private const int HintRelease = 500;
+        private const int HintDiscard = 501;
+        private const int HintToGrave = 504;
+        private const int HintToHand = 506;
+        private const int HintSummon = 509;
+        private const int HintSpSummon = 510;
+        private const int HintTarget = 526;
+
         private string _chosenKind;
         private int _chosenCardId;
+        private long _chosenDesc;
+        private int _chosenOptionIndex;
+        private List<int> _chosenCardIds;
         private string _duelId;
         private int _requestSeq;
+        private int _summonCount;
+        private bool _normalSummonUsed;
+        private bool _chainPrompt;
+        private IList<ClientCard> _chainCards;
+        private IList<ClientCard> _selectCards;
+        private IList<int> _announceIds;
+        private IList<long> _optionValues;
+        private int _selectMin;
+        private int _selectMax;
+        private bool _selectCancelable;
+        private long _selectHint;
 
         public ToonAgentExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -29,6 +52,9 @@ namespace WindBot.Game.AI.Decks
             _duelId = Guid.NewGuid().ToString("N").Substring(0, 12);
             _chosenKind = "";
             _chosenCardId = 0;
+            _chosenDesc = 0;
+            _chosenOptionIndex = -1;
+            _chosenCardIds = new List<int>();
             Bind(ExecutorType.Activate, new Func<bool>(this.DecideActivate));
             Bind(ExecutorType.Summon, new Func<bool>(this.DecideSummon));
             Bind(ExecutorType.SpSummon, new Func<bool>(this.DecideSpSummon));
@@ -41,32 +67,49 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             ClearChoice();
+            _summonCount = 0;
+            _normalSummonUsed = false;
+            _chainPrompt = false;
+            _chainCards = null;
         }
 
         public override void OnNewPhase()
         {
-            ClearChoice();
+            if (!_chainPrompt)
+                ClearChoice();
         }
 
         private void ClearChoice()
         {
             _chosenKind = "";
             _chosenCardId = 0;
+            _chosenDesc = 0;
+            _chosenOptionIndex = -1;
+            _chosenCardIds = new List<int>();
         }
 
         private bool DecideActivate()
         {
+            if (_chainPrompt)
+                return MatchChain();
             return MatchKind("activate");
         }
 
         private bool DecideSummon()
         {
-            return MatchKind("summon");
+            if (!MatchKind("summon"))
+                return false;
+            _normalSummonUsed = true;
+            _summonCount++;
+            return true;
         }
 
         private bool DecideSpSummon()
         {
-            return MatchKind("spsummon");
+            if (!MatchKind("spsummon"))
+                return false;
+            _summonCount++;
+            return true;
         }
 
         private bool DecideSpellSet()
@@ -104,12 +147,37 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (CurrentCard.Id != _chosenCardId)
                 return false;
+            if (kind == "activate" && _chosenDesc != 0 && ActivateDescription != _chosenDesc)
+                return false;
             ClearChoice();
+            return true;
+        }
+
+        private bool MatchChain()
+        {
+            EnsureChoice("chain", null);
+            if (_chosenKind == "chain" && _chosenCardId == 0)
+                return false;
+            if (_chosenKind != "chain" && _chosenKind != "activate")
+                return false;
+            if (CurrentCard == null || CurrentCard.Id != _chosenCardId)
+                return false;
+            if (_chosenDesc != 0 && ActivateDescription != 0 && ActivateDescription != _chosenDesc)
+                return false;
+            ClearChoice();
+            _chainPrompt = false;
+            _chainCards = null;
             return true;
         }
 
         private void EnsureChoice(string promptKind, string selectRole)
         {
+            if (promptKind == "idle" && _chainPrompt)
+            {
+                ClearChoice();
+                _chainPrompt = false;
+                _chainCards = null;
+            }
             if (_chosenKind != "")
                 return;
             string json = BuildRequest(promptKind, selectRole);
@@ -131,17 +199,250 @@ namespace WindBot.Game.AI.Decks
             sb.Append("\"deckId\":\"toon-2026\",");
             sb.Append("\"self\":").Append(FieldJson(FieldBot)).Append(",");
             sb.Append("\"opp\":").Append(FieldJson(FieldEnemy)).Append(",");
+            sb.Append("\"threats\":").Append(ThreatsJson()).Append(",");
             sb.Append("\"constraints\":{");
-            sb.Append("\"normalSummonUsed\":false,");
-            sb.Append("\"summonCount\":0");
+            sb.Append("\"normalSummonUsed\":").Append(_normalSummonUsed ? "true" : "false").Append(",");
+            sb.Append("\"summonCount\":").Append(_summonCount);
             if (selectRole != null)
                 sb.Append(",\"selectRole\":\"").Append(selectRole).Append("\"");
+            if (promptKind == "select")
+            {
+                sb.Append(",\"selectMin\":").Append(_selectMin);
+                sb.Append(",\"selectMax\":").Append(_selectMax);
+                sb.Append(",\"selectCancelable\":").Append(_selectCancelable ? "true" : "false");
+                sb.Append(",\"selectHint\":").Append(_selectHint);
+            }
+            if (promptKind == "chain")
+                sb.Append(",\"chainPlayer\":").Append(ReadIntProp(Match, "LastChainPlayer", -1));
             sb.Append("},");
             sb.Append("\"legalActions\":[");
-            sb.Append(LegalActionsJson());
+            sb.Append(LegalActionsJson(promptKind));
             sb.Append("]");
             sb.Append("}");
             return sb.ToString();
+        }
+
+        private string LegalActionsJson(string promptKind)
+        {
+            if (promptKind == "select")
+                return SelectActionsJson();
+            if (promptKind == "announce")
+                return AnnounceActionsJson();
+            if (promptKind == "chain")
+                return ChainActionsJson();
+            if (promptKind == "option")
+                return OptionActionsJson();
+            return IdleActionsJson();
+        }
+
+        private string IdleActionsJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            MainPhase main = Match.MainPhase;
+            first = AppendCards(sb, first, "summon", main.SummonableCards);
+            first = AppendCards(sb, first, "spsummon", main.SpecialSummonableCards);
+            first = AppendActivates(sb, first, main);
+            first = AppendCards(sb, first, "set", main.SpellSetableCards);
+            first = AppendCards(sb, first, "set", main.MonsterSetableCards);
+            if (!first)
+                sb.Append(",");
+            sb.Append("{\"id\":\"to-ep\",\"kind\":\"to_ep\"}");
+            return sb.ToString();
+        }
+
+        private bool AppendActivates(StringBuilder sb, bool first, MainPhase main)
+        {
+            IList<ClientCard> cards = main.ActivableCards;
+            if (cards == null)
+                return first;
+            IList<long> descs = main.ActivableDescs;
+            for (int i = 0; i < cards.Count; i++)
+            {
+                ClientCard c = cards[i];
+                if (c == null || c.Id <= 0)
+                    continue;
+                long desc = 0;
+                if (descs != null && i < descs.Count)
+                    desc = descs[i];
+                if (!first)
+                    sb.Append(",");
+                sb.Append("{\"id\":\"activate-").Append(c.Id).Append("-").Append(desc);
+                sb.Append("\",\"kind\":\"activate\",\"cardId\":").Append(c.Id);
+                sb.Append(",\"desc\":").Append(desc).Append("}");
+                first = false;
+            }
+            return first;
+        }
+
+        private string SelectActionsJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            if (_selectCards != null)
+            {
+                for (int i = 0; i < _selectCards.Count; i++)
+                {
+                    ClientCard c = _selectCards[i];
+                    if (c == null || c.Id <= 0)
+                        continue;
+                    if (!first)
+                        sb.Append(",");
+                    sb.Append("{\"id\":\"select-").Append(c.Id).Append("-").Append(i);
+                    sb.Append("\",\"kind\":\"select\",\"cardId\":").Append(c.Id).Append("}");
+                    first = false;
+                }
+            }
+            if (_selectCancelable)
+            {
+                if (!first)
+                    sb.Append(",");
+                sb.Append("{\"id\":\"select-skip\",\"kind\":\"select\"}");
+            }
+            return sb.ToString();
+        }
+
+        private string AnnounceActionsJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            if (_announceIds != null)
+            {
+                for (int i = 0; i < _announceIds.Count; i++)
+                {
+                    int id = _announceIds[i];
+                    if (id <= 0)
+                        continue;
+                    if (!first)
+                        sb.Append(",");
+                    sb.Append("{\"id\":\"announce-").Append(id).Append("-").Append(i);
+                    sb.Append("\",\"kind\":\"announce\",\"cardId\":").Append(id).Append("}");
+                    first = false;
+                }
+            }
+            return sb.ToString();
+        }
+
+        private string ChainActionsJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            if (_chainCards != null)
+            {
+                for (int i = 0; i < _chainCards.Count; i++)
+                {
+                    ClientCard c = _chainCards[i];
+                    if (c == null || c.Id <= 0)
+                        continue;
+                    if (!first)
+                        sb.Append(",");
+                    sb.Append("{\"id\":\"chain-").Append(c.Id).Append("-").Append(i);
+                    sb.Append("\",\"kind\":\"chain\",\"cardId\":").Append(c.Id).Append("}");
+                    first = false;
+                }
+            }
+            if (!first)
+                sb.Append(",");
+            sb.Append("{\"id\":\"chain-pass\",\"kind\":\"chain\"}");
+            return sb.ToString();
+        }
+
+        private string OptionActionsJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            if (_optionValues != null)
+            {
+                for (int i = 0; i < _optionValues.Count; i++)
+                {
+                    if (!first)
+                        sb.Append(",");
+                    sb.Append("{\"id\":\"option-").Append(i);
+                    sb.Append("\",\"kind\":\"option\",\"optionIndex\":").Append(i);
+                    sb.Append(",\"desc\":").Append(_optionValues[i]).Append("}");
+                    first = false;
+                }
+            }
+            return sb.ToString();
+        }
+
+        private bool AppendCards(StringBuilder sb, bool first, string kind, IList<ClientCard> cards)
+        {
+            if (cards == null)
+                return first;
+            for (int i = 0; i < cards.Count; i++)
+            {
+                ClientCard c = cards[i];
+                if (c == null || c.Id <= 0)
+                    continue;
+                if (!first)
+                    sb.Append(",");
+                sb.Append("{\"id\":\"").Append(kind).Append("-").Append(c.Id).Append("-").Append(i);
+                sb.Append("\",\"kind\":\"").Append(kind);
+                sb.Append("\",\"cardId\":").Append(c.Id).Append("}");
+                first = false;
+            }
+            return first;
+        }
+
+        private static int ReadIntProp(object obj, string name, int fallback)
+        {
+            if (obj == null)
+                return fallback;
+            PropertyInfo prop = obj.GetType().GetProperty(name);
+            if (prop == null)
+                return fallback;
+            object value = prop.GetValue(obj, null);
+            if (value == null)
+                return fallback;
+            return Convert.ToInt32(value);
+        }
+
+        private string ThreatsJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[");
+            bool first = true;
+            first = AppendThreat(sb, first, "fuwalos", ToonCardId.Fuwalos);
+            first = AppendThreat(sb, first, "maxx-c", ToonCardId.MaxxC);
+            AppendThreat(sb, first, "ash", ToonCardId.AshBlossom);
+            sb.Append("]");
+            return sb.ToString();
+        }
+
+        private bool AppendThreat(StringBuilder sb, bool first, string name, int cardId)
+        {
+            if (!OppHasCard(cardId))
+                return first;
+            if (!first)
+                sb.Append(",");
+            sb.Append("\"").Append(name).Append("\"");
+            return false;
+        }
+
+        private bool OppHasCard(int cardId)
+        {
+            return ContainsId(FieldEnemy.Hand, cardId)
+                || ContainsId(FieldEnemy.Graveyard, cardId)
+                || ContainsId(FieldEnemy.Banished, cardId)
+                || ContainsId(FieldEnemy.MonsterZone, cardId);
+        }
+
+        private bool ChainHasCard(int cardId)
+        {
+            return ContainsId(_chainCards, cardId);
+        }
+
+        private static bool ContainsId(IList<ClientCard> cards, int cardId)
+        {
+            if (cards == null)
+                return false;
+            for (int i = 0; i < cards.Count; i++)
+            {
+                if (cards[i] != null && cards[i].Id == cardId)
+                    return true;
+            }
+            return false;
         }
 
         private string FieldJson(ClientField field)
@@ -235,41 +536,6 @@ namespace WindBot.Game.AI.Decks
             return "atk";
         }
 
-        private string LegalActionsJson()
-        {
-            StringBuilder sb = new StringBuilder();
-            bool first = true;
-            MainPhase main = Match.MainPhase;
-            first = AppendCards(sb, first, "summon", main.SummonableCards);
-            first = AppendCards(sb, first, "spsummon", main.SpecialSummonableCards);
-            first = AppendCards(sb, first, "activate", main.ActivableCards);
-            first = AppendCards(sb, first, "set", main.SpellSetableCards);
-            first = AppendCards(sb, first, "set", main.MonsterSetableCards);
-            if (!first)
-                sb.Append(",");
-            sb.Append("{\"id\":\"to-ep\",\"kind\":\"to_ep\"}");
-            return sb.ToString();
-        }
-
-        private bool AppendCards(StringBuilder sb, bool first, string kind, IList<ClientCard> cards)
-        {
-            if (cards == null)
-                return first;
-            for (int i = 0; i < cards.Count; i++)
-            {
-                ClientCard c = cards[i];
-                if (c == null || c.Id <= 0)
-                    continue;
-                if (!first)
-                    sb.Append(",");
-                sb.Append("{\"id\":\"").Append(kind).Append("-").Append(c.Id).Append("-").Append(i);
-                sb.Append("\",\"kind\":\"").Append(kind);
-                sb.Append("\",\"cardId\":").Append(c.Id).Append("}");
-                first = false;
-            }
-            return first;
-        }
-
         private string PostDecide(string body)
         {
             string url = Environment.GetEnvironmentVariable("YGO_AGENT_URL");
@@ -294,29 +560,46 @@ namespace WindBot.Game.AI.Decks
 
         private void ParseChoice(string json)
         {
-            _chosenKind = ExtractJsonString(json, "actionId");
-            if (_chosenKind == "to-ep" || _chosenKind == "to_ep")
+            _chosenCardIds = ExtractJsonNumberArray(json, "cardIds");
+            string kind = ExtractJsonString(json, "kind");
+            string actionId = ExtractJsonString(json, "actionId");
+            if (actionId == "to-ep" || actionId == "to_ep" || kind == "to_ep")
             {
                 _chosenKind = "to_ep";
                 _chosenCardId = 0;
                 return;
             }
-            // actionId like "summon-45536531-0" or response may include kind
-            string kind = ExtractJsonString(json, "kind");
+            if (actionId == "chain-pass")
+            {
+                _chosenKind = "chain";
+                _chosenCardId = 0;
+                return;
+            }
+            if (actionId == "select-skip")
+            {
+                _chosenKind = "select";
+                _chosenCardId = 0;
+                _chosenCardIds = new List<int>();
+                return;
+            }
             if (kind != "")
                 _chosenKind = kind;
-            else
+            else if (actionId != "")
             {
-                int dash = _chosenKind.IndexOf('-');
+                int dash = actionId.IndexOf('-');
                 if (dash > 0)
-                    _chosenKind = _chosenKind.Substring(0, dash);
+                    _chosenKind = actionId.Substring(0, dash);
+                else
+                    _chosenKind = actionId;
             }
             string idField = ExtractJsonNumber(json, "cardId");
             if (idField != "")
                 _chosenCardId = int.Parse(idField);
+            else if (_chosenCardIds.Count > 0)
+                _chosenCardId = _chosenCardIds[0];
             else
             {
-                string[] parts = ExtractJsonString(json, "actionId").Split('-');
+                string[] parts = actionId.Split('-');
                 if (parts.Length >= 2)
                 {
                     int parsed;
@@ -324,51 +607,133 @@ namespace WindBot.Game.AI.Decks
                         _chosenCardId = parsed;
                 }
             }
+            string descField = ExtractJsonNumber(json, "desc");
+            if (descField != "")
+                _chosenDesc = long.Parse(descField);
+            string optField = ExtractJsonNumber(json, "optionIndex");
+            if (optField != "")
+                _chosenOptionIndex = int.Parse(optField);
+            else if (_chosenKind == "option" && actionId.StartsWith("option-"))
+            {
+                int parsed;
+                if (int.TryParse(actionId.Substring(7), out parsed))
+                    _chosenOptionIndex = parsed;
+            }
+            if (_chosenCardIds.Count == 0 && _chosenCardId > 0)
+                _chosenCardIds.Add(_chosenCardId);
         }
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, long hint, bool cancelable)
         {
-            _chosenKind = "";
-            _chosenCardId = 0;
-            string role = "summon_target";
-            if (CurrentCard != null && CurrentCard.Id == ToonCardId.ComicCat)
-                role = min <= 1 ? "tribute" : "summon_target";
-            EnsureChoice("select", role);
+            ClearChoice();
+            _selectCards = cards;
+            _selectMin = min;
+            _selectMax = max;
+            _selectCancelable = cancelable;
+            _selectHint = hint;
+            EnsureChoice("select", InferSelectRole(hint, min));
             List<ClientCard> picked = new List<ClientCard>();
+            if (_chosenCardId == 0 && _chosenCardIds.Count == 0)
+            {
+                _selectCards = null;
+                if (cancelable)
+                    return picked;
+            }
             if (cards != null)
             {
+                for (int n = 0; n < _chosenCardIds.Count; n++)
+                {
+                    int want = _chosenCardIds[n];
+                    for (int i = 0; i < cards.Count; i++)
+                    {
+                        if (cards[i] != null && cards[i].Id == want && !picked.Contains(cards[i]))
+                        {
+                            picked.Add(cards[i]);
+                            break;
+                        }
+                    }
+                    if (picked.Count >= max)
+                        break;
+                }
+            }
+            if (picked.Count == 0 && !cancelable && cards != null && cards.Count > 0)
+                picked.Add(cards[0]);
+            while (picked.Count < min && cards != null)
+            {
+                bool added = false;
                 for (int i = 0; i < cards.Count; i++)
                 {
-                    if (cards[i] != null && cards[i].Id == _chosenCardId)
+                    if (cards[i] != null && !picked.Contains(cards[i]))
                     {
                         picked.Add(cards[i]);
+                        added = true;
                         break;
                     }
                 }
+                if (!added)
+                    break;
             }
-            if (picked.Count == 0 && cards != null && cards.Count > 0)
-                picked.Add(cards[0]);
-            _chosenKind = "";
-            _chosenCardId = 0;
+            ClearChoice();
+            _selectCards = null;
             return picked;
         }
 
         public override int OnAnnounceCard(IList<int> avail)
         {
-            _chosenKind = "";
-            _chosenCardId = 0;
+            ClearChoice();
+            _announceIds = avail;
             EnsureChoice("announce", null);
+            int chosen = _chosenCardId;
+            ClearChoice();
+            _announceIds = null;
             if (avail != null)
             {
                 for (int i = 0; i < avail.Count; i++)
                 {
-                    if (avail[i] == _chosenCardId)
-                        return _chosenCardId;
+                    if (avail[i] == chosen)
+                        return chosen;
                 }
                 if (avail.Count > 0)
                     return avail[0];
             }
             return 0;
+        }
+
+        public override void OnSelectChain(IList<ClientCard> cards)
+        {
+            _chainPrompt = true;
+            _chainCards = cards;
+            ClearChoice();
+        }
+
+        public override int OnSelectOption(IList<long> options)
+        {
+            ClearChoice();
+            _optionValues = options;
+            EnsureChoice("option", null);
+            int idx = _chosenOptionIndex;
+            ClearChoice();
+            _optionValues = null;
+            if (idx >= 0 && options != null && idx < options.Count)
+                return idx;
+            return 0;
+        }
+
+        private string InferSelectRole(long hint, int min)
+        {
+            if (CurrentCard != null && CurrentCard.Id == ToonCardId.ComicCat)
+                return min <= 1 ? "tribute" : "summon_target";
+            if (hint == HintRelease)
+                return "tribute";
+            if (hint == HintSpSummon || hint == HintSummon)
+                return "summon_target";
+            if (hint == HintToHand)
+                return "search";
+            if (hint == HintToGrave || hint == HintDiscard)
+                return "send";
+            if (hint == HintTarget)
+                return "target";
+            return "target";
         }
 
         private static string ExtractJsonString(string json, string key)
@@ -405,6 +770,31 @@ namespace WindBot.Game.AI.Decks
             while (end < json.Length && (char.IsDigit(json[end]) || json[end] == '-'))
                 end++;
             return json.Substring(start, end - start);
+        }
+
+        private static List<int> ExtractJsonNumberArray(string json, string key)
+        {
+            List<int> ids = new List<int>();
+            string needle = "\"" + key + "\"";
+            int i = json.IndexOf(needle);
+            if (i < 0)
+                return ids;
+            int bracket = json.IndexOf('[', i + needle.Length);
+            if (bracket < 0)
+                return ids;
+            int end = json.IndexOf(']', bracket + 1);
+            if (end < 0)
+                return ids;
+            string inner = json.Substring(bracket + 1, end - bracket - 1);
+            string[] parts = inner.Split(',');
+            for (int n = 0; n < parts.Length; n++)
+            {
+                string token = parts[n].Trim();
+                int parsed;
+                if (int.TryParse(token, out parsed))
+                    ids.Add(parsed);
+            }
+            return ids;
         }
     }
 }

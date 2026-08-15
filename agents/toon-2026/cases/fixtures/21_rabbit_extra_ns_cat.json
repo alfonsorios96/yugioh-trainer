@@ -1,0 +1,33 @@
+{
+  "request": {
+    "requestId": "case-21",
+    "duelId": "fx-21",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [72921536, 53094821],
+      "monsters": [45536531],
+      "spells": [7293697, 34298391],
+      "grave": [66011101, 65458948, 34314989, 89997728]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 4 },
+    "legalActions": [
+      { "id": "ns-cat", "kind": "summon", "cardId": 72921536 },
+      { "id": "set-terror", "kind": "set", "cardId": 53094821 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "ns-cat",
+    "mustBeFirst": true,
+    "situationId": "first-going-funny-dark-rabbit-no-extenders",
+    "mode": "follow",
+    "source": "book",
+    "stepIndex": 14
+  }
+}

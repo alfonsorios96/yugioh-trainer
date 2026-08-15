@@ -7,7 +7,13 @@ import type {
 } from "@yugioh/edopro-bridge";
 import { AGENT_DEFAULT_URL } from "@yugioh/edopro-bridge";
 import { CardZone, EndBoardZones } from "./CardThumb";
-import { fetchPending, interpretOther, pingAgent, submitChoice } from "./lib/agent";
+import {
+  fetchPending,
+  interpretOther,
+  pingAgent,
+  submitChoice,
+  type InterpretResult,
+} from "./lib/agent";
 import { queryCardNames } from "./lib/bridge";
 
 export interface TeachHistoryItem {
@@ -40,6 +46,25 @@ function playerToBoard(p: AgentPlayerState): EndBoard {
     monsterStances: p.monsterStances?.map(asStance),
     spellStances: p.spellStances?.map(asStance),
   };
+}
+
+function promptHeadline(kind: string, role?: string | null, min?: number, max?: number): string {
+  if (kind === "select") {
+    const span = min != null && max != null ? ` (${min}–${max})` : "";
+    const roleBit = role ? ` · ${role}` : "";
+    return `Elige objetivo${roleBit}${span}`;
+  }
+  if (kind === "announce") return "Anuncia una carta";
+  if (kind === "chain") return "¿Responder en cadena?";
+  if (kind === "option") return "Elige opción";
+  if (kind === "idle") return "Elige efecto o jugada";
+  return kind;
+}
+
+function actionCaption(kind: string, label?: string | null, cardId?: number | null): string {
+  if (label) return label;
+  if (cardId) return `${kind} ${cardId}`;
+  return kind;
 }
 
 function collectCodes(ctx: TeachContext): number[] {
@@ -82,9 +107,12 @@ export function TeachPanel({
   const [llmPrompt, setLlmPrompt] = useState("");
   const [llmBusy, setLlmBusy] = useState(false);
   const [llmHint, setLlmHint] = useState("");
+  const [llmPreview, setLlmPreview] = useState<InterpretResult | null>(null);
+  const [llmInterpretedPrompt, setLlmInterpretedPrompt] = useState("");
   const [note, setNote] = useState("");
   const [history, setHistory] = useState<TeachHistoryItem[]>([]);
   const [localNames, setLocalNames] = useState<Record<string, string>>({});
+  const [pickedIds, setPickedIds] = useState<string[]>([]);
 
   const mergedNames = useMemo(
     () => ({ ...names, ...localNames }),
@@ -122,6 +150,13 @@ export function TeachPanel({
   const context = proposal?.context ?? null;
 
   useEffect(() => {
+    setPickedIds([]);
+    setLlmPreview(null);
+    setLlmInterpretedPrompt("");
+    setLlmHint("");
+  }, [proposal?.requestId]);
+
+  useEffect(() => {
     if (!context || !edoProPath) return;
     let cancelled = false;
     void (async () => {
@@ -155,35 +190,56 @@ export function TeachPanel({
     });
   }, [proposal, otherQuery, topIds]);
 
-  async function pick(actionId: string) {
+  const selectMax = context?.constraints?.selectMax ?? 1;
+  const multiSelect = (context?.promptKind === "select" || proposal?.context?.promptKind === "select") && selectMax > 1;
+
+  async function pick(actionId: string, extraIds?: string[], choiceNote?: string) {
     if (!proposal) return;
+    const actionIds = extraIds && extraIds.length > 0 ? extraIds : [actionId];
     setError("");
     const fromTop5 = topIds.has(actionId);
     const wasFirst = proposal.top5[0]?.actionId === actionId;
+    const resolvedNote = (choiceNote ?? note).trim() || null;
     try {
       await submitChoice({
         requestId: proposal.requestId,
         actionId,
-        note: note.trim() || null,
+        actionIds,
+        note: resolvedNote,
       });
       setHistory((prev) => [
         {
           requestId: proposal.requestId,
-          chosen: actionId,
+          chosen: actionIds.join(", "),
           fromTop5,
           wasFirst,
-          note: note.trim() || undefined,
+          note: resolvedNote || undefined,
         },
         ...prev,
       ]);
       setNote("");
       setLlmPrompt("");
       setLlmHint("");
+      setLlmPreview(null);
+      setLlmInterpretedPrompt("");
       setOtherOpen(false);
+      setPickedIds([]);
       setProposal(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
+  }
+
+  function toggleOrPick(actionId: string) {
+    if (!multiSelect) {
+      void pick(actionId);
+      return;
+    }
+    setPickedIds((prev) => {
+      if (prev.includes(actionId)) return prev.filter((id) => id !== actionId);
+      if (prev.length >= selectMax) return prev;
+      return [...prev, actionId];
+    });
   }
 
   async function runLlmPrompt() {
@@ -200,45 +256,47 @@ export function TeachPanel({
       const result = await interpretOther({
         requestId: proposal.requestId,
         prompt,
-        execute: true,
+        execute: false,
         apiKey: apiKey || undefined,
         baseUrl: apiBaseUrl || undefined,
         model: apiModel || undefined,
       });
-      if (!result.matched || !result.actionId) {
-        setLlmHint(result.rationale);
-        return;
-      }
-      const fromTop5 = topIds.has(result.actionId);
-      const wasFirst = proposal.top5[0]?.actionId === result.actionId;
-      setHistory((prev) => [
-        {
-          requestId: proposal.requestId,
-          chosen: result.actionId!,
-          fromTop5,
-          wasFirst,
-          note: prompt,
-        },
-        ...prev,
-      ]);
-      setNote("");
-      setLlmPrompt("");
+      setLlmPreview(result);
+      setLlmInterpretedPrompt(prompt);
       setLlmHint(result.rationale);
-      setOtherOpen(false);
-      setProposal(null);
     } catch (e) {
+      setLlmPreview(null);
+      setLlmInterpretedPrompt("");
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLlmBusy(false);
     }
   }
 
+  const llmFresh =
+    llmPreview != null && llmPrompt.trim() === llmInterpretedPrompt;
+  const llmActionIds = llmPreview?.actionIds?.length
+    ? llmPreview.actionIds
+    : llmPreview?.actionId
+      ? [llmPreview.actionId]
+      : [];
+  const llmConfirmable =
+    llmFresh &&
+    Boolean(llmPreview?.matched) &&
+    !llmPreview?.ambiguous &&
+    llmActionIds.length > 0;
+
+  async function confirmLlmPreview() {
+    if (!llmConfirmable || llmActionIds.length === 0) return;
+    await pick(llmActionIds[0], llmActionIds, llmPrompt.trim());
+  }
+
   return (
     <>
       <h2>Entrenar</h2>
       <p className="lede">
-        Mira el campo actual de la IA, luego elige una de las 5 mejores (o{" "}
-        <strong>Otra</strong>). EDOPro espera. Servidor:{" "}
+        Cada prompt de EDOPro (efecto, objetivo, anuncio, cadena u opción) trae
+        su propia lista. Elige en el top-5 o <strong>Otra</strong>. Servidor:{" "}
         <code>{AGENT_DEFAULT_URL}</code>
       </p>
       <p className={online ? "ok" : "bad"}>
@@ -279,6 +337,21 @@ export function TeachPanel({
           </div>
           <div className="teach-actions">
             <div className="card">
+              <p>
+                <strong>
+                  {promptHeadline(
+                    context?.promptKind ?? "idle",
+                    context?.constraints?.selectRole,
+                    context?.constraints?.selectMin,
+                    context?.constraints?.selectMax,
+                  )}
+                </strong>
+              </p>
+              {multiSelect ? (
+                <p className="muted">
+                  Marca hasta {selectMax} objetivos y confirma.
+                </p>
+              ) : null}
               <label>
                 Nota (opcional)
                 <input value={note} onChange={(e) => setNote(e.target.value)} />
@@ -288,12 +361,16 @@ export function TeachPanel({
               {proposal.top5.map((a, i) => (
                 <button
                   key={a.actionId}
-                  className="teach-choice"
-                  onClick={() => void pick(a.actionId)}
+                  className={
+                    pickedIds.includes(a.actionId)
+                      ? "teach-choice ok"
+                      : "teach-choice"
+                  }
+                  onClick={() => toggleOrPick(a.actionId)}
                 >
                   <span className="teach-rank">{i + 1}</span>
                   <strong>
-                    {a.kind} {a.label ?? a.cardId ?? ""}
+                    {actionCaption(a.kind, a.label, a.cardId)}
                   </strong>
                   <span className="muted">
                     {a.score.toFixed(0)} — {a.why}
@@ -305,7 +382,17 @@ export function TeachPanel({
               <button className="ghost" onClick={() => setOtherOpen((v) => !v)}>
                 Otra…
               </button>
-              {proposal.legalActions.some((a) => a.kind === "to_ep") ? (
+              {multiSelect ? (
+                <button
+                  className="primary"
+                  disabled={pickedIds.length === 0}
+                  onClick={() => void pick(pickedIds[0], pickedIds)}
+                >
+                  Confirmar {pickedIds.length}/{selectMax}
+                </button>
+              ) : null}
+              {context?.promptKind === "idle" &&
+              proposal.legalActions.some((a) => a.kind === "to_ep") ? (
                 <button
                   className="danger"
                   onClick={() =>
@@ -315,6 +402,24 @@ export function TeachPanel({
                   }
                 >
                   Pasar turno
+                </button>
+              ) : null}
+              {context?.promptKind === "chain" &&
+              proposal.legalActions.some((a) => a.id === "chain-pass") ? (
+                <button
+                  className="danger"
+                  onClick={() => void pick("chain-pass")}
+                >
+                  Pasar cadena
+                </button>
+              ) : null}
+              {context?.promptKind === "select" &&
+              proposal.legalActions.some((a) => a.id === "select-skip") ? (
+                <button
+                  className="ghost"
+                  onClick={() => void pick("select-skip")}
+                >
+                  Cancelar selección
                 </button>
               ) : null}
             </div>
@@ -331,14 +436,61 @@ export function TeachPanel({
                 </label>
                 <div className="row" style={{ margin: "0.65rem 0 0.85rem" }}>
                   <button
-                    className="primary"
+                    className="ghost"
                     disabled={llmBusy}
                     onClick={() => void runLlmPrompt()}
                   >
-                    {llmBusy ? "Interpretando…" : "Ejecutar con LLM"}
+                    {llmBusy ? "Interpretando…" : "Interpretar"}
+                  </button>
+                  <button
+                    className="primary"
+                    disabled={llmBusy || !llmConfirmable}
+                    onClick={() => void confirmLlmPreview()}
+                  >
+                    Confirmar acciones
                   </button>
                 </div>
-                {llmHint ? <p className="muted">{llmHint}</p> : null}
+                {llmPreview ? (
+                  <div className={llmFresh ? "llm-preview" : "llm-preview stale"}>
+                    <p>
+                      <strong>Entendí: </strong>
+                      {llmPreview.understood || "sin interpretación"}
+                    </p>
+                    {llmPreview.actions && llmPreview.actions.length > 0 ? (
+                      <>
+                        <p className="muted">
+                          {llmPreview.ambiguous
+                            ? "Hay varias acciones posibles; concreta el prompt."
+                            : "Acciones legales que aplicaría:"}
+                        </p>
+                        <ul className="llm-actions">
+                          {llmPreview.actions.map((a) => (
+                            <li key={a.id}>
+                              {a.label || actionCaption(a.kind ?? "", null, a.cardId)}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : (
+                      <p className="muted">
+                        Ninguna acción legal encaja con este prompt.
+                      </p>
+                    )}
+                    {!llmFresh ? (
+                      <p className="muted">
+                        El prompt cambió — interpreta de nuevo para confirmar.
+                      </p>
+                    ) : null}
+                    {llmHint ? <p className="muted">{llmHint}</p> : null}
+                  </div>
+                ) : llmHint ? (
+                  <p className="muted">{llmHint}</p>
+                ) : (
+                  <p className="muted">
+                    Interpreta primero: verás qué se entendió y qué acciones
+                    legales aplicaría, sin ejecutarlas.
+                  </p>
+                )}
                 <label>
                   O elige de la lista legal
                   <input
@@ -352,9 +504,9 @@ export function TeachPanel({
                     <button
                       key={a.id}
                       className="ghost"
-                      onClick={() => void pick(a.id)}
+                      onClick={() => toggleOrPick(a.id)}
                     >
-                      {a.kind} {a.label ?? a.cardId ?? a.id}
+                      {actionCaption(a.kind, a.label, a.cardId)}
                     </button>
                   ))}
                   {others.length === 0 ? (
@@ -418,7 +570,13 @@ function TeachContextBoard({
       <div className="card">
         <p className="muted">
           T{context.turn} · {context.phase} · going {context.going} ·{" "}
-          {context.promptKind} · {situationId ?? "sin situación"} · {mode}
+          {promptHeadline(
+            context.promptKind,
+            context.constraints?.selectRole,
+            context.constraints?.selectMin,
+            context.constraints?.selectMax,
+          )}{" "}
+          · {situationId ?? "sin situación"} · {mode}
           {rankMs != null ? ` · ${rankMs.toFixed(1)} ms` : ""}
         </p>
         <p className="muted">

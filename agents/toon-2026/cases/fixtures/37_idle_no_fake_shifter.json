@@ -1,0 +1,32 @@
+{
+  "request": {
+    "requestId": "case-37",
+    "duelId": "fx-37",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [91800273, 27204311, 65458948, 14558127, 24224830],
+      "monsters": [],
+      "spells": [],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0 },
+    "legalActions": [
+      { "id": "summon-14558127-0", "kind": "summon", "cardId": 14558127 },
+      { "id": "activate-91800273-0", "kind": "activate", "cardId": 91800273, "desc": 0 },
+      { "id": "set-24224830-0", "kind": "set", "cardId": 24224830 },
+      { "id": "set-14558127-0", "kind": "set", "cardId": 14558127 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "set-24224830-0",
+    "mustBeFirst": true,
+    "source": "heuristic"
+  }
+}

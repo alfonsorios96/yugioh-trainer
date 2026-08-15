@@ -38,5 +38,8 @@ namespace WindBot.Game.AI.Decks
         public const int SolemnJudgment = 41420027;
         public const int SolemnWarning = 84749824;
         public const int ChaosTrapHole = 11593137;
+        public const int AshBlossom = 14558127;
+        public const int MaxxC = 23434538;
+        public const int Fuwalos = 42141493;
     }
 }

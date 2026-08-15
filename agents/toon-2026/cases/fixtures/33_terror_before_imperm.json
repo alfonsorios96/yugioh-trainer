@@ -1,0 +1,32 @@
+{
+  "request": {
+    "requestId": "case-33",
+    "duelId": "fx-33",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [53094821, 10045474],
+      "monsters": [72921536, 8915275],
+      "spells": [7293697, 34298391],
+      "grave": [91500017]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 6 },
+    "legalActions": [
+      { "id": "set-terror", "kind": "set", "cardId": 53094821 },
+      { "id": "set-imperm", "kind": "set", "cardId": 10045474 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "set-terror",
+    "mustBeFirst": true,
+    "situationId": "close-combo-set-terror",
+    "mode": "follow",
+    "source": "heuristic"
+  }
+}

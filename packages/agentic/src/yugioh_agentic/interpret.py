@@ -6,9 +6,11 @@ import re
 import unicodedata
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 from .cards import CARD_NAMES, card_name
+from .labels import KIND_PREFIX, action_label
 from .types import LegalAction
 
 KIND_ALIASES: dict[str, tuple[str, ...]] = {
@@ -44,7 +46,9 @@ KIND_ALIASES: dict[str, tuple[str, ...]] = {
         "declarar fin",
     ),
     "announce": ("announce", "nombrar", "declarar", "name"),
-    "select": ("select", "elegir", "tributar", "tribute", "target"),
+    "select": ("select", "elegir", "tributar", "tribute", "target", "objetivo"),
+    "chain": ("chain", "cadena", "chaining", "responder", "negar"),
+    "option": ("option", "opcion", "opción", "efecto 1", "efecto 2", "efecto 3"),
 }
 
 CARD_ALIASES: dict[int, tuple[str, ...]] = {
@@ -81,19 +85,6 @@ def _guess_kind(folded: str) -> str | None:
     return best
 
 
-def _guess_card(folded: str) -> int | None:
-    best_id: int | None = None
-    best_len = 0
-    for card_id, name in CARD_NAMES.items():
-        aliases = (name.lower(),) + CARD_ALIASES.get(card_id, ())
-        for alias in aliases:
-            token = _fold(alias)
-            if token and token in folded and len(token) > best_len:
-                best_id = card_id
-                best_len = len(token)
-    return best_id
-
-
 @dataclass
 class InterpretResult:
     actionId: str | None
@@ -102,12 +93,126 @@ class InterpretResult:
     rationale: str
     source: str
     matched: bool
+    understood: str = ""
+    actionIds: list[str] = field(default_factory=list)
+    actions: list[dict[str, Any]] = field(default_factory=list)
+    ambiguous: bool = False
+
+
+def _guess_cards(folded: str) -> list[int]:
+    hits: list[tuple[int, int]] = []
+    for card_id, name in CARD_NAMES.items():
+        aliases = (name.lower(),) + CARD_ALIASES.get(card_id, ())
+        best = 0
+        for alias in aliases:
+            token = _fold(alias)
+            if token and token in folded and len(token) > best:
+                best = len(token)
+        if best:
+            hits.append((best, card_id))
+    hits.sort(key=lambda pair: (-pair[0], pair[1]))
+    seen: set[int] = set()
+    ordered: list[int] = []
+    for _length, card_id in hits:
+        if card_id not in seen:
+            seen.add(card_id)
+            ordered.append(card_id)
+    return ordered
+
+
+def _pack_actions(actions: list[LegalAction]) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": a.id,
+            "kind": a.kind,
+            "cardId": a.cardId,
+            "label": action_label(a),
+            "desc": a.desc,
+        }
+        for a in actions
+    ]
+
+
+def _understood_text(
+    prompt: str,
+    kind: str | None,
+    card_ids: list[int],
+    actions: list[LegalAction],
+) -> str:
+    if actions:
+        labels = [action_label(a) for a in actions]
+        if len(labels) == 1:
+            return labels[0]
+        if len(labels) == 2:
+            return f"{labels[0]} y {labels[1]}"
+        return f"{', '.join(labels[:-1])} y {labels[-1]}"
+    parts: list[str] = []
+    if kind:
+        parts.append(KIND_PREFIX.get(kind, kind))
+    for card_id in card_ids:
+        parts.append(card_name(card_id))
+    if parts:
+        return " ".join(parts)
+    return prompt.strip()
+
+
+def _is_ambiguous(actions: list[LegalAction]) -> bool:
+    if len(actions) <= 1:
+        return False
+    return not all(a.kind == "select" for a in actions)
+
+
+def _finish(
+    *,
+    prompt: str,
+    actions: list[LegalAction],
+    kind: str | None,
+    card_ids: list[int],
+    rationale: str,
+    source: str,
+    matched: bool,
+    understood: str | None = None,
+) -> InterpretResult:
+    primary = actions[0] if actions else None
+    return InterpretResult(
+        actionId=primary.id if primary else None,
+        kind=primary.kind if primary else kind,
+        cardId=primary.cardId if primary else (card_ids[0] if card_ids else None),
+        rationale=rationale,
+        source=source,
+        matched=matched,
+        understood=understood or _understood_text(prompt, kind, card_ids, actions),
+        actionIds=[a.id for a in actions],
+        actions=_pack_actions(actions),
+        ambiguous=_is_ambiguous(actions),
+    )
+
+
+def _pick_scored(
+    scored: list[tuple[int, LegalAction]],
+    mentioned: list[int],
+) -> list[LegalAction]:
+    if not scored or scored[0][0] < 4:
+        return []
+    if len(mentioned) >= 2:
+        by_card: dict[int, LegalAction] = {}
+        extras: list[LegalAction] = []
+        for score, action in scored:
+            if score < 4:
+                continue
+            if action.cardId in mentioned and action.cardId not in by_card:
+                by_card[action.cardId] = action
+            elif action.kind == "to_ep" or action.id in ("chain-pass", "select-skip"):
+                extras.append(action)
+        return [by_card[cid] for cid in mentioned if cid in by_card] + extras
+    top = scored[0][0]
+    return [action for score, action in scored if score == top]
 
 
 def interpret_local(prompt: str, legal: list[LegalAction]) -> InterpretResult:
     folded = _fold(prompt)
     kind = _guess_kind(folded)
-    card_id = _guess_card(folded)
+    mentioned = _guess_cards(folded)
     scored: list[tuple[int, LegalAction]] = []
     for action in legal:
         score = 0
@@ -115,7 +220,19 @@ def interpret_local(prompt: str, legal: list[LegalAction]) -> InterpretResult:
             score += 4
         if kind == "to_ep" and action.kind == "to_ep":
             score += 6
-        if card_id is not None and action.cardId == card_id:
+        if action.id == "chain-pass" and (
+            "pasar cadena" in folded or "pass chain" in folded or folded.strip() == "pasar"
+        ):
+            score += 8
+        if action.id == "select-skip" and ("cancelar" in folded or "skip" in folded):
+            score += 8
+        if "efecto 2" in folded and action.kind == "activate" and action.desc is not None:
+            if int(action.desc) % 16 == 1:
+                score += 3
+        if "efecto 1" in folded and action.kind == "activate" and action.desc is not None:
+            if int(action.desc) % 16 == 0:
+                score += 3
+        if action.cardId is not None and action.cardId in mentioned:
             score += 5
         label = _fold(action.label or card_name(action.cardId))
         if label and label in folded:
@@ -123,24 +240,27 @@ def interpret_local(prompt: str, legal: list[LegalAction]) -> InterpretResult:
         if score:
             scored.append((score, action))
     scored.sort(key=lambda pair: (-pair[0], pair[1].id))
-    if scored and scored[0][0] >= 4:
-        action = scored[0][1]
-        return InterpretResult(
-            actionId=action.id,
-            kind=action.kind,
-            cardId=action.cardId,
-            rationale=f"Interpreté «{prompt.strip()}» como {action.kind} {card_name(action.cardId)}",
+    chosen = _pick_scored(scored, mentioned)
+    if chosen:
+        labels = ", ".join(action_label(a) for a in chosen)
+        return _finish(
+            prompt=prompt,
+            actions=chosen,
+            kind=kind,
+            card_ids=mentioned,
+            rationale=f"Interpreté «{prompt.strip()}» como {labels}",
             source="local",
             matched=True,
         )
-    wanted = " ".join(part for part in (kind or "jugada", card_name(card_id) if card_id else "") if part)
-    return InterpretResult(
-        actionId=None,
+    wanted = _understood_text(prompt, kind, mentioned, [])
+    return _finish(
+        prompt=prompt,
+        actions=[],
         kind=kind,
-        cardId=card_id,
+        card_ids=mentioned,
         rationale=(
-            f"«{prompt.strip()}» suena a {wanted}, pero EDOPro no ofrece esa acción "
-            "en este prompt (no está en legalActions)."
+            f"«{prompt.strip()}» suena a {wanted or 'una jugada'}, pero EDOPro no ofrece "
+            "esa acción en este prompt (no está en legalActions)."
         ),
         source="local",
         matched=False,
@@ -161,7 +281,8 @@ def interpret_llm(
             "id": a.id,
             "kind": a.kind,
             "cardId": a.cardId,
-            "label": a.label or card_name(a.cardId),
+            "label": a.label or action_label(a),
+            "desc": a.desc,
         }
         for a in legal
     ]
@@ -172,9 +293,13 @@ def interpret_llm(
                 "role": "system",
                 "content": (
                     "Eres un árbitro de Yu-Gi-Oh. El usuario describe una jugada en "
-                    "español o inglés. Debes devolver SOLO JSON "
-                    '{"actionId":"..."} eligiendo un id de la lista legal. '
-                    "Si ninguna encaja, devuelve {\"actionId\": null}."
+                    "español o inglés. Devuelve SOLO JSON con lo que entendiste y "
+                    "las acciones legales que aplican: "
+                    '{"understood":"...","actionIds":["id1","id2"]}. '
+                    "Usa varios ids solo si el prompt pide varios objetivos "
+                    "(p. ej. un select múltiple). En idle/activate/chain/option "
+                    "elige como mucho un id. Si ninguna encaja, "
+                    '{"understood":"...","actionIds":[]}.'
                 ),
             },
             {
@@ -211,25 +336,41 @@ def interpret_llm(
         parsed = json.loads(match.group(0))
     except json.JSONDecodeError:
         return None
-    action_id = parsed.get("actionId")
-    legal_ids = {a.id for a in legal}
-    if action_id in legal_ids:
-        action = next(a for a in legal if a.id == action_id)
-        return InterpretResult(
-            actionId=action.id,
-            kind=action.kind,
-            cardId=action.cardId,
-            rationale=f"LLM: «{prompt.strip()}» → {action.kind} {card_name(action.cardId)}",
+    legal_by_id = {a.id: a for a in legal}
+    raw_ids = parsed.get("actionIds")
+    if not isinstance(raw_ids, list):
+        raw_ids = [parsed.get("actionId")] if parsed.get("actionId") else []
+    chosen: list[LegalAction] = []
+    seen: set[str] = set()
+    for raw in raw_ids:
+        action_id = str(raw) if raw is not None else ""
+        if action_id in legal_by_id and action_id not in seen:
+            seen.add(action_id)
+            chosen.append(legal_by_id[action_id])
+    understood = str(parsed.get("understood") or "").strip()
+    if chosen:
+        labels = ", ".join(action_label(a) for a in chosen)
+        return _finish(
+            prompt=prompt,
+            actions=chosen,
+            kind=chosen[0].kind,
+            card_ids=[a.cardId for a in chosen if a.cardId],
+            rationale=f"LLM: «{prompt.strip()}» → {labels}",
             source="llm",
             matched=True,
+            understood=understood or None,
         )
-    return InterpretResult(
-        actionId=None,
-        kind=None,
-        cardId=None,
+    kind = _guess_kind(_fold(prompt))
+    mentioned = _guess_cards(_fold(prompt))
+    return _finish(
+        prompt=prompt,
+        actions=[],
+        kind=kind,
+        card_ids=mentioned,
         rationale=f"El LLM no encontró una acción legal para «{prompt.strip()}».",
         source="llm",
         matched=False,
+        understood=understood or None,
     )
 
 

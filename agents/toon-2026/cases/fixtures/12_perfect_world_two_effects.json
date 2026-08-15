@@ -1,0 +1,29 @@
+{
+  "request": {
+    "requestId": "case-12",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [34298391],
+      "monsters": [],
+      "spells": [7293697],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 1 },
+    "legalActions": [
+      { "id": "activate-7293697-116699152", "kind": "activate", "cardId": 7293697, "desc": 116699152 },
+      { "id": "activate-7293697-116699153", "kind": "activate", "cardId": 7293697, "desc": 116699153 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "activate-7293697-116699153",
+    "mustBeFirst": true
+  }
+}

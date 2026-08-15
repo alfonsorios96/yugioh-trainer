@@ -1,0 +1,31 @@
+{
+  "request": {
+    "requestId": "case-26",
+    "duelId": "fx-26",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "chain",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [14558127, 7293697],
+      "monsters": [],
+      "spells": [91500017],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0, "chainPlayer": 0 },
+    "legalActions": [
+      { "id": "chain-14558127-0", "kind": "chain", "cardId": 14558127 },
+      { "id": "chain-pass", "kind": "chain" }
+    ]
+  },
+  "expect": {
+    "actionId": "chain-pass",
+    "mustBeFirst": true,
+    "situationId": "chain-window",
+    "mode": "follow",
+    "source": "heuristic"
+  }
+}

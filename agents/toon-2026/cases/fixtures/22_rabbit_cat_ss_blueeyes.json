@@ -1,0 +1,37 @@
+{
+  "request": {
+    "requestId": "case-22",
+    "duelId": "fx-22",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "select",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [53183600, 45536531, 8915275],
+      "monsters": [72921536, 45536531],
+      "spells": [7293697, 34298391],
+      "grave": [66011101, 65458948, 34314989, 89997728]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": {
+      "normalSummonUsed": true,
+      "summonCount": 5,
+      "selectRole": "summon_target"
+    },
+    "legalActions": [
+      { "id": "ss-blueeyes", "kind": "select", "cardId": 53183600 },
+      { "id": "ss-rabbit", "kind": "select", "cardId": 45536531 },
+      { "id": "ss-box", "kind": "select", "cardId": 8915275 }
+    ]
+  },
+  "expect": {
+    "actionId": "ss-blueeyes",
+    "mustBeFirst": true,
+    "situationId": "first-going-funny-dark-rabbit-no-extenders",
+    "mode": "follow",
+    "source": "book",
+    "stepIndex": 16
+  }
+}

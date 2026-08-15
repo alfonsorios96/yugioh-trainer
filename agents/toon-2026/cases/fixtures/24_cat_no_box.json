@@ -1,0 +1,34 @@
+{
+  "request": {
+    "requestId": "case-24",
+    "duelId": "fx-24",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [8915275],
+      "monsters": [45536531],
+      "spells": [],
+      "grave": [72921536]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 2 },
+    "legalActions": [
+      { "id": "act-rabbit", "kind": "activate", "cardId": 45536531 },
+      { "id": "act-box", "kind": "activate", "cardId": 8915275 },
+      { "id": "ss-box", "kind": "spsummon", "cardId": 8915275 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "act-rabbit",
+    "mustBeFirst": true,
+    "situationId": "first-going-comic-cat-no-extenders",
+    "mode": "follow",
+    "source": "book",
+    "stepIndex": 3
+  }
+}

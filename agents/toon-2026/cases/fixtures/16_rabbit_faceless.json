@@ -1,0 +1,34 @@
+{
+  "request": {
+    "requestId": "case-16",
+    "duelId": "fx-16",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [34314989, 89997728],
+      "monsters": [45536531],
+      "spells": [7293697],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 1 },
+    "legalActions": [
+      { "id": "act-faceless", "kind": "activate", "cardId": 34314989 },
+      { "id": "act-table", "kind": "activate", "cardId": 89997728 },
+      { "id": "act-world", "kind": "activate", "cardId": 7293697 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "act-faceless",
+    "mustBeFirst": true,
+    "situationId": "first-going-funny-dark-rabbit-no-extenders",
+    "mode": "follow",
+    "source": "book",
+    "stepIndex": 3
+  }
+}
