@@ -13,9 +13,7 @@ import {
   modelFromBook,
   parseComboBook,
   parseLearningLog,
-  runLearnCycle,
   serializeLearningLog,
-  undoLastApplied,
   updateSituation,
   type ComboBook,
   type ComboModel,
@@ -33,7 +31,6 @@ import { native } from "./lib/native";
 import {
   bookPath,
   comboDir,
-  enginePath,
   findRepoEnginesRoot,
   logPath,
   modelPath,
@@ -51,7 +48,6 @@ export default function App() {
   const [book, setBook] = useState<ComboBook | null>(null);
   const [model, setModel] = useState<ComboModel>(defaultToonComboModel());
   const [log, setLog] = useState<LearningEntry[]>([]);
-  const [engineSource, setEngineSource] = useState("");
   const [sitId, setSitId] = useState<string | null>(null);
   const [titleDraft, setTitleDraft] = useState("");
   const [notes, setNotes] = useState("");
@@ -74,7 +70,6 @@ export default function App() {
   const loadLibrary = useCallback(async (root: string) => {
     const bp = bookPath(root);
     const lp = logPath(root);
-    const ep = enginePath(root);
     const bookRaw = JSON.parse(await native.readTextFile(bp)) as unknown;
     const parsed = parseComboBook(bookRaw);
     setBook(parsed);
@@ -84,7 +79,6 @@ export default function App() {
     } catch {
       setLog([]);
     }
-    setEngineSource(await native.readTextFile(ep));
   }, []);
 
   useEffect(() => {
@@ -236,12 +230,6 @@ export default function App() {
     setLog(entries);
   }
 
-  async function persistEngine(source: string) {
-    if (!enginesRoot) throw new Error("comboRoot no configurado");
-    await native.writeTextFile(enginePath(enginesRoot), source);
-    setEngineSource(source);
-  }
-
   async function refreshReplays() {
     const dir = install?.replayDir;
     if (!dir) {
@@ -343,28 +331,19 @@ export default function App() {
     if (!book || !walk || !picked) return;
     const diag = diagnoseReplay(book, walk, actor);
     setDiagnosis(diag);
-    const result = runLearnCycle({
-      book,
-      diagnosis: diag,
-      engineSource,
-      replayName: picked.name,
-    });
+    const entry: LearningEntry = {
+      at: Date.now(),
+      replay: picked.name,
+      verdict: diag.verdict,
+      situationId: diag.situationId,
+      reason: diag.notes,
+      origin: "bot",
+    };
     const nextLog = parseLearningLog(
-      appendLearningEntry(serializeLearningLog(log), result.entry),
+      appendLearningEntry(serializeLearningLog(log), entry),
     );
     await persistLog(nextLog);
-    setStatus(result.reason ?? diag.notes);
-  }
-
-  async function undoLearn() {
-    const undone = undoLastApplied(engineSource, log);
-    if (!undone) {
-      setStatus("No hay parche aplicado para deshacer.");
-      return;
-    }
-    await persistEngine(undone.source);
-    await persistLog(undone.entries);
-    setStatus("Último parche deshecho.");
+    setStatus(diag.notes);
   }
 
   async function pickEdoFolder() {
@@ -686,13 +665,10 @@ export default function App() {
             <h2>Auto-mejora</h2>
             <p className="lede">
               El lab compara el replay con el libro y registra el diagnóstico.
-              Corregir when, pasos o endBoard se hace aquí; el engine no lee
+              Corregir when, pasos o endBoard se hace aquí; ToonAgent no lee
               el libro en el duelo.
             </p>
             <div className="row" style={{ marginBottom: "1rem" }}>
-              <button className="ghost" onClick={() => void undoLearn()}>
-                Deshacer último parche
-              </button>
               {enginesRoot ? (
                 <button
                   className="ghost"
@@ -711,10 +687,7 @@ export default function App() {
                   .reverse()
                   .map((e, i) => (
                     <div key={`${e.at}-${i}`} className="log-item">
-                      <strong className={e.applied ? "ok" : ""}>
-                        {e.verdict}
-                        {e.applied ? " · aplicado" : ""}
-                      </strong>{" "}
+                      <strong>{e.verdict}</strong>{" "}
                       <span className="muted">{e.replay}</span>
                       <div>{e.reason}</div>
                     </div>
@@ -727,7 +700,7 @@ export default function App() {
         {tab === "ajustes" && (
           <>
             <h2>Ajustes</h2>
-            <p className="lede">Ruta de EDOPro (replays) y del repo (ToonEngine + libro).</p>
+            <p className="lede">Ruta de EDOPro (replays) y del repo (libro de combos).</p>
             <div className="card">
               <label>
                 Carpeta EDOPro

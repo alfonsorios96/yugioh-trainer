@@ -12,14 +12,9 @@ export type {
   ComboNode,
   ComboEdge,
   ComboModel,
-  PatchKind,
-  EnginePatch,
   DiagnosisVerdict,
   Diagnosis,
   LearningEntry,
-  LlmConfig,
-  ChatMessage,
-  LearnCycleResult,
 } from "./types.js";
 
 export { ToonId, InterruptId, KNOWN_CARD_NAMES, BOT_NAME_HINTS, isWorldCard, isToonSearchStarter, isExtraDeckMonster, isEffectSummoner, isSearcher } from "./cards.js";
@@ -66,7 +61,6 @@ export {
   assignReplayToSituation,
   clearSituationReplay,
   bookCardIds,
-  allSelectExpectations,
   emptyEndBoard,
 } from "./book.js";
 
@@ -79,40 +73,10 @@ export {
   type ComboLineBeat,
 } from "./comboLine.js";
 
-export {
-  parseCsConsts,
-  parseHandlers,
-  allSelectIds,
-  compileComboBook,
-  currentPatchesFromSource,
-  undoPatchesFor,
-  validateNoRegression,
-  formatSelectArgs,
-  type HandlerInfo,
-  type SelectCall,
-} from "./compile.js";
-
-export { applyEnginePatches, patchesAreSelectOnly } from "./apply.js";
-
 export { classifySituation, diagnoseLine, diagnoseReplay } from "./diagnose.js";
 
 export {
   parseLearningLog,
   serializeLearningLog,
   appendLearningEntry,
-  hypothesizePatches,
-  runLearnCycle,
-  undoLastApplied,
 } from "./learn.js";
-
-export { completeChat, hasLlmConfig } from "./llm.js";
-
-export {
-  buildModelMessages,
-  buildHypothesisMessages,
-  parseComboModelJson,
-  parseJsonObject,
-  bookSummary,
-} from "./prompts.js";
-
-export { suggestComboModel, suggestHypothesis } from "./author.js";

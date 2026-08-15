@@ -373,33 +373,3 @@ export function bookCardIds(book: ComboBook): number[] {
   }
   return [...ids];
 }
-
-export function allSelectExpectations(book: ComboBook): {
-  cardId: number;
-  selectCard: number[];
-  selectNextCard: number[];
-}[] {
-  const byCard = new Map<
-    number,
-    { cardId: number; selectCard: number[]; selectNextCard: number[] }
-  >();
-  for (const sit of book.situations) {
-    for (const step of sit.steps) {
-      const cur = byCard.get(step.cardId) ?? {
-        cardId: step.cardId,
-        selectCard: [],
-        selectNextCard: [],
-      };
-      for (const id of step.selectCard ?? []) {
-        if (!cur.selectCard.includes(id)) cur.selectCard.push(id);
-      }
-      for (const id of step.selectNextCard ?? []) {
-        if (!cur.selectNextCard.includes(id)) cur.selectNextCard.push(id);
-      }
-      byCard.set(step.cardId, cur);
-    }
-  }
-  return [...byCard.values()].filter(
-    (e) => e.selectCard.length + e.selectNextCard.length > 0,
-  );
-}

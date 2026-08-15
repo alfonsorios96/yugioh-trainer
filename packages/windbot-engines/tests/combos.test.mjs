@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, test } from "node:test";
-import { pkgRoot } from "./lib/parse.mjs";
+
+const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const book = JSON.parse(
   readFileSync(join(pkgRoot, "combos/toon-2026/book.json"), "utf8"),
 );

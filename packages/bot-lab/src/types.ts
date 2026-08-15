@@ -88,15 +88,6 @@ export interface ComboModel {
   edges: ComboEdge[];
 }
 
-export type PatchKind = "selectCard" | "selectNextCard";
-
-export interface EnginePatch {
-  kind: PatchKind;
-  cardId: number;
-  ids: number[];
-  callIndex?: number;
-}
-
 export type DiagnosisVerdict =
   | "ok"
   | "wrong-search"
@@ -119,29 +110,6 @@ export interface LearningEntry {
   replay: string;
   verdict: DiagnosisVerdict;
   situationId: string | null;
-  applied: boolean;
-  patches: EnginePatch[];
-  undoPatches: EnginePatch[];
   reason?: string;
   origin: "gold" | "learned" | "bot";
-}
-
-export interface LlmConfig {
-  apiKey?: string;
-  baseUrl?: string;
-  model?: string;
-}
-
-export interface ChatMessage {
-  role: "system" | "user" | "assistant";
-  content: string;
-}
-
-export interface LearnCycleResult {
-  diagnosis: Diagnosis;
-  patches: EnginePatch[];
-  applied: boolean;
-  nextSource?: string;
-  reason?: string;
-  entry: LearningEntry;
 }

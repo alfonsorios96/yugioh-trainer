@@ -33,36 +33,14 @@
     "lessonId": "vs-tearlaments"
   },
   {
-    "id": "kewl-tune",
-    "name": "Kewl Tune",
-    "archetype": "Kewl Tune",
-    "difficulty": 4,
-    "windbotDeck": "KewlTune",
-    "windbotName": "Kewl Tune",
-    "masterRules": [5],
-    "notes": "META Tuner Synchro. Rotary sees your hand; Remix plays on your turn.",
-    "lessonId": "vs-kewl-tune"
-  },
-  {
-    "id": "light-and-darkness",
-    "name": "Light and Darkness",
-    "archetype": "Light and Darkness Ritual",
-    "difficulty": 4,
-    "windbotDeck": "LightAndDarkness",
-    "windbotName": "Light and Darkness",
-    "masterRules": [5],
-    "notes": "Pure LADR ritual loop. Griffoh tribute, Mind Shuffle, no Azamina.",
-    "lessonId": "vs-light-and-darkness"
-  },
-  {
     "id": "toon-2026",
-    "name": "Toon 2026",
+    "name": "Toon 2026 Agent",
     "archetype": "Toon",
     "difficulty": 3,
-    "windbotDeck": "Toon2026",
-    "windbotName": "Toon 2026",
+    "windbotDeck": "Toon2026Agent",
+    "windbotName": "Toon 2026 Agent",
     "masterRules": [5],
-    "notes": "Perfect World searches, Comic Cat tributes your monsters, Mind Scan sees the hand.",
+    "notes": "Teach-mode Toon 2026. Perfect World searches, Comic Cat tributes, Mind Scan sees the hand.",
     "lessonId": "vs-toon-2026"
   }
 ]

@@ -7,7 +7,7 @@ export type RivalDeckStatus =
   | "missing_executor";
 
 /** Deck= keys that need YgoTrainerEngines.dll (not built into stock WindBot). */
-export const META_PLUGIN_DECKS = ["KewlTune", "LightAndDarkness"];
+export const META_PLUGIN_DECKS = ["Toon2026Agent"];
 
 export interface WindBotDeckAvailability {
   botName: string;

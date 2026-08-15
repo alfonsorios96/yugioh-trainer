@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Copy META engine .ydk files, merge bots.json, and install Kewl Tune / LADR / Toon executors.
+ * Copy META engine .ydk files, merge bots.json, and install the Toon 2026 Agent executor.
  *
  * Local EDOPro WindBot.exe does not export DefaultExecutor (types live in ExecutorBase
  * or were internalized). Plugin compile against the exe fails. This script:

@@ -1,53 +1,22 @@
-# Effect catalog and coverage tests
+# Agent deck artefacts
 
-## Catalog JSON
+The live custom deck is Toon 2026 Agent. WindBot only serializes legal actions
+and executes the chosen `actionId`. Do not add `Register` / `Bind` / `SelectCard`
+engines or an effect catalog that assumes hardcoded handlers.
 
-Path: `packages/windbot-engines/tests/effects/<deck-id>.json`
+## YDK
 
-```json
-{
-  "deckId": "toon-2026",
-  "ydkFileName": "AI_Toon2026.ydk",
-  "engineFile": "src/Engines/ToonEngine.cs",
-  "effects": [
-    {
-      "cardId": 91500017,
-      "name": "Toon Bookmark",
-      "kind": "activate",
-      "effect": "Add 1 Toon World or a card that lists Toon World from Deck",
-      "setup": {
-        "botHand": [91500017],
-        "botDeck": [7293697]
-      },
-      "action": { "type": "activate", "cardId": 91500017 },
-      "expect": {
-        "selectCardContains": [7293697],
-        "note": "Bot prefers Toon World the Perfect World"
-      }
-    }
-  ]
-}
-```
+`packages/windbot-engines/ydk/AI_<Deck>.ydk` must match the `[Deck]` attribute
+on the proxy executor.
 
-`kind` values:
+## Card IDs
 
-- `activate` / `ignition` / `quick` / `trigger` — player-activated; required for every such Lua effect
-- `proc` / `continuous` / `replace` — document-only; still counts the card as catalogued
+`src/Engines/<Deck>Engine.cs` holds `public const int` passcodes the executor
+or agent may name (for example Comic Cat tribute handling). It is not a
+decision engine.
 
-Setup keys (all optional arrays of passcodes): `botHand`, `botDeck`, `botMonster`, `botSpell`, `botGrave`, `botExtra`, `oppHand`, `oppMonster`, `oppSpell`, `oppGrave`.
+## Combo book
 
-`expect.selectCardContains` is checked against `Brain.SelectCard` / `SelectNextCard` in `engineFile`. Omit it when the handler has no search priority (plain `return true`).
-
-## Coverage parser
-
-Tests parse:
-
-- YDK lines that are integers under `#main`, `#extra`, `!side`
-- `public const int Name = 123;` in `src/Engines/*.cs`
-- `ex.Bind(ExecutorType.<Type>, <CardId>.<Name>[, ...])` and numeric literals
-
-A YDK ID is covered if it is bound in that deck's engine **or** in `StapleEngine.cs`.
-
-## Puzzles
-
-`tests/effects.test.mjs` writes `tests/puzzles/<deck-id>-<cardId>-<index>.lua` using EDOPro `Debug.AddCard`. Generated Lua is gitignored. Open under EDOPro Puzzle Mode for a live script check; Node tests do not execute ocgcore.
+If the deck has teach-mode situations, put them in
+`packages/windbot-engines/combos/<deck-id>/book.json`. The agent compiles that
+book to markdown; Bot Lab edits the JSON. The executor does not read it.

@@ -1,27 +1,20 @@
 import assert from "node:assert/strict";
-import { basename } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, test } from "node:test";
-import {
-  allBoundIds,
-  listYdkFiles,
-  uniqueYdkIds,
-} from "./lib/parse.mjs";
 
-describe("executor Bind coverage", () => {
-  const { bound } = allBoundIds();
+const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-  test("at least one YDK is present", () => {
-    assert.ok(listYdkFiles().length >= 3);
+describe("Toon 2026 Agent artefacts", () => {
+  test("YDK and ToonCardId are present", () => {
+    const ydk = join(pkgRoot, "ydk/AI_Toon2026.ydk");
+    const ids = join(pkgRoot, "src/Engines/ToonEngine.cs");
+    assert.ok(existsSync(ydk), "missing AI_Toon2026.ydk");
+    assert.ok(existsSync(ids), "missing ToonEngine.cs");
+    const cs = readFileSync(ids, "utf8");
+    assert.match(cs, /class ToonCardId/);
+    assert.match(cs, /ComicCat = 72921536/);
+    assert.doesNotMatch(cs, /static void Register\(/);
   });
-
-  for (const ydkPath of listYdkFiles()) {
-    test(`${basename(ydkPath)} every card id has a Bind`, () => {
-      const missing = [...uniqueYdkIds(ydkPath)].filter((id) => !bound.has(id));
-      assert.deepEqual(
-        missing,
-        [],
-        `Unbound passcodes in ${basename(ydkPath)}: ${missing.join(", ")}`,
-      );
-    });
-  }
 });

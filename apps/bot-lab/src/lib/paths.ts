@@ -70,10 +70,6 @@ export function logPath(enginesRoot: string): string {
   return joinPath(comboDir(enginesRoot), "learning-log.jsonl");
 }
 
-export function enginePath(enginesRoot: string): string {
-  return joinPath(enginesRoot, "src", "Engines", "ToonEngine.cs");
-}
-
 export async function resolveCdb(edoProRoot: string): Promise<string | null> {
   const candidates = officialCardDbCandidates(edoProRoot, joinPath);
   for (const p of candidates) {

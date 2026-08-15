@@ -1,6 +1,6 @@
 # WindBot META engines (AGPL-3.0)
 
-Reusable WindBot executors for current TCG training: **Kewl Tune**, **Light and Darkness Ritual** (Pure), and **Toon 2026**.
+Reusable WindBot executor for current TCG training: **Toon 2026 Agent**.
 
 These classes inherit `DefaultExecutor` from [ProjectIgnis/windbot](https://github.com/ProjectIgnis/windbot) and are licensed **AGPL-3.0-or-later**. The YGO Trainer wrapper remains MIT; it only copies artefacts into a local EDOPro install.
 
@@ -10,7 +10,7 @@ The Ignis `DecksManager` can load extra executors from `WindBot/Executors/*.dll`
 
 This script therefore:
 
-1. Copies `ydk/*.ydk` into `WindBot/Decks/` and merges Kewl Tune / Light and Darkness / Toon 2026 into `bots.json`
+1. Copies `ydk/*.ydk` into `WindBot/Decks/` and merges Toon 2026 Agent into `bots.json`
 2. Tries a plugin DLL if `ExecutorBase.dll` is next to `WindBot.exe`
 3. Otherwise clones [ProjectIgnis/windbot](https://github.com/ProjectIgnis/windbot), injects our C# into `Game/AI/Decks/`, builds, and replaces `WindBot.exe` (original saved as `WindBot.exe.ygo-trainer-bak`)
 
@@ -26,15 +26,10 @@ Needs **git** and **msbuild** or **xbuild** (Mono) for the rebuild path. The tra
 
 | Rival | `Deck=` | `.ydk` |
 | --- | --- | --- |
-| Kewl Tune | `KewlTune` | `AI_KewlTune.ydk` |
-| Light and Darkness | `LightAndDarkness` | `AI_LightAndDarkness.ydk` |
-| Toon 2026 | `Toon2026` | `AI_Toon2026.ydk` |
 | Toon 2026 Agent | `Toon2026Agent` | `AI_Toon2026.ydk` (teach proxy; no local decisions) |
 
 Compile needs git + Mono `msbuild`/`xbuild` (rebuilds WindBot.exe with the META engines) or a local `ExecutorBase.dll` for the plugin path.
 
 ## v1 lines
 
-- **Kewl Tune:** Mix/Reco search → Rotary extra Normal Summon → Synchro Track Maker → Remix / RS. Going second: Lightning Storm + battle.
-- **LADR Pure:** Pre-Prep / Manju / Celtic Mystic → Griffoh as full ritual tribute → Magician of Dark Chaos or BLS → Mind Shuffle follow-up. Azamina/Branded are not in this build.
-- **Toon 2026:** Bookmark / Table / Terraforming → Perfect World searches → Funny Dark Rabbit extra NS → Comic Cat tribute into Blue-Eyes Toon → contact Ultimate Dragon. Mind Scan + Toon Terror.
+- **Toon 2026 Agent:** Bookmark / Table / Terraforming → Perfect World searches → Funny Dark Rabbit extra NS → Comic Cat tribute into Blue-Eyes Toon → contact Ultimate Dragon. Mind Scan + Toon Terror. Decisions come from the teach-mode agent, not a hardcoded executor.

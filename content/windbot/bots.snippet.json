@@ -18,18 +18,6 @@
     "masterRules": [4, 5]
   },
   {
-    "name": "Kewl Tune",
-    "deck": "KewlTune",
-    "difficulty": 4,
-    "masterRules": [5]
-  },
-  {
-    "name": "Light and Darkness",
-    "deck": "LightAndDarkness",
-    "difficulty": 4,
-    "masterRules": [5]
-  },
-  {
     "name": "Toon 2026 Agent",
     "deck": "Toon2026Agent",
     "difficulty": 3,

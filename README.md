@@ -6,9 +6,9 @@ Card scripts and updates come from the Ignis ecosystem ([CardScripts](https://gi
 
 ## Features (MVP)
 
-- Launch local training duels against **Blue-Eyes**, **Sky Striker**, **Tearlaments**, **Kewl Tune**, **Light and Darkness Ritual**, and **Toon 2026**
+- Launch local training duels against **Blue-Eyes**, **Sky Striker**, **Tearlaments**, and **Toon 2026 Agent**
 - Sync WindBot `bots.json` entries without wiping other bots
-- Install META engine `.ydk` files (Kewl Tune / LADR / Toon 2026) into `WindBot/Decks/`
+- Install the META engine `.ydk` (`AI_Toon2026.ydk`) into `WindBot/Decks/`
 - Import / select `.ydk` decks from your EDOPro `deck/` folder
 - **Coach**: pre-duel briefing, ask-the-coach chat, post-duel replay review
 - Works offline with static matchup lessons; add an OpenAI-compatible API key for LLM answers
@@ -23,7 +23,7 @@ Card scripts and updates come from the Ignis ecosystem ([CardScripts](https://gi
 | `packages/edopro-bridge` | Install probe, bots merge, YDK, launch plans, replay helpers |
 | `packages/coach` | Static + LLM coaching |
 | `packages/bot-lab` | ComboBook, combo graph, SelectCard patches, bot replay learning |
-| `packages/windbot-engines` | AGPL Kewl Tune / LADR / Toon 2026 WindBot executors |
+| `packages/windbot-engines` | AGPL Toon 2026 Agent WindBot executor |
 | `content/` | Rivals, lessons, academy, sample deck |
 
 ## Quick start (macOS)
@@ -41,7 +41,7 @@ Detailed steps: [docs/setup-macos.md](docs/setup-macos.md)
 1. Set the EDOPro folder in **Settings**
 2. Optional: paste an API key for LLM coaching (see [`.env.example`](.env.example) for variable names; the app stores the key in its settings store)
 3. **Train** → pick rival + deck → **Sync WindBot bots** → **Start duel**
-4. For Kewl Tune / Light and Darkness / Toon 2026: `npm run install:engines -- /path/to/EDOPro` so WindBot loads `YgoTrainerEngines.dll`
+4. For Toon 2026 Agent: `npm run install:engines -- /path/to/EDOPro` so WindBot loads `YgoTrainerEngines.dll`
 5. Host a local room in EDOPro if WindBot needs a host to join
 6. Use **Coach** before / during / after the duel
 
@@ -50,10 +50,10 @@ Detailed steps: [docs/setup-macos.md](docs/setup-macos.md)
 ```bash
 npm run build:packages   # compile bridge + coach + windbot-engines
 npm run tauri:dev        # desktop trainer (dev)
-npm run botlab:dev       # WindBot Lab (combos / auto-mejora, app aparte)
+npm run botlab:dev       # WindBot Lab (libro / enseñar ToonAgent, app aparte)
 npm run tauri:build      # desktop app (release)
 npm run typecheck        # TypeScript check
-npm run test -w @yugioh/windbot-engines  # YDK Bind coverage + effect catalog
+npm run test -w @yugioh/windbot-engines  # YDK + ToonCardId + combo book
 npm run install:engines -- /path/to/ProjectIgnis  # ydk + bots.json + META WindBot DLLs
 npm run bump -- patch    # or minor / major; omit to infer from conventional commits
 ```

@@ -1,14 +1,18 @@
 ---
 name: add-windbot-engine-deck
 description: >-
-  Adds a WindBot META engine deck to packages/windbot-engines: copy YDK, bind
-  every card in an Engine/Executor, register the trainer rival, and run
-  controlled effect tests. Use when adding a new WindBot deck, executor, YDK,
-  rival, or when the user mentions windbot-engines, AI_*.ydk, or a new training
-  bot.
+  Adds a WindBot teach-mode agent deck to packages/windbot-engines: copy YDK,
+  add CardId constants, register a proxy Executor that asks the agentic server,
+  and wire the trainer rival. Use when adding a new WindBot deck, executor,
+  YDK, rival, or when the user mentions windbot-engines, AI_*.ydk, or a new
+  training bot.
 ---
 
-# Add a WindBot engine deck
+# Add a WindBot agent deck
+
+The live custom deck is **Toon 2026 Agent**. Do not revive hardcoded
+`Register` / `SelectCard` engines or ComboPilot. Decisions belong to
+`packages/agentic`.
 
 Follow this checklist in order. Copy this and track progress:
 
@@ -16,12 +20,11 @@ Follow this checklist in order. Copy this and track progress:
 Task Progress:
 - [ ] Parse YDK and resolve card names from EDOPro scripts
 - [ ] Copy ydk/AI_<Deck>.ydk
-- [ ] Inventory every activatable effect
-- [ ] Engine CardId + Bind (reuse StapleEngine)
-- [ ] Executor : MetaExecutor
+- [ ] CardId constants in src/Engines/<Deck>Engine.cs
+- [ ] Proxy Executor : MetaExecutor (serialize legales, POST /v1/decide)
 - [ ] Sync manifest.json and src/index.ts
 - [ ] Trainer rival + lesson + content.ts + docs
-- [ ] Effect catalog + coverage tests
+- [ ] bots.snippet.json + META_PLUGIN_DECKS
 - [ ] npm test -w @yugioh/windbot-engines
 ```
 
@@ -34,7 +37,7 @@ Resolve names from a local EDOPro install, in this order:
 1. `repositories/delta-bagooska/script/official/c{id}.lua`
 2. `script/official/c{id}.lua`
 
-English name is the second `--` comment line. List every **activatable** effect (Ignition, Quick, Trigger, Spell/Trap Activate) from those comments. Continuous / `SPSUMMON_PROC` do not get `Activate` binds, but do get `Summon` or `SpSummon` if the bot must play the card.
+English name is the second `--` comment line.
 
 ## 2. Copy the YDK
 
@@ -43,36 +46,17 @@ Write `packages/windbot-engines/ydk/AI_<Deck>.ydk` with header `#created by yugi
 WindBot keys:
 
 - `name`: display name (may have spaces)
-- `deck`: PascalCase identifier, no spaces (`Toon2026`)
-- file: `AI_<deck>.ydk` matching `[Deck("Toon2026", "AI_Toon2026")]`
+- `deck`: PascalCase identifier, no spaces (`Toon2026Agent`)
+- file: `AI_<deck>.ydk` matching `[Deck("Toon2026Agent", "AI_Toon2026")]`
 
-## 3. Engine + Executor
+## 3. Card IDs + proxy Executor
 
-Pattern: [`KewlTuneExecutor.cs`](../../../packages/windbot-engines/src/Decks/KewlTuneExecutor.cs) + [`KewlTuneEngine.cs`](../../../packages/windbot-engines/src/Engines/KewlTuneEngine.cs).
+Pattern: [`ToonAgentExecutor.cs`](../../../packages/windbot-engines/src/Decks/ToonAgentExecutor.cs) + [`ToonEngine.cs`](../../../packages/windbot-engines/src/Engines/ToonEngine.cs).
 
-- `src/Engines/<Deck>Engine.cs`: `*CardId` constants and `Register(MetaExecutor ex)`
-- `src/Decks/<Deck>Executor.cs`: `[Deck("<Deck>", "AI_<Deck>")]`, constructor order:
+- `src/Engines/<Deck>Engine.cs`: `*CardId` constants only. No `Register`, no `Bind`, no `SelectCard`.
+- `src/Decks/<Deck>Executor.cs`: `[Deck("<Deck>", "AI_<YdkStem>")]`, extends `MetaExecutor`, binds generic Activate/Summon/SpSummon/Set/Repos/End, POSTs legales to the teach server, executes the chosen `actionId`.
 
-```
-StapleEngine.RegisterHandtraps(this);
-StapleEngine.RegisterBreakers(this);
-<Deck>Engine.Register(this);
-StapleEngine.RegisterExtra(this);
-```
-
-Reuse IDs already in [`StapleEngine.cs`](../../../packages/windbot-engines/src/Engines/StapleEngine.cs). Do not re-bind them in the new engine.
-
-Every unique YDK passcode must have at least one `Bind(ExecutorType.*, id)`. Typical binds:
-
-| Card | Bind |
-| --- | --- |
-| Main-deck monster the bot Normal Summons | `Summon` + `Activate` if it has an ignition/quick |
-| Proc / contact / extra monster | `SpSummon` + `Activate` if optional effects exist |
-| Spell/Trap | `Activate`; settable traps also in `SpellSet` |
-
-Handlers: `SelectCard` / `SelectNextCard` only when the Lua asks the player to pick. Otherwise `return true` (WindBot .NET 4.0 style: `delegate { return true; }`, no expression-bodied members).
-
-`OnSelectOption` / `OnAnnounceCard` overrides live on the **Executor** class, not the static Engine.
+Do not patch C# from Bot Lab. Learning writes markdown / preferences in `agents/`.
 
 ## 4. Manifest sync
 
@@ -83,24 +67,22 @@ Update **both**:
 
 They must list the same files and deck keys. `install.mjs` reads the manifest.
 
+Also add the `Deck=` key to [`packages/edopro-bridge/src/windbotInventory.ts`](../../../packages/edopro-bridge/src/windbotInventory.ts) `META_PLUGIN_DECKS` and [`content/windbot/bots.snippet.json`](../../../content/windbot/bots.snippet.json).
+
 ## 5. Trainer rival
 
 1. Append to [`content/rivals/index.json`](../../../content/rivals/index.json)
-2. Add [`content/lessons/vs-<id>.json`](../../../content/lessons/) using the Kewl Tune lesson schema (`title`, `summary`, `winConditions`, `keyCardsRespect`, `keyCardsNegate`, `tips`, `handtrapGuidance`, `commonMistakes`)
+2. Add [`content/lessons/vs-<id>.json`](../../../content/lessons/) using the Toon 2026 lesson schema (`title`, `summary`, `winConditions`, `keyCardsRespect`, `keyCardsNegate`, `tips`, `handtrapGuidance`, `commonMistakes`)
 3. Import YDK + lesson in [`apps/trainer/src/lib/content.ts`](../../../apps/trainer/src/lib/content.ts) (`lessons` map and `META_ENGINE_YDK_FILES`)
 4. Mention the rival in root README, `packages/windbot-engines/README.md`, and `docs/setup-macos.md`
 
 ## 6. Tests
 
-See [reference.md](reference.md) for catalog JSON and parser rules.
-
 Add or extend `packages/windbot-engines/tests/`:
 
-1. Coverage: every ID in every `ydk/AI_*.ydk` appears in some `Bind` in `src/Engines/*.cs`
-2. Catalog: `tests/effects/<deck-id>.json` — one entry per activatable effect of each unique YDK card
-3. Completeness: YDK unique IDs ⊆ catalog `cardId`s
-4. Priorities: each `expect.selectCardContains` ID appears in a `Brain.SelectCard` / `SelectNextCard` call in that engine
-5. Generate EDOPro Debug puzzles into `tests/puzzles/` (not a CI gate)
+1. YDK file exists
+2. CardId constants exist for the cards the agent names
+3. Combo book tests if the deck has `combos/<id>/book.json`
 
 Run:
 
@@ -115,4 +97,4 @@ Do not rewrite EDOPro Lua scripts. Do not run `install:engines` unless the user 
 
 User: "Agrega el mazo Toon desde /path/Toon.ydk"
 
-Agent: parse YDK → `AI_Toon2026.ydk` → `ToonEngine`/`ToonExecutor` → manifest + index → rival `toon-2026` → `tests/effects/toon-2026.json` → `npm test -w @yugioh/windbot-engines`.
+Agent: parse YDK → `AI_Toon2026.ydk` → `ToonCardId` / `ToonAgentExecutor` → manifest + index → rival `toon-2026` → `npm test -w @yugioh/windbot-engines`.
