@@ -1,5 +1,7 @@
 node_modules/
 dist/
+__pycache__/
+*.pyc
 *.local
 .env
 .DS_Store
@@ -13,6 +15,10 @@ apps/bot-lab/src-tauri/gen/
 apps/trainer/src-tauri/icons/android/
 apps/trainer/src-tauri/icons/ios/
 .cache/
+.venv/
+packages/agentic/.venv/
+agents/**/resources/memory/*.jsonl
+agents/**/resources/generated/lesson-*.md
 *.log
 .vite/
 *.tsbuildinfo

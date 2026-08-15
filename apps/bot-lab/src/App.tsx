@@ -27,6 +27,7 @@ import {
 import type { Actor, EdoProInstallInfo, ReplayFileInfo, ReplayWalkthrough } from "@yugioh/edopro-bridge";
 import { ComboLine, EndBoardZones } from "./CardThumb";
 import { ComboGraph } from "./ComboGraph";
+import { TeachPanel } from "./TeachPanel";
 import { listReplays, loadWalkthrough, queryCardNames, replayArtPaths } from "./lib/bridge";
 import { native } from "./lib/native";
 import {
@@ -41,7 +42,7 @@ import {
 } from "./lib/paths";
 import { loadSettings, saveSettings, type LabSettings } from "./lib/settings";
 
-type Tab = "libro" | "grafo" | "replays" | "aprendizaje" | "ajustes";
+type Tab = "libro" | "grafo" | "replays" | "entrenar" | "aprendizaje" | "ajustes";
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("libro");
@@ -401,6 +402,7 @@ export default function App() {
               ["libro", "Libro"],
               ["grafo", "Grafo"],
               ["replays", "Replays"],
+              ["entrenar", "Entrenar"],
               ["aprendizaje", "Aprendizaje"],
               ["ajustes", "Ajustes"],
             ] as const
@@ -415,8 +417,8 @@ export default function App() {
           ))}
         </nav>
         <p className="sidebar-foot">
-          Recetas gold en combos/toon-2026. Este lab extrae, diagnostica y
-          edita el campo objetivo; no controla el duelo de WindBot.
+          Recetas gold en combos/toon-2026. Entrenar elige en vivo las 5
+          mejores acciones del agente; WindBot solo ejecuta.
         </p>
       </aside>
       <main className="main">
@@ -666,6 +668,17 @@ export default function App() {
               </div>
             </div>
           </>
+        )}
+
+        {tab === "entrenar" && settings && (
+          <TeachPanel
+            art={art}
+            edoProPath={settings.edoProPath}
+            names={names}
+            apiKey={settings.apiKey}
+            apiBaseUrl={settings.apiBaseUrl}
+            apiModel={settings.apiModel}
+          />
         )}
 
         {tab === "aprendizaje" && (

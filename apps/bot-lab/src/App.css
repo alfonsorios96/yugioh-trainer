@@ -124,6 +124,64 @@ h2 {
   align-items: center;
 }
 
+.teach-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .teach-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.teach-context h3 {
+  margin: 1rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.teach-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.teach-choice {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.15rem 0.75rem;
+  text-align: left;
+  background: rgba(14, 20, 18, 0.55);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+}
+
+.teach-choice:hover {
+  border-color: rgba(212, 168, 75, 0.45);
+}
+
+.teach-rank {
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.teach-others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
 .muted { color: var(--muted); }
 .ok { color: var(--ok); }
 .bad { color: var(--danger); }

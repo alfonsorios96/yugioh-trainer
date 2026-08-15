@@ -1,0 +1,31 @@
+{
+  "request": {
+    "requestId": "case-05",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [91500017, 89997728, 14558127],
+      "monsters": [],
+      "spells": [],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0 },
+    "legalActions": [
+      { "id": "a1-bookmark", "kind": "activate", "cardId": 91500017 },
+      { "id": "a2-table", "kind": "activate", "cardId": 89997728 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "a1-bookmark",
+    "mustBeFirst": true,
+    "situationId": "first-going-searcher-into-line",
+    "mode": "follow"
+  }
+}

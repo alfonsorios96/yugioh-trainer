@@ -1,0 +1,32 @@
+{
+  "request": {
+    "requestId": "case-02",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": ["fuwalos"],
+    "self": {
+      "lp": 8000,
+      "hand": [],
+      "monsters": [72921536, 8915275],
+      "spells": [7293697, 34298391, 53094821],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [42141493], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 2 },
+    "legalActions": [
+      { "id": "to-ep", "kind": "to_ep" },
+      { "id": "ss-dugares", "kind": "spsummon", "cardId": 66011101 },
+      { "id": "act-faceless", "kind": "activate", "cardId": 34314989 },
+      { "id": "act-table", "kind": "activate", "cardId": 89997728 }
+    ]
+  },
+  "expect": {
+    "actionId": "to-ep",
+    "mustBeFirst": true,
+    "situationId": "first-turn-fuwalos-safe-pass",
+    "mode": "safe-pass"
+  }
+}

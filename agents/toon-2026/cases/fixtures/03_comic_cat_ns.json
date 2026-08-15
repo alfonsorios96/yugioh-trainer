@@ -1,0 +1,32 @@
+{
+  "request": {
+    "requestId": "case-03",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [72921536, 91500017],
+      "monsters": [],
+      "spells": [],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0 },
+    "legalActions": [
+      { "id": "ns-cat", "kind": "summon", "cardId": 72921536, "place": "MZ3" },
+      { "id": "act-bookmark", "kind": "activate", "cardId": 91500017 },
+      { "id": "ss-blueeyes", "kind": "spsummon", "cardId": 53183600 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "ns-cat",
+    "mustBeFirst": true,
+    "situationId": "first-going-comic-cat-no-extenders",
+    "mode": "follow"
+  }
+}

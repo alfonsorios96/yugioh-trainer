@@ -29,6 +29,7 @@ Needs **git** and **msbuild** or **xbuild** (Mono) for the rebuild path. The tra
 | Kewl Tune | `KewlTune` | `AI_KewlTune.ydk` |
 | Light and Darkness | `LightAndDarkness` | `AI_LightAndDarkness.ydk` |
 | Toon 2026 | `Toon2026` | `AI_Toon2026.ydk` |
+| Toon 2026 Agent | `Toon2026Agent` | `AI_Toon2026.ydk` (teach proxy; no local decisions) |
 
 Compile needs git + Mono `msbuild`/`xbuild` (rebuilds WindBot.exe with the META engines) or a local `ExecutorBase.dll` for the plugin path.
 

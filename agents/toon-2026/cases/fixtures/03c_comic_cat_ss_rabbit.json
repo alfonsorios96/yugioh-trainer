@@ -1,0 +1,29 @@
+{
+  "request": {
+    "requestId": "case-03c",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "select",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [45536531, 53183600, 8915275],
+      "monsters": [],
+      "spells": [],
+      "grave": [72921536]
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 1, "selectRole": "summon_target" },
+    "legalActions": [
+      { "id": "ss-rabbit", "kind": "select", "cardId": 45536531 },
+      { "id": "ss-blueeyes", "kind": "select", "cardId": 53183600 },
+      { "id": "ss-box", "kind": "select", "cardId": 8915275 }
+    ]
+  },
+  "expect": {
+    "actionId": "ss-rabbit",
+    "mustBeFirst": true
+  }
+}

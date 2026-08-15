@@ -35,6 +35,14 @@ export const META_ENGINE_DECKS: MetaEngineDeck[] = [
     difficulty: 3,
     masterRules: [5],
   },
+  {
+    id: "toon-2026-agent",
+    name: "Toon 2026 Agent",
+    deck: "Toon2026Agent",
+    ydkFileName: "AI_Toon2026.ydk",
+    difficulty: 3,
+    masterRules: [5],
+  },
 ];
 
 export const META_ENGINE_SOURCE_FILES = [
@@ -46,6 +54,7 @@ export const META_ENGINE_SOURCE_FILES = [
   "src/Decks/KewlTuneExecutor.cs",
   "src/Decks/LightAndDarknessExecutor.cs",
   "src/Decks/ToonExecutor.cs",
+  "src/Decks/ToonAgentExecutor.cs",
 ] as const;
 
 export function isMetaEngineDeck(deckKey: string): boolean {

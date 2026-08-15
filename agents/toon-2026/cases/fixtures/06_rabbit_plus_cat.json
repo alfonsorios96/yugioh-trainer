@@ -1,0 +1,32 @@
+{
+  "request": {
+    "requestId": "case-06",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "idle",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [45536531, 72921536, 34298391],
+      "monsters": [],
+      "spells": [],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": false, "summonCount": 0 },
+    "legalActions": [
+      { "id": "ns-cat", "kind": "summon", "cardId": 72921536 },
+      { "id": "ns-rabbit", "kind": "summon", "cardId": 45536531 },
+      { "id": "act-scan", "kind": "activate", "cardId": 34298391 },
+      { "id": "to-ep", "kind": "to_ep" }
+    ]
+  },
+  "expect": {
+    "actionId": "ns-rabbit",
+    "mustBeFirst": true,
+    "situationId": "first-going-funny-dark-rabbit-no-extenders",
+    "mode": "follow"
+  }
+}

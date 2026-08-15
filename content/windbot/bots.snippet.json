@@ -28,5 +28,11 @@
     "deck": "LightAndDarkness",
     "difficulty": 4,
     "masterRules": [5]
+  },
+  {
+    "name": "Toon 2026 Agent",
+    "deck": "Toon2026Agent",
+    "difficulty": 3,
+    "masterRules": [5]
   }
 ]

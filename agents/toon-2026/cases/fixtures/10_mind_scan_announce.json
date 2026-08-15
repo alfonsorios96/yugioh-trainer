@@ -1,0 +1,32 @@
+{
+  "request": {
+    "requestId": "case-10",
+    "duelId": "static",
+    "turn": 1,
+    "phase": "MP1",
+    "going": "first",
+    "promptKind": "announce",
+    "threats": [],
+    "self": {
+      "lp": 8000,
+      "hand": [],
+      "monsters": [45536531],
+      "spells": [34298391, 7293697],
+      "grave": []
+    },
+    "opp": { "lp": 8000, "hand": [27204311, 14558127], "monsters": [], "spells": [] },
+    "constraints": { "normalSummonUsed": true, "summonCount": 5 },
+    "legalActions": [
+      { "id": "ann-ash", "kind": "announce", "cardId": 14558127 },
+      { "id": "ann-nibiru", "kind": "announce", "cardId": 27204311 },
+      { "id": "ann-veiler", "kind": "announce", "cardId": 97268402 },
+      { "id": "ann-imperm", "kind": "announce", "cardId": 10045474 }
+    ]
+  },
+  "expect": {
+    "actionId": "ann-nibiru",
+    "mustBeFirst": true,
+    "situationId": "mind-scan-announce",
+    "mode": "follow"
+  }
+}

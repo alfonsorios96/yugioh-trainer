@@ -1,0 +1,45 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Node workspaces
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Node tests
+        run: |
+          npm test -w @yugioh/edopro-bridge
+          npm test -w @yugioh/bot-lab
+          npm test -w @yugioh/windbot-engines
+
+      - name: Python agentic tests
+        run: |
+          python -m venv packages/agentic/.venv
+          packages/agentic/.venv/bin/pip install -q pytest
+          packages/agentic/.venv/bin/python -m yugioh_agentic compile-book
+          packages/agentic/.venv/bin/python -m pytest -q
+        env:
+          PYTHONPATH: packages/agentic/src

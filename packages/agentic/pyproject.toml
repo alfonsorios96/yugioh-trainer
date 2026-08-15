@@ -1,0 +1,24 @@
+[project]
+name = "yugioh-agentic"
+version = "0.1.0"
+description = "Teach-mode agent runtime for Toon 2026 (ranker, protocol, HTTP)"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+yugioh-agentic = "yugioh_agentic.__main__:main"
+compile-toon-book = "yugioh_agentic.compile_book:main"
+export-finetune = "yugioh_agentic.learn:export_main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -16,6 +16,7 @@
     "botlab:dev": "npm run tauri -w @yugioh/bot-lab-app -- dev",
     "botlab:build": "npm run tauri -w @yugioh/bot-lab-app -- build",
     "typecheck": "npm run typecheck -w @yugioh/edopro-bridge && npm run typecheck -w @yugioh/coach && npm run typecheck -w @yugioh/windbot-engines && npm run typecheck -w @yugioh/bot-lab && npm run typecheck -w @yugioh/trainer && npm run typecheck -w @yugioh/bot-lab-app",
+    "test:agentic": "PYTHONPATH=packages/agentic/src packages/agentic/.venv/bin/python -m pytest -q",
     "install:engines": "node packages/windbot-engines/scripts/install.mjs",
     "bump": "node scripts/bump.mjs",
     "prepare": "husky"

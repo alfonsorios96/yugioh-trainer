@@ -77,6 +77,24 @@ export {
 } from "./yrpx.js";
 
 export {
+  AGENT_DEFAULT_URL,
+  isLegalActionId,
+  actionInTop5,
+  type AgentGoing,
+  type AgentMode,
+  type AgentActionKind,
+  type AgentPlayerState,
+  type AgentConstraints,
+  type AgentLegalAction,
+  type DecisionRequest,
+  type RankedAction,
+  type TeachContext,
+  type DecisionProposal,
+  type UserChoice,
+  type DecisionResponse,
+} from "./agentEvents.js";
+
+export {
   analyzeWindBotInventory,
   findMatchingYdk,
   findMatchingExecutor,

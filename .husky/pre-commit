@@ -1,0 +1,23 @@
+# Block commits if Toon casuistics or workspace tests fail.
+
+if [ -n "$SKIP_TESTS" ] || [ -n "$GITHUB_ACTIONS" ]; then
+  exit 0
+fi
+
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+
+py="$root/packages/agentic/.venv/bin/python"
+if [ ! -x "$py" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    py=python3
+  else
+    echo "pre-commit: python3 not found; create packages/agentic/.venv or set SKIP_TESTS=1"
+    exit 1
+  fi
+fi
+
+PYTHONPATH=packages/agentic/src "$py" -m pytest -q || exit 1
+npm test -w @yugioh/edopro-bridge || exit 1
+npm test -w @yugioh/bot-lab || exit 1
+npm test -w @yugioh/windbot-engines || exit 1
