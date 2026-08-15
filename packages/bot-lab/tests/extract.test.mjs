@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import {
+  extractComboLine,
   extractLine,
   guessBotActor,
   goingOf,
@@ -8,6 +9,8 @@ import {
   parseComboBook,
   classifySituation,
   diagnoseLine,
+  boardForActor,
+  ToonId,
 } from "../dist/index.js";
 
 function board(partial = {}) {
@@ -24,6 +27,8 @@ function board(partial = {}) {
     oppSpells: [],
     youGrave: [],
     oppGrave: [],
+    youBanished: [],
+    oppBanished: [],
     ...partial,
   };
 }
@@ -61,11 +66,52 @@ const ULTIMATE = 71808988;
 const TERROR = 53094821;
 const ASH = 14558127;
 const TABLE = 89997728;
+const FIREWALL = 5043010;
 
 describe("extractLine", () => {
   test("guesses the Toon bot as opp", () => {
     const w = walk([]);
     assert.equal(guessBotActor(w), "opp");
+  });
+
+  test("guesses a human Toon player as you by the cards they played", () => {
+    const w = walk(
+      [
+        step({ kind: "phase", turn: 1, actor: "you" }),
+        step({
+          kind: "activate",
+          turn: 1,
+          actor: "you",
+          cardCodes: [BOOKMARK],
+        }),
+      ],
+      { youName: "Jorgito", oppName: "Player" },
+    );
+    assert.equal(guessBotActor(w), "you");
+    const line = extractComboLine(w);
+    assert.equal(line.actor, "you");
+    assert.equal(line.fromTurn, 1);
+    assert.equal(line.steps[0].cardId, BOOKMARK);
+  });
+
+  test("extracts going-second combo on turn 2", () => {
+    const w = walk(
+      [
+        step({ kind: "phase", turn: 1, actor: "opp" }),
+        step({ kind: "phase", turn: 2, actor: "you" }),
+        step({
+          kind: "activate",
+          turn: 2,
+          actor: "you",
+          cardCodes: [BOOKMARK],
+        }),
+      ],
+      { youName: "Jorgito", oppName: "Player" },
+    );
+    const line = extractComboLine(w);
+    assert.equal(line.fromTurn, 2);
+    assert.equal(line.going, "second");
+    assert.equal(line.steps[0].cardId, BOOKMARK);
   });
 
   test("going first when bot takes turn 1", () => {
@@ -113,6 +159,79 @@ describe("extractLine", () => {
     assert.ok(line.worldOnField);
     assert.deepEqual(line.endBoard.spells, [WORLD]);
   });
+
+  test("keeps monster and spell zone slots", () => {
+    const CHARMER = 27519978;
+    const BOX = 8915275;
+    const CAT = 72921536;
+    const PERF = 13203964;
+    const SCAN = 34298391;
+    const end = boardForActor(
+      board({
+        youMonsters: [
+          { code: CHARMER },
+          { code: 0 },
+          { code: 0 },
+          { code: BOX },
+          { code: CAT, pos: 0x4 },
+          { code: PERF },
+          { code: 0 },
+        ],
+        youSpells: [
+          { code: 0 },
+          { code: 0 },
+          { code: SCAN },
+          { code: TERROR, pos: 0x0a },
+          { code: 0 },
+          { code: WORLD },
+        ],
+      }),
+      "you",
+    );
+    assert.deepEqual(end.monsterZones, [CHARMER, 0, 0, BOX, CAT, PERF, 0]);
+    assert.deepEqual(end.spellZones, [0, 0, SCAN, TERROR, 0, WORLD]);
+    assert.deepEqual(end.monsters, [CHARMER, BOX, CAT, PERF]);
+    assert.equal(end.spellStances[3], "set");
+    assert.equal(end.monsterStances[4], "def");
+  });
+});
+
+describe("yrpX single-mode extraction", () => {
+  test("extracts summon/set after a header without player counts", async () => {
+    const { parseYrpxWalkthrough } = await import("@yugioh/edopro-bridge");
+    function utf16Name(text) {
+      const buf = Buffer.alloc(40);
+      for (let i = 0; i < text.length && i < 20; i++) {
+        buf.writeUInt16LE(text.charCodeAt(i), i * 2);
+      }
+      return buf;
+    }
+    function packet(msg, payload) {
+      const buf = Buffer.alloc(5 + payload.length);
+      buf[0] = msg;
+      buf.writeUInt32LE(payload.length, 1);
+      payload.copy(buf, 5);
+      return buf;
+    }
+    const summonPayload = Buffer.alloc(14);
+    summonPayload.writeUInt32LE(RABBIT, 0);
+    summonPayload[5] = 0x04;
+    summonPayload.writeUInt32LE(2, 6);
+    summonPayload.writeUInt32LE(0x1, 10);
+    const body = Buffer.concat([
+      utf16Name("Player"),
+      utf16Name(""),
+      Buffer.alloc(8),
+      packet(40, Buffer.from([0])),
+      packet(60, summonPayload),
+    ]);
+    const line = extractComboLine(parseYrpxWalkthrough(body, "demo.yrpX"));
+    assert.equal(line.actor, "you");
+    assert.equal(line.going, "first");
+    assert.equal(line.steps[0].cardId, RABBIT);
+    assert.equal(line.steps[0].place, "MZ3");
+    assert.equal(line.steps[0].stance, undefined);
+  });
 });
 
 describe("matchEndBoard", () => {
@@ -130,6 +249,14 @@ describe("matchEndBoard", () => {
       { monsters: [], spells: [WORLD], grave: [] },
     );
     assert.deepEqual(r.missing, [ULTIMATE]);
+  });
+
+  test("requires expected banished cards", () => {
+    const r = matchEndBoard(
+      { monsters: [], spells: [], grave: [], banished: [FIREWALL] },
+      { monsters: [], spells: [], grave: [], banished: [] },
+    );
+    assert.deepEqual(r.missing, [FIREWALL]);
   });
 });
 

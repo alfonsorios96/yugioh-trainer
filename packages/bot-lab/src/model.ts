@@ -1,5 +1,11 @@
-import { ToonId } from "./cards.js";
-import type { ComboEdge, ComboModel, ComboNode } from "./types.js";
+import { KNOWN_CARD_NAMES, ToonId } from "./cards.js";
+import type {
+  ComboBook,
+  ComboEdge,
+  ComboEdgeKind,
+  ComboModel,
+  ComboNode,
+} from "./types.js";
 
 export function defaultToonComboModel(): ComboModel {
   const nodes: ComboNode[] = [
@@ -64,4 +70,106 @@ export function recoveriesFrom(model: ComboModel, nodeId: string): ComboEdge[] {
 
 export function windowsOn(model: ComboModel, nodeId: string): ComboEdge[] {
   return model.edges.filter((e) => e.kind === "window" && e.from === nodeId);
+}
+
+function cardNodeId(cardId: number): string {
+  return `c-${cardId}`;
+}
+
+function threatNodeId(threat: string): string {
+  return `t-${threat}`;
+}
+
+function cardLabel(cardId: number): string {
+  return KNOWN_CARD_NAMES[cardId] ?? `#${cardId}`;
+}
+
+function threatLabel(threat: string): string {
+  if (threat === "ash") return "Ash";
+  if (threat === "maxx-c") return "Maxx C";
+  if (threat === "imperm") return "Imperm";
+  if (threat === "nibiru") return "Nibiru";
+  if (threat === "veiler") return "Veiler";
+  if (threat === "ghost-ogre") return "Ghost Ogre";
+  return threat;
+}
+
+/** Builds the combo graph from the situation book so it stays in sync on compile. */
+export function modelFromBook(book: ComboBook): ComboModel {
+  const nodes = new Map<string, ComboNode>();
+  const edges: ComboEdge[] = [];
+  const seen = new Set<string>();
+
+  const addNode = (id: string, label: string, cardIds?: number[]) => {
+    if (!nodes.has(id)) nodes.set(id, { id, label, cardIds });
+  };
+  const addCard = (cardId: number) => {
+    if (cardId <= 0) return;
+    addNode(cardNodeId(cardId), cardLabel(cardId), [cardId]);
+  };
+  const addEdge = (
+    from: string,
+    to: string,
+    kind: ComboEdgeKind,
+    note?: string,
+  ) => {
+    if (from === to || !nodes.has(from) || !nodes.has(to)) return;
+    const key = `${from}|${to}|${kind}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    edges.push({ from, to, kind, note });
+  };
+
+  for (const sit of book.situations) {
+    for (const step of sit.steps) {
+      addCard(step.cardId);
+      for (const id of step.selectCard ?? []) addCard(id);
+      for (const id of step.selectNextCard ?? []) addCard(id);
+    }
+    for (const id of sit.endBoard.monsters) addCard(id);
+    for (const id of sit.endBoard.spells) addCard(id);
+    for (const id of sit.endBoard.grave) addCard(id);
+    for (const id of sit.endBoard.banished ?? []) addCard(id);
+    if (sit.when.worldOnField) addCard(ToonId.PerfectWorld);
+    for (const threat of sit.when.threats ?? []) {
+      addNode(threatNodeId(threat), threatLabel(threat));
+    }
+  }
+
+  for (const sit of book.situations) {
+    for (const step of sit.steps) {
+      const from = cardNodeId(step.cardId);
+      for (const id of step.selectCard ?? []) {
+        addEdge(from, cardNodeId(id), "enables", `${sit.title}: elige`);
+      }
+      for (const id of step.selectNextCard ?? []) {
+        addEdge(from, cardNodeId(id), "enables", `${sit.title}: luego`);
+      }
+    }
+    for (let i = 0; i < sit.steps.length - 1; i++) {
+      addEdge(
+        cardNodeId(sit.steps[i].cardId),
+        cardNodeId(sit.steps[i + 1].cardId),
+        "enables",
+        sit.title,
+      );
+    }
+    if (sit.when.worldOnField && sit.steps[0]) {
+      addEdge(
+        cardNodeId(ToonId.PerfectWorld),
+        cardNodeId(sit.steps[0].cardId),
+        "requires",
+        sit.title,
+      );
+    }
+    for (const threat of sit.when.threats ?? []) {
+      const tid = threatNodeId(threat);
+      const first = sit.steps[0];
+      const last = sit.steps[sit.steps.length - 1];
+      if (first) addEdge(cardNodeId(first.cardId), tid, "window", sit.title);
+      if (last) addEdge(tid, cardNodeId(last.cardId), "recovers", sit.title);
+    }
+  }
+
+  return { deckId: book.deckId, nodes: [...nodes.values()], edges };
 }

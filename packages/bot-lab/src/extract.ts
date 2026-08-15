@@ -4,13 +4,23 @@ import type {
   ReplayStep,
   ReplayWalkthrough,
 } from "@yugioh/edopro-bridge";
-import { BOT_NAME_HINTS, InterruptId, isWorldCard } from "./cards.js";
+import { BOT_NAME_HINTS, InterruptId, ToonId, isWorldCard } from "./cards.js";
+import { emptyEndBoard } from "./book.js";
 import type {
   ComboStep,
   ComboStepKind,
   EndBoard,
   Going,
 } from "./types.js";
+import {
+  compactZones,
+  MONSTER_ZONE_SLOTS,
+  padStances,
+  padZones,
+  placeLabel,
+  SPELL_ZONE_SLOTS,
+  stanceFromPos,
+} from "./zones.js";
 
 const ACTION_KINDS = new Set<ComboStepKind>([
   "activate",
@@ -40,12 +50,36 @@ export interface ExtractedLine {
   toTurn: number;
 }
 
+const TOON_PASSCODES = new Set<number>(Object.values(ToonId));
+
 export function guessBotActor(walk: ReplayWalkthrough): Actor {
   const you = walk.youName.toLowerCase();
   const opp = walk.oppName.toLowerCase();
   if (BOT_NAME_HINTS.some((h) => opp.includes(h))) return "opp";
   if (BOT_NAME_HINTS.some((h) => you.includes(h))) return "you";
+  let youHits = 0;
+  let oppHits = 0;
+  for (const step of walk.steps) {
+    if (!isActionStep(step)) continue;
+    const playedToon = step.cardCodes.some((id) => TOON_PASSCODES.has(id));
+    if (!playedToon) continue;
+    if (step.actor === "you") youHits += 1;
+    else oppHits += 1;
+  }
+  if (youHits > oppHits) return "you";
+  if (oppHits > youHits) return "opp";
   return "opp";
+}
+
+/** First duel turn where this actor summoned/activated/set a card. */
+export function firstActionTurn(
+  walk: ReplayWalkthrough,
+  actor: Actor,
+): number {
+  const hit = walk.steps.find(
+    (s) => s.actor === actor && isActionStep(s) && s.turn >= 1 && s.cardCodes[0],
+  );
+  return hit?.turn ?? 1;
 }
 
 export function goingOf(walk: ReplayWalkthrough, actor: Actor): Going {
@@ -63,17 +97,38 @@ export function extractOpeningHand(
 }
 
 export function boardForActor(board: BoardSnapshot, actor: Actor): EndBoard {
-  if (actor === "you") {
-    return {
-      monsters: board.youMonsters.map((c) => c.code).filter((id) => id > 0),
-      spells: board.youSpells.map((c) => c.code).filter((id) => id > 0),
-      grave: board.youGrave.map((c) => c.code).filter((id) => id > 0),
-    };
-  }
+  const monsters = actor === "you" ? board.youMonsters : board.oppMonsters;
+  const spells = actor === "you" ? board.youSpells : board.oppSpells;
+  const grave = actor === "you" ? board.youGrave : board.oppGrave;
+  const banished = actor === "you" ? board.youBanished : board.oppBanished;
+  const monsterZones = padZones(
+    monsters.map((c) => c.code),
+    MONSTER_ZONE_SLOTS,
+  );
+  const spellZones = padZones(
+    spells.map((c) => c.code),
+    SPELL_ZONE_SLOTS,
+  );
+  const monsterStances = padStances(
+    monsters.map((c) => stanceFromPos(c.pos)),
+    MONSTER_ZONE_SLOTS,
+  );
+  const spellStances = padStances(
+    spells.map((c) => {
+      const stance = stanceFromPos(c.pos);
+      return stance === "set" ? "set" : "";
+    }),
+    SPELL_ZONE_SLOTS,
+  );
   return {
-    monsters: board.oppMonsters.map((c) => c.code).filter((id) => id > 0),
-    spells: board.oppSpells.map((c) => c.code).filter((id) => id > 0),
-    grave: board.oppGrave.map((c) => c.code).filter((id) => id > 0),
+    monsters: compactZones(monsterZones),
+    spells: compactZones(spellZones),
+    grave: grave.map((c) => c.code).filter((id) => id > 0),
+    banished: (banished ?? []).map((c) => c.code).filter((id) => id > 0),
+    monsterZones,
+    spellZones,
+    monsterStances,
+    spellStances,
   };
 }
 
@@ -118,9 +173,18 @@ export function extractLine(
     const sideBoard = boardForActor(step.board, actor);
     if (sideBoard.spells.some(isWorldCard)) worldOnField = true;
     if (step.actor === actor && isActionStep(step) && step.cardCodes[0]) {
+      const onField =
+        step.kind === "set" ||
+        ((step.loc ?? 0) & 0x0c) !== 0;
+      const stance = onField ? stanceFromPos(step.pos, step.kind) : "";
       steps.push({
         kind: step.kind,
         cardId: step.cardCodes[0],
+        place:
+          step.loc !== undefined && step.seq !== undefined
+            ? placeLabel(step.loc, step.seq)
+            : undefined,
+        stance: stance === "def" || stance === "set" ? stance : undefined,
       });
       lastBoard = step.board;
     } else if (step.turn >= fromTurn && step.turn <= toTurn) {
@@ -130,7 +194,7 @@ export function extractLine(
 
   const endBoard = lastBoard
     ? boardForActor(lastBoard, actor)
-    : { monsters: [], spells: [], grave: [] };
+    : emptyEndBoard();
 
   return {
     actor,
@@ -143,4 +207,12 @@ export function extractLine(
     fromTurn,
     toTurn,
   };
+}
+
+export function extractComboLine(
+  walk: ReplayWalkthrough,
+  actor: Actor = guessBotActor(walk),
+): ExtractedLine {
+  const turn = firstActionTurn(walk, actor);
+  return extractLine(walk, actor, { fromTurn: turn, toTurn: turn });
 }

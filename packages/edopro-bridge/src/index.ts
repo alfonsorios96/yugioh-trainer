@@ -63,11 +63,17 @@ export {
   parseYrpxWalkthrough,
   applyCardNames,
   decodeBase64Bytes,
+  guessYouCtrl,
+  isLikelyBotName,
+  orientWalkthroughToHuman,
+  flipWalkthroughSeat,
   type ReplayWalkthrough,
   type ReplayStep,
   type BoardSnapshot,
   type CardRef,
   type Actor,
+  type Going,
+  type WalkthroughSeatOptions,
 } from "./yrpx.js";
 
 export {

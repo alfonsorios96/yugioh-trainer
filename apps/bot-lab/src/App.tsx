@@ -1,30 +1,33 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import {
-  addExampleToSituation,
   appendLearningEntry,
-  applyEnginePatches,
-  bookSummary,
-  compileComboBook,
+  assignReplayToSituation,
+  bookCardIds,
+  clearSituationReplay,
+  createSituation,
   defaultToonComboModel,
+  deleteSituation,
   diagnoseReplay,
-  extractLine,
-  guessBotActor,
+  extractComboLine,
+  modelFromBook,
   parseComboBook,
   parseLearningLog,
   runLearnCycle,
   serializeLearningLog,
-  suggestComboModel,
   undoLastApplied,
+  updateSituation,
   type ComboBook,
   type ComboModel,
+  type ComboSituation,
   type Diagnosis,
   type ExtractedLine,
   type LearningEntry,
 } from "@yugioh/bot-lab";
 import type { Actor, EdoProInstallInfo, ReplayFileInfo, ReplayWalkthrough } from "@yugioh/edopro-bridge";
+import { ComboLine, EndBoardZones } from "./CardThumb";
 import { ComboGraph } from "./ComboGraph";
-import { cardLabel, listReplays, loadWalkthrough } from "./lib/bridge";
+import { listReplays, loadWalkthrough, queryCardNames, replayArtPaths } from "./lib/bridge";
 import { native } from "./lib/native";
 import {
   bookPath,
@@ -40,14 +43,6 @@ import { loadSettings, saveSettings, type LabSettings } from "./lib/settings";
 
 type Tab = "libro" | "grafo" | "replays" | "aprendizaje" | "ajustes";
 
-function stepKindLabel(kind: string): string {
-  if (kind === "spsummon") return "SS";
-  if (kind === "summon") return "NS";
-  if (kind === "activate") return "Act";
-  if (kind === "set") return "Set";
-  return kind;
-}
-
 export default function App() {
   const [tab, setTab] = useState<Tab>("libro");
   const [settings, setSettings] = useState<LabSettings | null>(null);
@@ -57,6 +52,7 @@ export default function App() {
   const [log, setLog] = useState<LearningEntry[]>([]);
   const [engineSource, setEngineSource] = useState("");
   const [sitId, setSitId] = useState<string | null>(null);
+  const [titleDraft, setTitleDraft] = useState("");
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -70,20 +66,18 @@ export default function App() {
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
 
   const enginesRoot = settings?.comboRoot?.trim() || "";
+  const art = settings?.edoProPath
+    ? replayArtPaths(settings.edoProPath)
+    : { picsDir: "", unknownPic: "", coverPic: "" };
 
   const loadLibrary = useCallback(async (root: string) => {
     const bp = bookPath(root);
-    const mp = modelPath(root);
     const lp = logPath(root);
     const ep = enginePath(root);
     const bookRaw = JSON.parse(await native.readTextFile(bp)) as unknown;
-    setBook(parseComboBook(bookRaw));
-    try {
-      const modelRaw = JSON.parse(await native.readTextFile(mp)) as ComboModel;
-      setModel(modelRaw);
-    } catch {
-      setModel(defaultToonComboModel());
-    }
+    const parsed = parseComboBook(bookRaw);
+    setBook(parsed);
+    setModel(modelFromBook(parsed));
     try {
       setLog(parseLearningLog(await native.readTextFile(lp)));
     } catch {
@@ -122,22 +116,111 @@ export default function App() {
     })();
   }, [loadLibrary]);
 
+  function selectSituation(s: ComboSituation) {
+    setSitId(s.situationId);
+    setTitleDraft(s.title);
+    setNotes(s.notes);
+  }
+
   useEffect(() => {
     if (book && !sitId && book.situations[0]) {
-      setSitId(book.situations[0].situationId);
-      setNotes(book.situations[0].notes);
+      selectSituation(book.situations[0]);
     }
   }, [book, sitId]);
+
+  useEffect(() => {
+    if (!book || !settings?.edoProPath) return;
+    let cancelled = false;
+    void (async () => {
+      const extra = await queryCardNames(settings.edoProPath, bookCardIds(book));
+      if (!cancelled && Object.keys(extra).length > 0) {
+        setNames((prev) => ({ ...prev, ...extra }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [book, settings?.edoProPath]);
 
   const situation = useMemo(
     () => book?.situations.find((s) => s.situationId === sitId) ?? null,
     [book, sitId],
   );
 
+  const refreshedZones = useRef(false);
+  useEffect(() => {
+    if (refreshedZones.current || !enginesRoot || !situation) return;
+    const hasField =
+      (situation.endBoard.monsterZones ?? []).some((id) => Number(id) > 0) ||
+      (situation.endBoard.spellZones ?? []).some((id) => Number(id) > 0);
+    if (hasField) return;
+    if (situation.endBoard.monsters.length + situation.endBoard.spells.length === 0) {
+      return;
+    }
+    refreshedZones.current = true;
+    void loadLibrary(enginesRoot);
+  }, [enginesRoot, situation, loadLibrary]);
+
   async function persistBook(next: ComboBook) {
     if (!enginesRoot) throw new Error("comboRoot no configurado");
     await native.writeTextFile(bookPath(enginesRoot), JSON.stringify(next, null, 2) + "\n");
     setBook(next);
+    await persistModel(modelFromBook(next));
+  }
+
+  async function saveSituation() {
+    if (!book || !situation) return;
+    setError("");
+    try {
+      const next = updateSituation(book, situation.situationId, {
+        title: titleDraft,
+        notes,
+      });
+      await persistBook(next);
+      const saved =
+        next.situations.find((s) => s.situationId === situation.situationId) ??
+        next.situations.find(
+          (s) => !book.situations.some((old) => old.situationId === s.situationId),
+        );
+      if (saved) selectSituation(saved);
+      setStatus(`Guardada «${saved?.title ?? titleDraft}».`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function addSituation() {
+    if (!book) return;
+    setError("");
+    try {
+      const next = createSituation(book, { title: "Nueva situación" });
+      await persistBook(next);
+      const created = next.situations[next.situations.length - 1];
+      if (created) selectSituation(created);
+      setStatus("Situación creada. Edita el nombre y guarda.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function removeSituation() {
+    if (!book || !situation) return;
+    if (!window.confirm(`¿Borrar «${situation.title}» del libro?`)) return;
+    setError("");
+    try {
+      const next = deleteSituation(book, situation.situationId);
+      await persistBook(next);
+      const fallback = next.situations[0];
+      if (fallback) selectSituation(fallback);
+      else {
+        setSitId(null);
+        setTitleDraft("");
+        setNotes("");
+      }
+      setStatus(`Borrada «${situation.title}».`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   async function persistModel(next: ComboModel) {
@@ -168,7 +251,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (tab === "replays" || tab === "aprendizaje") void refreshReplays();
+    if (tab === "replays" || tab === "aprendizaje" || tab === "libro") void refreshReplays();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, install?.replayDir]);
 
@@ -180,36 +263,79 @@ export default function App() {
     setError("");
     setPicked(file);
     const loaded = await loadWalkthrough(file, settings.edoProPath);
+    const extracted = extractComboLine(loaded.walk);
     setWalk(loaded.walk);
-    setNames(loaded.names);
-    const guessed = guessBotActor(loaded.walk);
-    setActor(guessed);
-    const extracted = extractLine(loaded.walk, guessed, { fromTurn: 1, toTurn: 1 });
+    setNames((prev) => ({ ...prev, ...loaded.names }));
+    setActor(extracted.actor);
     setLine(extracted);
-    if (book) setDiagnosis(diagnoseReplay(book, loaded.walk, guessed));
+    if (book) setDiagnosis(diagnoseReplay(book, loaded.walk, extracted.actor));
   }
 
   function onActorChange(next: Actor) {
     setActor(next);
     if (!walk) return;
-    const extracted = extractLine(walk, next, { fromTurn: 1, toTurn: 1 });
+    const extracted = extractComboLine(walk, next);
     setLine(extracted);
     if (book) setDiagnosis(diagnoseReplay(book, walk, next));
   }
 
+  async function assignReplay(file: ReplayFileInfo) {
+    if (!book || !situation || !settings?.edoProPath) {
+      setError("Configura la carpeta de EDOPro en Ajustes.");
+      return;
+    }
+    setError("");
+    try {
+      const loaded = await loadWalkthrough(file, settings.edoProPath);
+      setNames((prev) => ({ ...prev, ...loaded.names }));
+      const extracted = extractComboLine(loaded.walk);
+      const next = assignReplayToSituation(
+        book,
+        situation.situationId,
+        {
+          sourceReplay: file.name,
+          notes: notes.trim() || situation.notes,
+          openingHand: extracted.openingHand,
+          steps: extracted.steps,
+          endBoard: extracted.endBoard,
+        },
+        {
+          going: extracted.going,
+          worldOnField: extracted.worldOnField,
+          threats: extracted.threats,
+        },
+      );
+      await persistBook(next);
+      const saved = next.situations.find(
+        (s) => s.situationId === situation.situationId,
+      );
+      if (saved) selectSituation(saved);
+      setStatus(`Replay «${file.name}» asociado a «${situation.title}».`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function unassignReplay() {
+    if (!book || !situation) return;
+    if (!window.confirm(`¿Quitar el replay de «${situation.title}»?`)) return;
+    setError("");
+    try {
+      const next = clearSituationReplay(book, situation.situationId);
+      await persistBook(next);
+      const saved = next.situations.find(
+        (s) => s.situationId === situation.situationId,
+      );
+      if (saved) selectSituation(saved);
+      setStatus(`Replay desasociado de «${situation.title}».`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
   async function addLineToSituation() {
-    if (!book || !situation || !line || !picked) return;
-    const next = addExampleToSituation(book, situation.situationId, {
-      sourceReplay: picked.name,
-      notes: notes.trim() || situation.notes,
-      openingHand: line.openingHand,
-      steps: line.steps.length ? line.steps : situation.steps,
-      endBoard: line.endBoard,
-    });
-    const sit = next.situations.find((s) => s.situationId === situation.situationId);
-    if (sit && notes.trim()) sit.notes = notes.trim();
-    await persistBook(next);
-    setStatus(`Ejemplo añadido a ${situation.situationId}.`);
+    if (!picked) return;
+    await assignReplay(picked);
   }
 
   async function runLearn() {
@@ -226,12 +352,7 @@ export default function App() {
       appendLearningEntry(serializeLearningLog(log), result.entry),
     );
     await persistLog(nextLog);
-    if (result.applied && result.nextSource) {
-      await persistEngine(result.nextSource);
-      setStatus(`Auto-parche aplicado (${diag.verdict}). Recompila WindBot con install:engines.`);
-    } else {
-      setStatus(result.reason ?? diag.notes);
-    }
+    setStatus(result.reason ?? diag.notes);
   }
 
   async function undoLearn() {
@@ -243,40 +364,6 @@ export default function App() {
     await persistEngine(undone.source);
     await persistLog(undone.entries);
     setStatus("Último parche deshecho.");
-  }
-
-  async function rebuildModel() {
-    if (!book) return;
-    setStatus("Generando modelo…");
-    try {
-      const next = await suggestComboModel(
-        {
-          apiKey: settings?.apiKey,
-          baseUrl: settings?.apiBaseUrl,
-          model: settings?.apiModel,
-        },
-        {
-          notes: notes || book.situations.map((s) => s.notes).join("\n"),
-          engineExcerpt: engineSource.slice(0, 8000),
-          bookSummary: bookSummary(book),
-        },
-      );
-      await persistModel(next);
-      setStatus("ComboModel actualizado.");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  }
-
-  async function compileNow() {
-    if (!book) return;
-    const patches = compileComboBook(book, engineSource);
-    if (patches.length === 0) {
-      setStatus("El engine ya cubre las prioridades del libro.");
-      return;
-    }
-    await persistEngine(applyEnginePatches(engineSource, patches));
-    setStatus(`Aplicados ${patches.length} parches SelectCard desde el libro.`);
   }
 
   async function pickEdoFolder() {
@@ -328,8 +415,8 @@ export default function App() {
           ))}
         </nav>
         <p className="sidebar-foot">
-          Recetas gold en combos/toon-2026. El bot solo ejecuta C#; este lab
-          reescribe SelectCard cuando un replay se desvía.
+          Recetas gold en combos/toon-2026. Este lab extrae, diagnostica y
+          edita el campo objetivo; no controla el duelo de WindBot.
         </p>
       </aside>
       <main className="main">
@@ -340,51 +427,36 @@ export default function App() {
           <>
             <h2>Libro de situaciones</h2>
             <p className="lede">
-              Cada combo es una rama: going first, Ash, Maxx C, World ya activo…
-              Añade replays a la situación, no un único ejemplo canónico.
+              Cada combo es una rama. Describe la línea en las notas y asigna
+              replays como ejemplos.
             </p>
             <div className="split">
               <div className="sit-list">
+                <button className="ghost" onClick={() => void addSituation()}>
+                  Nueva situación
+                </button>
+                {book.situations.length === 0 ? (
+                  <p className="muted">El libro está vacío.</p>
+                ) : null}
                 {book.situations.map((s) => (
                   <button
                     key={s.situationId}
                     className={sitId === s.situationId ? "active" : ""}
-                    onClick={() => {
-                      setSitId(s.situationId);
-                      setNotes(s.notes);
-                    }}
+                    onClick={() => selectSituation(s)}
                   >
                     <strong>{s.title}</strong>
-                    <div className="muted">{s.situationId}</div>
                   </button>
                 ))}
               </div>
               {situation && (
                 <div className="card">
-                  <p>{situation.notes}</p>
-                  <p className="muted">
-                    going={situation.when.going ?? "—"} · world=
-                    {String(situation.when.worldOnField ?? "—")} · threats=
-                    {(situation.when.threats ?? []).join(", ") || "ninguna"} ·
-                    ejemplos={situation.examples.length}
-                  </p>
-                  <h3>Pasos canónicos</h3>
-                  <ul className="steps">
-                    {situation.steps.map((st, i) => (
-                      <li key={i}>
-                        {stepKindLabel(st.kind)} {cardLabel(st.cardId, names)}
-                        {st.selectCard?.length
-                          ? ` → [${st.selectCard.map((id) => cardLabel(id, names)).join(", ")}]`
-                          : ""}
-                      </li>
-                    ))}
-                  </ul>
-                  <h3>Campo objetivo</h3>
-                  <p>
-                    Monstruos: {situation.endBoard.monsters.map((id) => cardLabel(id, names)).join(", ") || "—"}
-                    <br />
-                    Magias: {situation.endBoard.spells.map((id) => cardLabel(id, names)).join(", ") || "—"}
-                  </p>
+                  <label>
+                    Nombre
+                    <input
+                      value={titleDraft}
+                      onChange={(e) => setTitleDraft(e.target.value)}
+                    />
+                  </label>
                   <label>
                     Notas en español
                     <textarea
@@ -394,10 +466,79 @@ export default function App() {
                     />
                   </label>
                   <div className="row">
-                    <button className="primary" onClick={() => void compileNow()}>
-                      Compilar libro → engine
+                    <button className="primary" onClick={() => void saveSituation()}>
+                      Guardar
+                    </button>
+                    <button className="danger" onClick={() => void removeSituation()}>
+                      Borrar
                     </button>
                   </div>
+                  {situation.examples[0] || situation.steps.length > 0 ? (
+                    <>
+                      <div className="row" style={{ marginTop: "0.85rem" }}>
+                        <p className="muted" style={{ margin: 0, flex: 1 }}>
+                          {situation.examples[0]
+                            ? `Replay: ${situation.examples[0].sourceReplay}`
+                            : "Línea del libro (sin replay)"}
+                        </p>
+                        <button className="ghost" onClick={() => void unassignReplay()}>
+                          Quitar replay
+                        </button>
+                      </div>
+                      <h3>Pasos canónicos</h3>
+                      {!art.picsDir ? (
+                        <p className="muted">
+                          Configura EDOPro en Ajustes para ver las imágenes de las cartas.
+                        </p>
+                      ) : null}
+                      {situation.steps.length === 0 ? (
+                        <p className="muted">El replay no dejó pasos extraíbles.</p>
+                      ) : (
+                        <ComboLine
+                          steps={situation.steps}
+                          names={names}
+                          picsDir={art.picsDir}
+                          unknownPic={art.unknownPic}
+                          coverPic={art.coverPic}
+                        />
+                      )}
+                      <h3>Campo objetivo</h3>
+                      <EndBoardZones
+                        board={situation.endBoard}
+                        steps={situation.steps}
+                        names={names}
+                        picsDir={art.picsDir}
+                        unknownPic={art.unknownPic}
+                        coverPic={art.coverPic}
+                      />
+                    </>
+                  ) : (
+                    <label style={{ marginTop: "0.85rem" }}>
+                      Replay
+                      {!install?.replayDir ? (
+                        <p className="muted">
+                          Configura EDOPro en Ajustes para listar replays.
+                        </p>
+                      ) : replays.length === 0 ? (
+                        <p className="muted">No hay archivos .yrpX en replay/.</p>
+                      ) : (
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            const file = replays.find((r) => r.path === e.target.value);
+                            if (file) void assignReplay(file);
+                          }}
+                        >
+                          <option value="">Selecciona un replay…</option>
+                          {replays.map((r) => (
+                            <option key={r.path} value={r.path}>
+                              {r.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </label>
+                  )}
                 </div>
               )}
             </div>
@@ -408,15 +549,16 @@ export default function App() {
           <>
             <h2>Cómo funciona el combo</h2>
             <p className="lede">
-              Requires / enables / ventanas de Ash / recuperaciones. El LLM puede
-              proponer el grafo; tú lo corrige.
+              El diagrama se reconstruye al guardar el libro. Pulsa un nodo para
+              ver cartas, situaciones y conexiones.
             </p>
-            <div className="row" style={{ marginBottom: "1rem" }}>
-              <button className="primary" onClick={() => void rebuildModel()}>
-                Regenerar modelo
-              </button>
-            </div>
-            <ComboGraph model={model} />
+            <ComboGraph
+              model={model}
+              book={book}
+              names={names}
+              picsDir={art.picsDir}
+              unknownPic={art.unknownPic}
+            />
           </>
         )}
 
@@ -466,19 +608,21 @@ export default function App() {
                       going {line.going} · threats {line.threats.join(", ") || "—"} ·
                       world {String(line.worldOnField)}
                     </p>
-                    <ul className="steps">
-                      {line.steps.map((st, i) => (
-                        <li key={i}>
-                          {stepKindLabel(st.kind)} {cardLabel(st.cardId, names)}
-                        </li>
-                      ))}
-                    </ul>
-                    <p>
-                      End board:{" "}
-                      {[...line.endBoard.monsters, ...line.endBoard.spells]
-                        .map((id) => cardLabel(id, names))
-                        .join(", ") || "vacío"}
-                    </p>
+                    <ComboLine
+                      steps={line.steps}
+                      names={names}
+                      picsDir={art.picsDir}
+                      unknownPic={art.unknownPic}
+                      coverPic={art.coverPic}
+                    />
+                    <EndBoardZones
+                      board={line.endBoard}
+                      steps={line.steps}
+                      names={names}
+                      picsDir={art.picsDir}
+                      unknownPic={art.unknownPic}
+                      coverPic={art.coverPic}
+                    />
                     {diagnosis && (
                       <p className={diagnosis.verdict === "ok" ? "ok" : "bad"}>
                         {diagnosis.verdict}: {diagnosis.notes}
@@ -488,7 +632,13 @@ export default function App() {
                       Añadir a situación
                       <select
                         value={sitId ?? ""}
-                        onChange={(e) => setSitId(e.target.value)}
+                        onChange={(e) => {
+                          const next = e.target.value;
+                          const sit = book?.situations.find(
+                            (s) => s.situationId === next,
+                          );
+                          if (sit) selectSituation(sit);
+                        }}
                       >
                         {book?.situations.map((s) => (
                           <option key={s.situationId} value={s.situationId}>
@@ -503,7 +653,7 @@ export default function App() {
                     </label>
                     <div className="row">
                       <button className="primary" onClick={() => void addLineToSituation()}>
-                        Añadir ejemplo
+                        Asociar a esta situación
                       </button>
                       <button className="ghost" onClick={() => void runLearn()}>
                         Diagnosticar y aprender
@@ -522,8 +672,9 @@ export default function App() {
           <>
             <h2>Auto-mejora</h2>
             <p className="lede">
-              El lab compara el replay del bot con el libro. Si el parche es solo
-              SelectCard y no rompe otras situaciones, se aplica solo.
+              El lab compara el replay con el libro y registra el diagnóstico.
+              Corregir when, pasos o endBoard se hace aquí; el engine no lee
+              el libro en el duelo.
             </p>
             <div className="row" style={{ marginBottom: "1rem" }}>
               <button className="ghost" onClick={() => void undoLearn()}>

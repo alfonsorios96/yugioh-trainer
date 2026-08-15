@@ -3,9 +3,12 @@ import {
   mergeCardNames,
   replaceHashCodes,
   isLastReplayFilename,
+  isLikelyBotName,
+  orientWalkthroughToHuman,
   type ReplayFileInfo,
   type ReplayWalkthrough,
   type UnknownCardMeta,
+  type WalkthroughSeatOptions,
 } from "@yugioh/edopro-bridge";
 import { listReplays, replayArtPaths } from "./bridgeService";
 import { joinPath, native } from "./native";
@@ -21,6 +24,7 @@ export interface MatchReviewSummary {
   youName: string;
   oppName: string;
   winner: ReplayWalkthrough["winner"];
+  going?: ReplayWalkthrough["going"];
   stepCount: number;
   rivalName: string;
   rivalId: string;
@@ -80,6 +84,7 @@ function toSummary(review: SavedMatchReview): MatchReviewSummary {
     youName: review.youName,
     oppName: review.oppName,
     winner: review.winner,
+    going: review.going,
     stepCount: review.stepCount,
     rivalName: review.rivalName,
     rivalId: review.rivalId,
@@ -174,6 +179,32 @@ export async function deleteMatchReview(id: string): Promise<void> {
   );
 }
 
+export function displayReviewSeat(
+  review: Pick<MatchReviewSummary, "youName" | "oppName" | "winner" | "going">,
+  seat?: WalkthroughSeatOptions,
+): Pick<MatchReviewSummary, "youName" | "oppName" | "winner" | "going"> {
+  const inverted =
+    isLikelyBotName(review.youName, seat?.botNames) &&
+    !isLikelyBotName(review.oppName, seat?.botNames);
+  if (!inverted) return review;
+  return {
+    youName: review.oppName,
+    oppName: review.youName,
+    winner:
+      review.winner === "you"
+        ? "opp"
+        : review.winner === "opp"
+          ? "you"
+          : review.winner,
+    going:
+      review.going === "first"
+        ? "second"
+        : review.going === "second"
+          ? "first"
+          : "second",
+  };
+}
+
 export function reviewToView(
   review: SavedMatchReview,
   edoProPath: string,
@@ -181,29 +212,36 @@ export function reviewToView(
     names?: Record<string, string>;
     unknownMeta?: Record<string, UnknownCardMeta>;
   },
+  seat?: WalkthroughSeatOptions,
 ): WalkthroughView {
   const names = mergeCardNames(review.names, overlay?.names ?? {});
   const unknownMeta = { ...review.unknownMeta, ...overlay?.unknownMeta };
+  const rawWalk = {
+    ...review.walk,
+    steps: review.walk.steps.map((step) => ({
+      ...step,
+      chosen: replaceHashCodes(step.chosen, names),
+    })),
+  };
+  const walk = orientWalkthroughToHuman(rawWalk, seat);
+  const seatCorrected = walk.youName !== review.walk.youName;
   return {
-    walk: {
-      ...review.walk,
-      steps: review.walk.steps.map((step) => ({
-        ...step,
-        chosen: replaceHashCodes(step.chosen, names),
-      })),
-    },
+    walk,
     names,
     unknownMeta,
     ...replayArtPaths(edoProPath),
-    coaching: review.coaching,
+    coaching: seatCorrected ? [] : review.coaching,
     source: review.source,
-    error: review.error,
+    error: seatCorrected
+      ? "Se corrigió el asiento (ibas segundo). Pulsa Re-run AI para evaluar tus jugadas."
+      : review.error,
     usedModel: review.usedModel,
     fromCache: true,
     savedAt: review.savedAt,
-    goalReviews: review.goalReviews,
-    academyId: review.academyId,
+    goalReviews: seatCorrected ? undefined : review.goalReviews,
+    academyId: seatCorrected ? undefined : review.academyId,
     drillPrompt: review.drillPrompt,
+    seatCorrected,
   };
 }
 
@@ -233,6 +271,7 @@ export function buildSavedReview(input: {
     youName: input.walk.youName,
     oppName: input.walk.oppName,
     winner: input.walk.winner,
+    going: input.walk.going,
     stepCount: input.walk.steps.length,
     rivalName: input.rivalName,
     rivalId: input.rivalId,

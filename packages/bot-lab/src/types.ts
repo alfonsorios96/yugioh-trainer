@@ -2,10 +2,20 @@ export type Going = "first" | "second";
 
 export type ComboStepKind = "activate" | "summon" | "spsummon" | "set";
 
+/** How a card sits on the field. Empty string = unused slot. */
+export type CardStance = "atk" | "def" | "set" | "";
+
 export interface EndBoard {
   monsters: number[];
   spells: number[];
   grave: number[];
+  banished: number[];
+  /** MZ1–MZ5 then EMZ / EMZ2. 0 = empty. */
+  monsterZones?: number[];
+  /** ST1–ST5 then Field. 0 = empty. */
+  spellZones?: number[];
+  monsterStances?: CardStance[];
+  spellStances?: CardStance[];
 }
 
 export interface ComboStep {
@@ -13,6 +23,11 @@ export interface ComboStep {
   cardId: number;
   selectCard?: number[];
   selectNextCard?: number[];
+  /** Field slot when this action lands on a zone (MZ1, EMZ, ST3, Campo…). */
+  place?: string;
+  stance?: CardStance;
+  /** True when this spsummon is the result of the previous effect, not a Bind. */
+  isOutcome?: boolean;
 }
 
 export interface SituationWhen {
@@ -42,6 +57,8 @@ export interface ComboSituation {
   steps: ComboStep[];
   endBoard: EndBoard;
   endBoardAcceptable?: EndBoard;
+  /** Tie-breaker when two situations match a replay. Lower = fallback line. */
+  priority?: number;
 }
 
 export interface ComboBook {

@@ -1,6 +1,6 @@
 import { InterruptId, ToonId, isToonSearchStarter, isWorldCard } from "./cards.js";
 import type { ExtractedLine } from "./extract.js";
-import { extractLine } from "./extract.js";
+import { extractComboLine } from "./extract.js";
 import { matchEndBoard, sequencePrefixLength, stepCardSequence } from "./match.js";
 import type {
   ComboBook,
@@ -10,7 +10,11 @@ import type {
 } from "./types.js";
 import type { Actor, ReplayWalkthrough } from "@yugioh/edopro-bridge";
 
-function handHas(hand: number[], ids: number[] | undefined, mode: "all" | "none"): boolean {
+function handHas(
+  hand: number[],
+  ids: number[] | undefined,
+  mode: "all" | "none",
+): boolean {
   if (!ids || ids.length === 0) return true;
   if (mode === "all") return ids.every((id) => hand.includes(id));
   return ids.every((id) => !hand.includes(id));
@@ -34,6 +38,7 @@ function situationScore(sit: ComboSituation, line: ExtractedLine): number {
     score += hit * 4;
     if (hit === 0) score -= 2;
   }
+  score += sit.priority ?? 0;
   const seq = stepCardSequence(sit.steps);
   const actual = stepCardSequence(line.steps);
   score += sequencePrefixLength(seq, actual);
@@ -165,7 +170,7 @@ export function diagnoseReplay(
   walk: ReplayWalkthrough,
   actor: Actor,
 ): Diagnosis {
-  const line = extractLine(walk, actor, { fromTurn: 1, toTurn: 1 });
+  const line = extractComboLine(walk, actor);
   return diagnoseLine(book, line);
 }
 

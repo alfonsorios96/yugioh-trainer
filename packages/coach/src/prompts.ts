@@ -110,6 +110,7 @@ export function buildStepReviewMessages(ctx: ReplayReviewContext): ChatMessage[]
         lessonBlock(ctx.lesson),
         "",
         "Juzga las líneas con MI deck (starters, extenders y handtraps de la lista), no un arquetipo genérico.",
+        "actor you es el humano (puede ir primero o segundo). Evalúa solo sus decisiones, nunca el combo del WindBot.",
         "Para CADA jugada, decide:",
         "- ok: correcta o razonable",
         "- better: no es un error grave, pero había una opción mejor",

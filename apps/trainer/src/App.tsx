@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { DRILL_OPTIONS, drillGoals, drillPrompt, uniqueCardCount, type ChatMessage, type DeckListSnapshot, type DrillKind, type MatchupLesson, type SessionPlan } from "@yugioh/coach";
 import {
   mergeCardNames,
+  orientWalkthroughToHuman,
   replaceHashCodes,
   windBotCommandLine,
   type EdoProInstallInfo,
@@ -18,6 +19,7 @@ import {
   importYdkToInstall,
   listYdkDecks,
   loadWalkthroughForFile,
+  collectBotNames,
   probeInstallAsync,
   startTrainingDuel,
   suggestInstallPaths,
@@ -168,6 +170,10 @@ function App() {
   const selectedDeck = useMemo(
     () => decks.find((d) => d.path === settings?.selectedDeckPath) ?? null,
     [decks, settings?.selectedDeckPath],
+  );
+  const seatOptions = useMemo(
+    () => ({ botNames: collectBotNames(rivals, windBotAnalysis) }),
+    [windBotAnalysis],
   );
 
   useEffect(() => {
@@ -537,13 +543,22 @@ function App() {
       if (!force) {
         const cached = await findReviewForReplay(file);
         if (cached && isReusableLlmReview(cached)) {
-          const cachedView = reviewToView(cached, settings.edoProPath);
+          const cachedView = reviewToView(
+            cached,
+            settings.edoProPath,
+            undefined,
+            seatOptions,
+          );
           setStatus(`Replay: ${cached.replayName} · saved IA (no API call)`);
           return cachedView;
         }
       }
 
-      const loaded = await loadWalkthroughForFile(file, settings.edoProPath);
+      const loaded = await loadWalkthroughForFile(
+        file,
+        settings.edoProPath,
+        seatOptions,
+      );
       const coached = await coachReplaySteps(
         settings,
         rival.name,
@@ -621,18 +636,38 @@ function App() {
       const matchupLesson =
         cachedLesson ??
         (matchup.id === rival.id ? lesson : getLessonForRival(matchup));
-      const resolved = await resolveCardCatalog(
-        settings.edoProPath,
-        review.walk.cardCodes,
-      );
-      const names = mergeCardNames(review.names, resolved.names);
-      const walk = {
-        ...review.walk,
-        steps: review.walk.steps.map((step) => ({
-          ...step,
-          chosen: replaceHashCodes(step.chosen, names),
-        })),
-      };
+      let walk = orientWalkthroughToHuman(review.walk, seatOptions);
+      let names = review.names;
+      let unknownMeta = review.unknownMeta;
+      try {
+        const loaded = await loadWalkthroughForFile(
+          {
+            path: review.replayPath,
+            name: review.replayName,
+            size: review.replaySize,
+            modifiedMs: review.replayModifiedMs,
+          },
+          settings.edoProPath,
+          seatOptions,
+        );
+        walk = loaded.walk;
+        names = loaded.names;
+        unknownMeta = loaded.unknownMeta;
+      } catch {
+        const resolved = await resolveCardCatalog(
+          settings.edoProPath,
+          walk.cardCodes,
+        );
+        names = mergeCardNames(names, resolved.names);
+        unknownMeta = { ...unknownMeta, ...resolved.unknownMeta };
+        walk = {
+          ...walk,
+          steps: walk.steps.map((step) => ({
+            ...step,
+            chosen: replaceHashCodes(step.chosen, names),
+          })),
+        };
+      }
       const coached = await coachReplaySteps(
         settings,
         review.rivalName,
@@ -652,9 +687,14 @@ function App() {
       );
       const next: SavedMatchReview = {
         ...review,
+        youName: walk.youName,
+        oppName: walk.oppName,
+        winner: walk.winner,
+        going: walk.going,
+        stepCount: walk.steps.length,
         walk,
         names,
-        unknownMeta: resolved.unknownMeta,
+        unknownMeta,
         coaching: coached.coaching,
         source: coached.source,
         error: coached.error,
@@ -668,7 +708,7 @@ function App() {
       setHistoryTick((n) => n + 1);
       void unknownCardCacheCount().then(setUnknownCardCount).catch(() => undefined);
       const view: WalkthroughView = {
-        ...reviewToView(next, settings.edoProPath),
+        ...reviewToView(next, settings.edoProPath, undefined, seatOptions),
         fromCache: false,
       };
       setStatus(

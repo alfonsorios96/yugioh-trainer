@@ -24,6 +24,7 @@ import {
   type WindBotEntry,
   type UnknownCardMeta,
   type WindBotInventoryAnalysis,
+  type WalkthroughSeatOptions,
   type YdkDeck,
 } from "@yugioh/edopro-bridge";
 import { resolveCardCatalog } from "./cardCatalog";
@@ -175,9 +176,25 @@ export function replayArtPaths(edoProRoot: string): {
   };
 }
 
+export function collectBotNames(
+  rivals: RivalProfile[],
+  inventory: WindBotInventoryAnalysis | null,
+): string[] {
+  const names = new Set<string>();
+  for (const rival of rivals) {
+    if (rival.windbotName) names.add(rival.windbotName);
+    if (rival.name) names.add(rival.name);
+  }
+  for (const deck of inventory?.availableDecks ?? []) {
+    if (deck.botName) names.add(deck.botName);
+  }
+  return [...names];
+}
+
 export async function loadWalkthroughForFile(
   file: ReplayFileInfo,
   edoProRoot: string,
+  seat?: WalkthroughSeatOptions,
 ): Promise<{
   file: ReplayFileInfo;
   walk: ReplayWalkthrough;
@@ -187,7 +204,7 @@ export async function loadWalkthroughForFile(
   unknownPic: string;
 }> {
   const b64 = await native.decompressYrpx(file.path);
-  const walk = parseYrpxWalkthrough(decodeBase64Bytes(b64), file.name);
+  const walk = parseYrpxWalkthrough(decodeBase64Bytes(b64), file.name, seat);
   let names: Record<string, string> = {};
   let unknownMeta: Record<string, UnknownCardMeta> = {};
   try {

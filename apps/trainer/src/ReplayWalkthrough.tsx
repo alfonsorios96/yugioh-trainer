@@ -25,6 +25,7 @@ export interface WalkthroughView {
   goalReviews?: GoalReview[];
   academyId?: string;
   drillPrompt?: string;
+  seatCorrected?: boolean;
 }
 
 function CardRow({
@@ -205,6 +206,11 @@ export function ReplayWalkthroughView({ view }: { view: WalkthroughView }) {
       <div className="walkthrough-meta">
         <strong>
           {view.walk.youName} vs {view.walk.oppName}
+          {view.walk.going === "second"
+            ? " · ibas 2º"
+            : view.walk.going === "first"
+              ? " · ibas 1º"
+              : ""}
         </strong>
         <span>
           LP {step.board.lpYou} — {step.board.lpOpp} · Turno {step.turn || "–"} · {step.phase}

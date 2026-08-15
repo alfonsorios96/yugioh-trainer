@@ -56,4 +56,31 @@ export function cardLabel(id: number, names: Record<string, string>): string {
   return names[String(id)] ?? `#${id}`;
 }
 
+export function replayArtPaths(edoProRoot: string): {
+  picsDir: string;
+  unknownPic: string;
+  coverPic: string;
+} {
+  return {
+    picsDir: joinPath(edoProRoot, "pics"),
+    unknownPic: joinPath(edoProRoot, "textures", "unknown.jpg"),
+    coverPic: joinPath(edoProRoot, "textures", "cover.png"),
+  };
+}
+
+export async function queryCardNames(
+  edoProRoot: string,
+  codes: number[],
+): Promise<Record<string, string>> {
+  const unique = [...new Set(codes.filter((code) => code > 0))];
+  if (unique.length === 0) return {};
+  const cdb = await resolveCdb(edoProRoot);
+  if (!cdb) return {};
+  try {
+    return await native.queryCardNames(cdb, unique);
+  } catch {
+    return {};
+  }
+}
+
 export { joinPath };

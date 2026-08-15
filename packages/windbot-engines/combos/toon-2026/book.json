@@ -3,270 +3,714 @@
   "engineFile": "src/Engines/ToonEngine.cs",
   "situations": [
     {
-      "situationId": "going-first-full",
-      "title": "Going first: Ultimate + Terror",
-      "notes": "Bookmark/Terra/Table → Perfect World → Rabbit extra NS → Comic Cat → Ultimate + Terror seteado.",
+      "situationId": "first-going-funny-dark-rabbit-no-extenders",
+      "title": "First going: Funny Dark Rabbit + No extenders",
+      "notes": "Es un “one card combo” porque no necesitamos más para llegar al campo objetivo.\n\n- La idea es obtener al ilusionista oscuro lo más pronto posible, para activar su efecto desde la mano, y colocar “Mind Scan” y poder ver todas las cartas del oponente, y si hay alguna interrupción en la mano del oponente, activar el efecto de “mind scan” para nombrarla y de esta manera no la pueda usar.\n- Es importante reciclar efectos seleccionando con el field spell a ciertos monsters como “Funny Dark Rabbit”, “Evil Box”, “Blue-Eyes Toon Ultimate Dragon”, porque sus efecto son “soft” una vez por turno, lo que quiere decir que, si sale del campo y regresa, se considera una nueva carta y puede activar de nuevo sus efectos.\n- Es importante ciertas cartas en cementerio, porque en turno del oponente pueden activar efectos para interrumpir jugadas o como targets para recuperar cartas al campo. Ejemplo; en el main phase 1 del oponente, activar \"Charmer Quartet in Bloom\" con targets “Toon World the Perfect World” para invocarse en Monster Zone 3, y “Firewall Dragon” en Monster Zone 2. También usar “Toon Bookmark”, “Cyberse Desavewurm” para activarse en caso de proteger de destrucción al field spell o el ciberso para negar activación.\n\nPosteriormente seguir el orden de invocaciones para poder invocar los monstruos enlace que necesitamos en el orden específico y lugar donde se invocan en el replay, para que posteriormente los boss monsters puedan hacer mejor sus efectos; como es el caso de \"Firewall Dragon” el cual tiene que estar co-linkeado para su efecto de levantar a la mano monstruos.\n\nEl campo objetivo consiste en dejar:\n\n- Extra Monster Zone: Perfectron Hydradrive Dragon\n- Monster Zone 1: Charmer Quartet in Bloom\n- Monster Zone 4: Evil Box\n- Monster Zone 5: Comic Cat\n- Field Zone: Toon World the Perfect World\n- Magic/Trap Zone 3: Mind Scan\n- Magic/Trap Zone 4: Toon Terror (boca abajo)\n- Graveyard: Cyberse Desavewurm\n- Graveyard:  Zenna's Deceiving Doll Maidens\n- Graveyard:  Perfectron Hydradrive Dragon\n- Graveyard:  Firewall Dragon\n- Graveyard:  Toon Bookmark\n",
       "when": {
         "going": "first",
-        "worldOnField": false,
-        "threats": []
+        "handContains": [
+          45536531
+        ]
       },
-      "examples": [],
+      "examples": [
+        {
+          "sourceReplay": "DEMO Jorgito.yrpX",
+          "notes": "Es un “one card combo” porque no necesitamos más para llegar al campo objetivo.\n\n- La idea es obtener al ilusionista oscuro lo más pronto posible, para activar su efecto desde la mano, y colocar “Mind Scan” y poder ver todas las cartas del oponente, y si hay alguna interrupción en la mano del oponente, activar el efecto de “mind scan” para nombrarla y de esta manera no la pueda usar.\n- Es importante reciclar efectos seleccionando con el field spell a ciertos monsters como “Funny Dark Rabbit”, “Evil Box”, “Blue-Eyes Toon Ultimate Dragon”, porque sus efecto son “soft” una vez por turno, lo que quiere decir que, si sale del campo y regresa, se considera una nueva carta y puede activar de nuevo sus efectos.\n- Es importante ciertas cartas en cementerio, porque en turno del oponente pueden activar efectos para interrumpir jugadas o como targets para recuperar cartas al campo. Ejemplo; en el main phase 1 del oponente, activar \"Charmer Quartet in Bloom\" con targets “Toon World the Perfect World” para invocarse en Monster Zone 3, y “Firewall Dragon” en Monster Zone 2. También usar “Toon Bookmark”, “Cyberse Desavewurm” para activarse en caso de proteger de destrucción al field spell o el ciberso para negar activación.\n\nPosteriormente seguir el orden de invocaciones para poder invocar los monstruos enlace que necesitamos en el orden específico y lugar donde se invocan en el replay, para que posteriormente los boss monsters puedan hacer mejor sus efectos; como es el caso de \"Firewall Dragon” el cual tiene que estar co-linkeado para su efecto de levantar a la mano monstruos.\n\nEl campo objetivo consiste en dejar:\n\n- Extra Monster Zone: Perfectron Hydradrive Dragon\n- Monster Zone 1: Charmer Quartet in Bloom\n- Monster Zone 4: Evil Box\n- Monster Zone 5: Comic Cat\n- Field Zone: Toon World the Perfect World\n- Magic/Trap Zone 3: Mind Scan\n- Magic/Trap Zone 4: Toon Terror (boca abajo)\n- Graveyard: Cyberse Desavewurm\n- Graveyard:  Zenna's Deceiving Doll Maidens\n- Graveyard:  Perfectron Hydradrive Dragon\n- Graveyard:  Firewall Dragon\n- Graveyard:  Toon Bookmark",
+          "openingHand": [
+            45536531,
+            27204311
+          ],
+          "steps": [
+            {
+              "kind": "summon",
+              "cardId": 45536531,
+              "place": "MZ3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34314989
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34298391,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST4"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 65458948,
+              "place": "MZ2",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 66011101,
+              "place": "MZ3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 66011101,
+              "place": "MZ3"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45536531,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "summon",
+              "cardId": 72921536,
+              "place": "MZ4"
+            },
+            {
+              "kind": "activate",
+              "cardId": 72921536,
+              "place": "MZ4"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 53183600,
+              "place": "MZ1"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 94259633,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 50277355,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 50277355,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 91500017,
+              "place": "ST2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 8915275
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 8915275,
+              "place": "MZ4"
+            },
+            {
+              "kind": "activate",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 8915275,
+              "place": "MZ4"
+            },
+            {
+              "kind": "activate",
+              "cardId": 8915275,
+              "place": "MZ4"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 58036229,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 5043010,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 58036229
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 58036229,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 5043010,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 27519978,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 27519978,
+              "place": "MZ2"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ4",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 8915275,
+              "place": "MZ5"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45112597,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45112597,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 8915275,
+              "place": "MZ4"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 27519978,
+              "place": "MZ1"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45112597,
+              "place": "MZ3"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 7594154,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7594154,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34314989
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "set",
+              "cardId": 53094821,
+              "place": "ST4",
+              "stance": "set"
+            }
+          ],
+          "endBoard": {
+            "monsters": [
+              27519978,
+              8915275,
+              72921536,
+              13203964
+            ],
+            "spells": [
+              34298391,
+              53094821,
+              7293697
+            ],
+            "grave": [
+              66011101,
+              91500017,
+              71808988,
+              5043010,
+              45112597,
+              92422871,
+              34314989,
+              7594154,
+              13203964
+            ],
+            "banished": [
+              50277355,
+              94259633,
+              58036229
+            ],
+            "monsterZones": [
+              27519978,
+              0,
+              0,
+              8915275,
+              72921536,
+              13203964,
+              0
+            ],
+            "spellZones": [
+              0,
+              0,
+              34298391,
+              53094821,
+              0,
+              7293697
+            ],
+            "monsterStances": [
+              "atk",
+              "",
+              "",
+              "atk",
+              "def",
+              "atk",
+              ""
+            ],
+            "spellStances": [
+              "",
+              "",
+              "",
+              "set",
+              "",
+              ""
+            ]
+          }
+        }
+      ],
       "steps": [
         {
-          "kind": "activate",
-          "cardId": 91500017,
-          "selectCard": [
-            7293697
-          ]
+          "kind": "summon",
+          "cardId": 45536531,
+          "place": "MZ3"
         },
         {
           "kind": "activate",
-          "cardId": 7293697
+          "cardId": 45536531,
+          "place": "MZ3"
         },
         {
           "kind": "activate",
           "cardId": 7293697,
-          "selectCard": [
-            45536531
-          ]
+          "place": "Campo"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34314989
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34298391,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST4"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 65458948,
+          "place": "MZ2",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 66011101,
+          "place": "MZ3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 66011101,
+          "place": "MZ3"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45536531,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
         },
         {
           "kind": "summon",
-          "cardId": 45536531
-        },
-        {
-          "kind": "summon",
-          "cardId": 72921536
+          "cardId": 72921536,
+          "place": "MZ4"
         },
         {
           "kind": "activate",
           "cardId": 72921536,
-          "selectNextCard": [
-            53183600
-          ]
+          "place": "MZ4"
         },
         {
           "kind": "spsummon",
-          "cardId": 53183600
+          "cardId": 53183600,
+          "place": "MZ1"
         },
         {
           "kind": "spsummon",
-          "cardId": 71808988
+          "cardId": 94259633,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 50277355,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 50277355,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 91500017,
+          "place": "ST2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 8915275
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 8915275,
+          "place": "MZ4"
+        },
+        {
+          "kind": "activate",
+          "cardId": 71808988,
+          "place": "MZ1"
         },
         {
           "kind": "activate",
           "cardId": 8915275,
-          "selectCard": [
-            53094821
-          ]
+          "place": "MZ4"
+        },
+        {
+          "kind": "activate",
+          "cardId": 8915275,
+          "place": "MZ4"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 58036229,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 5043010,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 58036229
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 58036229,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 5043010,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 27519978,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 27519978,
+          "place": "MZ2"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ4",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 8915275,
+          "place": "MZ5"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45112597,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45112597,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 8915275,
+          "place": "MZ4"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 27519978,
+          "place": "MZ1"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45112597,
+          "place": "MZ3"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 7594154,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7594154,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34314989
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 13203964,
+          "place": "EMZ"
         },
         {
           "kind": "set",
-          "cardId": 53094821
+          "cardId": 53094821,
+          "place": "ST4",
+          "stance": "set"
         }
       ],
       "endBoard": {
         "monsters": [
-          71808988
+          27519978,
+          8915275,
+          72921536,
+          13203964
         ],
         "spells": [
-          7293697,
-          53094821
+          34298391,
+          53094821,
+          7293697
         ],
-        "grave": []
+        "grave": [
+          66011101,
+          91500017,
+          71808988,
+          5043010,
+          45112597,
+          92422871,
+          34314989,
+          7594154,
+          13203964
+        ],
+        "banished": [
+          50277355,
+          94259633,
+          58036229
+        ],
+        "monsterZones": [
+          27519978,
+          0,
+          0,
+          8915275,
+          72921536,
+          13203964,
+          0
+        ],
+        "spellZones": [
+          0,
+          0,
+          34298391,
+          53094821,
+          0,
+          7293697
+        ],
+        "monsterStances": [
+          "atk",
+          "",
+          "",
+          "atk",
+          "def",
+          "atk",
+          ""
+        ],
+        "spellStances": [
+          "",
+          "",
+          "",
+          "set",
+          "",
+          ""
+        ]
       }
     },
     {
-      "situationId": "going-first-table-only",
-      "title": "Going first: solo Table",
-      "notes": "Sin Bookmark ni Terraforming. Table busca Perfect World (o Bookmark si hace falta).",
+      "situationId": "first-going-comic-cat-no-extenders",
+      "title": "First going: Comic Cat + No extenders",
+      "priority": 0,
+      "notes": "Es un “one card combo” pero no llegamos al mejor campo objetivo.\n\n- Aquí NO es objetivo obtener al ilusionista oscuro lo más pronto posible.\n- Es importante reciclar efectos seleccionando con el field spell a ciertos monsters como “Funny Dark Rabbit”, “Blue-Eyes Toon Ultimate Dragon”, porque sus efecto son “soft” una vez por turno, lo que quiere decir que, si sale del campo y regresa, se considera una nueva carta y puede activar de nuevo sus efectos. - Aquí no usamos a “Evil Box”\n- Es importante ciertas cartas en cementerio, porque en turno del oponente pueden activar efectos para interrumpir jugadas o como targets para recuperar cartas al campo. Ejemplo; en el main phase 1 del oponente, activar \"Charmer Quartet in Bloom\" con targets “Toon World the Perfect World” para invocarse en Monster Zone 3, y “Firewall Dragon” en Monster Zone 2. También usar “Toon Bookmark”, “Cyberse Desavewurm” para activarse en caso de proteger de destrucción al field spell o el ciberso para negar activación.\n\nPosteriormente seguir el orden de invocaciones para poder invocar los monstruos enlace que necesitamos en el orden específico y lugar donde se invocan en el replay, para que posteriormente los boss monsters puedan hacer mejor sus efectos; como es el caso de \"Firewall Dragon” el cual tiene que estar co-linkeado para su efecto de levantar a la mano monstruos. \n\nEl campo objetivo consiste en dejar:\n\n- Extra Monster Zone: Perfectron Hydradrive Dragon\n- Monster Zone 1: Charmer Quartet in Bloom\n- Monster Zone 5: Comic Cat\n- Field Zone: Toon World the Perfect World\n- Magic/Trap Zone 3: Mind Scan\n- Magic/Trap Zone 4: Toon Terror (boca abajo)\n- Graveyard: Cyberse Desavewurm\n- Graveyard:  Zenna's Deceiving Doll Maidens\n- Graveyard:  Perfectron Hydradrive Dragon\n- Graveyard:  Firewall Dragon\n- Graveyard:  Toon Bookmark",
       "when": {
         "going": "first",
         "handContains": [
-          89997728
+          72921536
         ],
-        "handExcludes": [
-          91500017,
-          73628505
-        ]
-      },
-      "examples": [],
-      "steps": [
-        {
-          "kind": "activate",
-          "cardId": 89997728,
-          "selectCard": [
-            7293697,
-            91500017
-          ]
-        },
-        {
-          "kind": "activate",
-          "cardId": 7293697
-        }
-      ],
-      "endBoard": {
-        "monsters": [],
-        "spells": [
-          7293697
-        ],
-        "grave": []
-      }
-    },
-    {
-      "situationId": "world-already-up",
-      "title": "Perfect World ya en campo",
-      "notes": "No reactivar el Field. Ignition de Perfect World busca Rabbit o Comic Cat.",
-      "when": {
-        "going": "first",
-        "worldOnField": true
-      },
-      "examples": [],
-      "steps": [
-        {
-          "kind": "activate",
-          "cardId": 7293697,
-          "selectCard": [
-            45536531,
-            72921536
-          ]
-        }
-      ],
-      "endBoard": {
-        "monsters": [
-          45536531
-        ],
-        "spells": [
-          7293697
-        ],
-        "grave": []
-      }
-    },
-    {
-      "situationId": "ash-on-search",
-      "title": "Ash al search",
-      "notes": "Ash a Bookmark/Table/Perfect World. Recuperar con otra magia starter o setear Terror.",
-      "when": {
-        "going": "first",
-        "threats": [
-          "ash"
-        ]
-      },
-      "examples": [],
-      "steps": [
-        {
-          "kind": "activate",
-          "cardId": 91500017,
-          "selectCard": [
-            7293697
-          ]
-        },
-        {
-          "kind": "activate",
-          "cardId": 89997728,
-          "selectCard": [
-            7293697,
-            91500017
-          ]
-        },
-        {
-          "kind": "set",
-          "cardId": 53094821
-        }
-      ],
-      "endBoard": {
-        "monsters": [],
-        "spells": [
-          7293697
-        ],
-        "grave": []
-      },
-      "endBoardAcceptable": {
-        "monsters": [],
-        "spells": [
-          53094821
-        ],
-        "grave": []
-      }
-    },
-    {
-      "situationId": "going-second-tribute",
-      "title": "Going second: tribute rival",
-      "notes": "Con World, Comic Cat tributa un monstruo rival y saca Blue-Eyes Toon o Faceless.",
-      "when": {
-        "going": "second",
-        "worldOnField": true,
-        "oppMonstersMin": 1
-      },
-      "examples": [],
-      "steps": [
-        {
-          "kind": "summon",
-          "cardId": 72921536
-        },
-        {
-          "kind": "activate",
-          "cardId": 72921536,
-          "selectNextCard": [
-            53183600,
-            34314989
-          ]
-        }
-      ],
-      "endBoard": {
-        "monsters": [
-          53183600
-        ],
-        "spells": [
-          7293697
-        ],
-        "grave": []
-      }
-    },
-    {
-      "situationId": "maxx-c",
-      "title": "Maxx C: jugar corto",
-      "notes": "No extender a Ultimate. Colocar World y setear Toon Terror.",
-      "when": {
-        "going": "first",
-        "threats": [
-          "maxx-c"
-        ]
-      },
-      "examples": [],
-      "steps": [
-        {
-          "kind": "activate",
-          "cardId": 91500017,
-          "selectCard": [
-            7293697
-          ]
-        },
-        {
-          "kind": "activate",
-          "cardId": 7293697
-        },
-        {
-          "kind": "set",
-          "cardId": 53094821
-        }
-      ],
-      "endBoard": {
-        "monsters": [],
-        "spells": [
-          7293697,
-          53094821
-        ],
-        "grave": []
-      }
-    },
-    {
-      "situationId": "no-rabbit",
-      "title": "Sin Funny Dark Rabbit",
-      "notes": "Inicia con Comic Cat, no tienes acceso a Dark Rabbit, ni al campo, ni otro extender.",
-      "when": {
-        "going": "first",
         "handExcludes": [
           45536531
         ]
@@ -274,67 +718,1361 @@
       "examples": [
         {
           "sourceReplay": "Toon 1 Card - Comic Cat.yrpX",
-          "notes": "Inicia con Comic Cat, no tienes acceso a Dark Rabbit, ni al campo, ni otro extender.",
-          "openingHand": [],
+          "notes": "Es un “one card combo” pero no llegamos al mejor campo objetivo.\n\n- Aquí NO es objetivo obtener al ilusionista oscuro lo más pronto posible.\n- Es importante reciclar efectos seleccionando con el field spell a ciertos monsters como “Funny Dark Rabbit”, “Blue-Eyes Toon Ultimate Dragon”, porque sus efecto son “soft” una vez por turno, lo que quiere decir que, si sale del campo y regresa, se considera una nueva carta y puede activar de nuevo sus efectos. - Aquí no usamos a “Evil Box”\n- Es importante ciertas cartas en cementerio, porque en turno del oponente pueden activar efectos para interrumpir jugadas o como targets para recuperar cartas al campo. Ejemplo; en el main phase 1 del oponente, activar \"Charmer Quartet in Bloom\" con targets “Toon World the Perfect World” para invocarse en Monster Zone 3, y “Firewall Dragon” en Monster Zone 2. También usar “Toon Bookmark”, “Cyberse Desavewurm” para activarse en caso de proteger de destrucción al field spell o el ciberso para negar activación.\n\nPosteriormente seguir el orden de invocaciones para poder invocar los monstruos enlace que necesitamos en el orden específico y lugar donde se invocan en el replay, para que posteriormente los boss monsters puedan hacer mejor sus efectos; como es el caso de \"Firewall Dragon” el cual tiene que estar co-linkeado para su efecto de levantar a la mano monstruos. \n\nEl campo objetivo consiste en dejar:\n\n- Extra Monster Zone: Perfectron Hydradrive Dragon\n- Monster Zone 1: Charmer Quartet in Bloom\n- Monster Zone 5: Comic Cat\n- Field Zone: Toon World the Perfect World\n- Magic/Trap Zone 3: Mind Scan\n- Magic/Trap Zone 4: Toon Terror (boca abajo)\n- Graveyard: Cyberse Desavewurm\n- Graveyard:  Zenna's Deceiving Doll Maidens\n- Graveyard:  Perfectron Hydradrive Dragon\n- Graveyard:  Firewall Dragon\n- Graveyard:  Toon Bookmark",
+          "openingHand": [
+            72921536
+          ],
           "steps": [
             {
-              "kind": "activate",
-              "cardId": 7293697,
-              "selectCard": [
-                72921536,
-                34314989
-              ]
-            },
-            {
               "kind": "summon",
-              "cardId": 72921536
+              "cardId": 72921536,
+              "place": "MZ3"
             },
             {
               "kind": "activate",
               "cardId": 72921536,
-              "selectNextCard": [
-                53183600,
-                34314989
-              ]
+              "place": "MZ3"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45536531,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "summon",
+              "cardId": 45536531,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 65458948,
+              "place": "MZ1",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 66011101,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 66011101,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ1",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 94259633,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 50277355,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 50277355,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 91500017,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34314989
+            },
+            {
+              "kind": "activate",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 58036229,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 5043010,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 58036229
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 58036229,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 5043010,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34314989
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 27519978,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 27519978,
+              "place": "MZ2"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 34314989,
+              "place": "MZ4",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45112597,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45112597,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 34314989,
+              "place": "MZ4",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 27519978,
+              "place": "MZ1"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45112597,
+              "place": "MZ3"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 7594154,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7594154,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST4"
+            },
+            {
+              "kind": "set",
+              "cardId": 53094821,
+              "place": "ST4",
+              "stance": "set"
             }
           ],
           "endBoard": {
-            "monsters": [],
-            "spells": [],
-            "grave": []
+            "monsters": [
+              27519978,
+              72921536,
+              13203964
+            ],
+            "spells": [
+              34298391,
+              53094821,
+              7293697
+            ],
+            "grave": [
+              7293697,
+              7293697,
+              45536531,
+              66011101,
+              91500017,
+              71808988,
+              5043010,
+              45112597,
+              34314989,
+              92422871,
+              7594154,
+              13203964,
+              89997728
+            ],
+            "banished": [
+              50277355,
+              94259633,
+              58036229
+            ],
+            "monsterZones": [
+              27519978,
+              0,
+              0,
+              0,
+              72921536,
+              13203964,
+              0
+            ],
+            "spellZones": [
+              0,
+              0,
+              34298391,
+              53094821,
+              0,
+              7293697
+            ],
+            "monsterStances": [
+              "atk",
+              "",
+              "",
+              "",
+              "def",
+              "atk",
+              ""
+            ],
+            "spellStances": [
+              "",
+              "",
+              "",
+              "set",
+              "",
+              ""
+            ]
           }
         }
       ],
       "steps": [
         {
-          "kind": "activate",
-          "cardId": 7293697,
-          "selectCard": [
-            72921536,
-            34314989
-          ]
-        },
-        {
           "kind": "summon",
-          "cardId": 72921536
+          "cardId": 72921536,
+          "place": "MZ3"
         },
         {
           "kind": "activate",
           "cardId": 72921536,
-          "selectNextCard": [
-            53183600,
-            34314989
-          ]
+          "place": "MZ3"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45536531,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "summon",
+          "cardId": 45536531,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 65458948,
+          "place": "MZ1",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 66011101,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 66011101,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ1",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 94259633,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 50277355,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 50277355,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 91500017,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34314989
+        },
+        {
+          "kind": "activate",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 58036229,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 5043010,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 58036229
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 58036229,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 5043010,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34314989
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 27519978,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 27519978,
+          "place": "MZ2"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 34314989,
+          "place": "MZ4",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45112597,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45112597,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 34314989,
+          "place": "MZ4",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 27519978,
+          "place": "MZ1"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45112597,
+          "place": "MZ3"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 7594154,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7594154,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST4"
+        },
+        {
+          "kind": "set",
+          "cardId": 53094821,
+          "place": "ST4",
+          "stance": "set"
         }
       ],
       "endBoard": {
         "monsters": [
-          53183600
+          27519978,
+          72921536,
+          13203964
         ],
         "spells": [
+          34298391,
+          53094821,
           7293697
         ],
-        "grave": []
+        "grave": [
+          7293697,
+          7293697,
+          45536531,
+          66011101,
+          91500017,
+          71808988,
+          5043010,
+          45112597,
+          34314989,
+          92422871,
+          7594154,
+          13203964,
+          89997728
+        ],
+        "banished": [
+          50277355,
+          94259633,
+          58036229
+        ],
+        "monsterZones": [
+          27519978,
+          0,
+          0,
+          0,
+          72921536,
+          13203964,
+          0
+        ],
+        "spellZones": [
+          0,
+          0,
+          34298391,
+          53094821,
+          0,
+          7293697
+        ],
+        "monsterStances": [
+          "atk",
+          "",
+          "",
+          "",
+          "def",
+          "atk",
+          ""
+        ],
+        "spellStances": [
+          "",
+          "",
+          "",
+          "set",
+          "",
+          ""
+        ]
+      }
+    },
+    {
+      "situationId": "first-going-comic-cat-no-extenders-alternative",
+      "title": "First going: Comic Cat + No extenders (Alternative)",
+      "priority": -1,
+      "notes": "Es un “one card combo” menos eficiente, pero interesante. La idea es dejar a “Number 41: Bagooska the Terribly Tired Tapir” en el campo\n\n- Aquí NO es objetivo obtener al ilusionista oscuro lo más pronto posible.\n- Es importante reciclar efectos seleccionando con el field spell a ciertos monsters como “Funny Dark Rabbit”, “Blue-Eyes Toon Ultimate Dragon”, porque sus efecto son “soft” una vez por turno, lo que quiere decir que, si sale del campo y regresa, se considera una nueva carta y puede activar de nuevo sus efectos. - Aquí no usamos a “Evil Box”\n- Es importante ciertas cartas en cementerio, porque en turno del oponente pueden activar efectos para interrumpir jugadas o como targets para recuperar cartas al campo. Ejemplo; en el main phase 1 del oponente, activar \"Charmer Quartet in Bloom\" con targets “Toon World the Perfect World” para invocarse en Monster Zone 3, y “Firewall Dragon” en Monster Zone 2. También usar “Toon Bookmark”, “Cyberse Desavewurm” para activarse en caso de proteger de destrucción al field spell o el ciberso para negar activación.\n\nPosteriormente seguir el orden de invocaciones para poder invocar los monstruos enlace que necesitamos en el orden específico y lugar donde se invocan en el replay, para que posteriormente los boss monsters puedan hacer mejor sus efectos; como es el caso de \"Firewall Dragon” el cual tiene que estar co-linkeado para su efecto de levantar a la mano monstruos. \n\nEl campo objetivo consiste en dejar:\n\n- Extra Monster Zone: Perfectron Hydradrive Dragon\n- Monster Zone 1: Charmer Quartet in Bloom\n- Monster Zone 5: Number 41: Bagooska the Terribly Tired Tapir (defense position)\n- Field Zone: Toon World the Perfect World\n- Magic/Trap Zone 3: Mind Scan\n- Graveyard: Cyberse Desavewurm\n- Graveyard:  Zenna's Deceiving Doll Maidens\n- Graveyard:  Perfectron Hydradrive Dragon\n- Graveyard:  Firewall Dragon\n- Graveyard:  Toon Bookmark",
+      "when": {
+        "going": "first",
+        "handContains": [
+          72921536
+        ],
+        "handExcludes": [
+          45536531
+        ]
+      },
+      "examples": [
+        {
+          "sourceReplay": "Comic Cat + Bagooska.yrpX",
+          "notes": "Es un “one card combo” menos eficiente, pero interesante. La idea es dejar a “Number 41: Bagooska the Terribly Tired Tapir” en el campo\n\n- Aquí NO es objetivo obtener al ilusionista oscuro lo más pronto posible.\n- Es importante reciclar efectos seleccionando con el field spell a ciertos monsters como “Funny Dark Rabbit”, “Blue-Eyes Toon Ultimate Dragon”, porque sus efecto son “soft” una vez por turno, lo que quiere decir que, si sale del campo y regresa, se considera una nueva carta y puede activar de nuevo sus efectos. - Aquí no usamos a “Evil Box”\n- Es importante ciertas cartas en cementerio, porque en turno del oponente pueden activar efectos para interrumpir jugadas o como targets para recuperar cartas al campo. Ejemplo; en el main phase 1 del oponente, activar \"Charmer Quartet in Bloom\" con targets “Toon World the Perfect World” para invocarse en Monster Zone 3, y “Firewall Dragon” en Monster Zone 2. También usar “Toon Bookmark”, “Cyberse Desavewurm” para activarse en caso de proteger de destrucción al field spell o el ciberso para negar activación.\n\nPosteriormente seguir el orden de invocaciones para poder invocar los monstruos enlace que necesitamos en el orden específico y lugar donde se invocan en el replay, para que posteriormente los boss monsters puedan hacer mejor sus efectos; como es el caso de \"Firewall Dragon” el cual tiene que estar co-linkeado para su efecto de levantar a la mano monstruos. \n\nEl campo objetivo consiste en dejar:\n\n- Extra Monster Zone: Perfectron Hydradrive Dragon\n- Monster Zone 1: Charmer Quartet in Bloom\n- Monster Zone 5: Number 41: Bagooska the Terribly Tired Tapir (defense position)\n- Field Zone: Toon World the Perfect World\n- Magic/Trap Zone 3: Mind Scan\n- Graveyard: Cyberse Desavewurm\n- Graveyard:  Zenna's Deceiving Doll Maidens\n- Graveyard:  Perfectron Hydradrive Dragon\n- Graveyard:  Firewall Dragon\n- Graveyard:  Toon Bookmark",
+          "openingHand": [
+            72921536
+          ],
+          "steps": [
+            {
+              "kind": "summon",
+              "cardId": 72921536,
+              "place": "MZ3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 72921536,
+              "place": "MZ3"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45536531,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "summon",
+              "cardId": 45536531,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45536531,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7293697,
+              "place": "Campo"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 65458948,
+              "place": "MZ1",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 66011101,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 66011101,
+              "place": "MZ3",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ1",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 94259633,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 50277355,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 50277355,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "activate",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 71808988,
+              "place": "MZ1"
+            },
+            {
+              "kind": "activate",
+              "cardId": 91500017,
+              "place": "ST3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34314989
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 58036229,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 5043010,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 58036229
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 58036229,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 5043010,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 34314989
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 72921536,
+              "place": "MZ1",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 27519978,
+              "place": "MZ2"
+            },
+            {
+              "kind": "activate",
+              "cardId": 27519978,
+              "place": "MZ2"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 34314989,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45536531,
+              "place": "MZ4",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45112597,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 45112597,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 34314989,
+              "place": "MZ5",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45536531,
+              "place": "MZ4",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 27519978,
+              "place": "MZ1"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 45112597,
+              "place": "MZ3"
+            },
+            {
+              "kind": "activate",
+              "cardId": 89997728,
+              "place": "ST2"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 65458948,
+              "place": "MZ2",
+              "stance": "def"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 7594154,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 7594154,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "activate",
+              "cardId": 13203964,
+              "place": "EMZ"
+            },
+            {
+              "kind": "spsummon",
+              "cardId": 90590303,
+              "place": "MZ5",
+              "stance": "def"
+            }
+          ],
+          "endBoard": {
+            "monsters": [
+              27519978,
+              90590303,
+              13203964
+            ],
+            "spells": [
+              34298391,
+              7293697
+            ],
+            "grave": [
+              7293697,
+              7293697,
+              66011101,
+              91500017,
+              71808988,
+              72921536,
+              5043010,
+              89997728,
+              65458948,
+              45112597,
+              92422871,
+              7594154,
+              13203964
+            ],
+            "banished": [
+              50277355,
+              94259633,
+              58036229
+            ],
+            "monsterZones": [
+              27519978,
+              0,
+              0,
+              0,
+              90590303,
+              13203964,
+              0
+            ],
+            "spellZones": [
+              0,
+              0,
+              34298391,
+              0,
+              0,
+              7293697
+            ],
+            "monsterStances": [
+              "atk",
+              "",
+              "",
+              "",
+              "def",
+              "atk",
+              ""
+            ],
+            "spellStances": [
+              "",
+              "",
+              "",
+              "",
+              "",
+              ""
+            ]
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "summon",
+          "cardId": 72921536,
+          "place": "MZ3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 72921536,
+          "place": "MZ3"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45536531,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "summon",
+          "cardId": 45536531,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45536531,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7293697,
+          "place": "Campo"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 65458948,
+          "place": "MZ1",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 66011101,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 66011101,
+          "place": "MZ3",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ1",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 94259633,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 50277355,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 50277355,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "activate",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 71808988,
+          "place": "MZ1"
+        },
+        {
+          "kind": "activate",
+          "cardId": 91500017,
+          "place": "ST3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34314989
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 58036229,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 5043010,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 58036229
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 58036229,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 5043010,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 34314989
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 72921536,
+          "place": "MZ1",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 27519978,
+          "place": "MZ2"
+        },
+        {
+          "kind": "activate",
+          "cardId": 27519978,
+          "place": "MZ2"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 34314989,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45536531,
+          "place": "MZ4",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45112597,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 45112597,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 34314989,
+          "place": "MZ5",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45536531,
+          "place": "MZ4",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 27519978,
+          "place": "MZ1"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 45112597,
+          "place": "MZ3"
+        },
+        {
+          "kind": "activate",
+          "cardId": 89997728,
+          "place": "ST2"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 65458948,
+          "place": "MZ2",
+          "stance": "def"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 7594154,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 7594154,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "activate",
+          "cardId": 13203964,
+          "place": "EMZ"
+        },
+        {
+          "kind": "spsummon",
+          "cardId": 90590303,
+          "place": "MZ5",
+          "stance": "def"
+        }
+      ],
+      "endBoard": {
+        "monsters": [
+          27519978,
+          90590303,
+          13203964
+        ],
+        "spells": [
+          34298391,
+          7293697
+        ],
+        "grave": [
+          7293697,
+          7293697,
+          66011101,
+          91500017,
+          71808988,
+          72921536,
+          5043010,
+          89997728,
+          65458948,
+          45112597,
+          92422871,
+          7594154,
+          13203964
+        ],
+        "banished": [
+          50277355,
+          94259633,
+          58036229
+        ],
+        "monsterZones": [
+          27519978,
+          0,
+          0,
+          0,
+          90590303,
+          13203964,
+          0
+        ],
+        "spellZones": [
+          0,
+          0,
+          34298391,
+          0,
+          0,
+          7293697
+        ],
+        "monsterStances": [
+          "atk",
+          "",
+          "",
+          "",
+          "def",
+          "atk",
+          ""
+        ],
+        "spellStances": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
       }
     }
   ]

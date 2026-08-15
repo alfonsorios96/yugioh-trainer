@@ -6,6 +6,7 @@ import {
 import { ReplayWalkthroughView, type WalkthroughView } from "./ReplayWalkthrough";
 import { resolveCardCatalog } from "./lib/cardCatalog";
 import {
+  displayReviewSeat,
   deleteMatchReview,
   getMatchReview,
   listReplayCatalog,
@@ -30,7 +31,10 @@ function winnerLabel(winner: MatchReviewSummary["winner"]): string {
 }
 
 function replayTitle(row: ReplayHistoryRow): string {
-  if (row.review) return `${row.review.youName} vs ${row.review.oppName}`;
+  if (row.review) {
+    const seated = displayReviewSeat(row.review);
+    return `${seated.youName} vs ${seated.oppName}`;
+  }
   const parsed = parseReplayFilename(row.file.name);
   if (parsed.player || parsed.opponent) {
     return `${parsed.player ?? "?"} vs ${parsed.opponent ?? "?"}`;
@@ -175,6 +179,7 @@ export function MatchHistoryPanel({
         <div className="history-list">
           {rows.map((row) => {
             const saved = row.review;
+            const seated = saved ? displayReviewSeat(saved) : null;
             return (
               <article
                 key={row.file.path}
@@ -186,7 +191,7 @@ export function MatchHistoryPanel({
                     {row.file.name} · {formatWhen(row.file.modifiedMs)}
                   </span>
                   <span className="history-card-tags">
-                    {saved ? (
+                    {saved && seated ? (
                       <>
                         <span
                           className={`pill ${saved.source === "llm" ? "ok" : "warn"}`}
@@ -194,7 +199,10 @@ export function MatchHistoryPanel({
                           {saved.source === "llm" ? "IA" : "estático"}
                           {saved.usedModel ? ` · ${saved.usedModel}` : ""}
                         </span>
-                        <span className="pill">{winnerLabel(saved.winner)}</span>
+                        <span className="pill">
+                          {seated.going === "second" ? "Going 2nd" : "Going 1st"}
+                        </span>
+                        <span className="pill">{winnerLabel(seated.winner)}</span>
                         <span className="pill">{saved.stepCount} events</span>
                       </>
                     ) : (

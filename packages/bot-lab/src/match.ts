@@ -31,7 +31,8 @@ export function matchEndBoard(
   const missing = [
     ...matchZone(expected.monsters, actual.monsters),
     ...matchZone(expected.spells, actual.spells),
-    ...matchZone(expected.grave, actual.grave),
+    ...matchZone(expected.grave ?? [], actual.grave ?? []),
+    ...matchZone(expected.banished ?? [], actual.banished ?? []),
   ];
   return { ok: missing.length === 0, missing };
 }
